@@ -34,15 +34,17 @@ const FeaturedProducts = () => {
           </Link>
         </motion.div>
 
-        {/* Products Grid */}
+        {/* Products Row */}
         {loading ? (
           <div className="flex justify-center items-center py-16">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          <div className="flex flex-row gap-6 md:gap-8 overflow-x-auto pb-4 no-scrollbar">
             {featuredProducts.slice(0, 4).map((product, index) => (
-              <ProductCard key={product.id} product={product} index={index} />
+              <div key={product.id} className="flex-shrink-0 w-[280px] sm:w-[300px] lg:w-[320px]">
+                <ProductCard product={product} index={index} />
+              </div>
             ))}
           </div>
         )}
