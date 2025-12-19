@@ -7,11 +7,20 @@ const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image - Indian Fashion Style */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 overflow-hidden">
         <motion.img
           initial={{ scale: 1.1 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 1.5, ease: 'easeOut' }}
+          animate={{ 
+            scale: [1.1, 1.15, 1.1],
+            x: [0, 15, 0],
+            y: [0, -10, 0]
+          }}
+          transition={{ 
+            duration: 20, 
+            ease: 'easeInOut',
+            repeat: Infinity,
+            repeatType: 'reverse'
+          }}
           src="https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1920&q=80"
           alt="Indian Fashion Model"
           className="w-full h-full object-cover object-top"
