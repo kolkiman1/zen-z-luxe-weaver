@@ -19,23 +19,33 @@ interface DbProduct {
   is_featured: boolean | null;
 }
 
-const transformProduct = (dbProduct: DbProduct): Product => ({
-  id: dbProduct.id,
-  slug: dbProduct.slug,
-  name: dbProduct.name,
-  price: dbProduct.price,
-  originalPrice: dbProduct.original_price || undefined,
-  category: dbProduct.category as 'men' | 'women' | 'jewelry' | 'accessories',
-  subcategory: dbProduct.subcategory || '',
-  images: dbProduct.images || [],
-  sizes: dbProduct.sizes || undefined,
-  colors: Array.isArray(dbProduct.colors) ? (dbProduct.colors as { name: string; hex: string }[]) : undefined,
-  description: dbProduct.description || '',
-  details: [],
-  inStock: dbProduct.in_stock ?? true,
-  isNew: dbProduct.is_new ?? false,
-  isFeatured: dbProduct.is_featured ?? false,
-});
+const transformProduct = (dbProduct: DbProduct): Product => {
+  // Handle colors transformation - support both 'hex' and 'value' property names
+  const transformedColors = Array.isArray(dbProduct.colors)
+    ? dbProduct.colors.map((color: { name: string; hex?: string; value?: string }) => ({
+        name: color.name,
+        hex: color.hex || color.value || '#000000',
+      }))
+    : undefined;
+
+  return {
+    id: dbProduct.id,
+    slug: dbProduct.slug,
+    name: dbProduct.name,
+    price: dbProduct.price,
+    originalPrice: dbProduct.original_price || undefined,
+    category: dbProduct.category as 'men' | 'women' | 'jewelry' | 'accessories',
+    subcategory: dbProduct.subcategory || '',
+    images: dbProduct.images || [],
+    sizes: dbProduct.sizes || undefined,
+    colors: transformedColors,
+    description: dbProduct.description || '',
+    details: [],
+    inStock: dbProduct.in_stock ?? true,
+    isNew: dbProduct.is_new ?? false,
+    isFeatured: dbProduct.is_featured ?? false,
+  };
+};
 
 export const useProducts = (category?: string) => {
   const [products, setProducts] = useState<Product[]>([]);
