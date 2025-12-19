@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { ChevronLeft, CreditCard, Truck, Shield, Loader2 } from 'lucide-react';
+import { ChevronLeft, CreditCard, Truck, Shield, Loader2, Smartphone, Wallet, AlertCircle } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
@@ -24,6 +24,8 @@ const CheckoutPage = () => {
   const [shippingMethod, setShippingMethod] = useState('standard');
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mobilePaymentNumber, setMobilePaymentNumber] = useState('');
+  const [transactionId, setTransactionId] = useState('');
   
   // Form state
   const [formData, setFormData] = useState({
@@ -38,12 +40,30 @@ const CheckoutPage = () => {
 
   const shippingCost = shippingMethod === 'express' ? 200 : totalPrice >= 5000 ? 0 : 100;
   const grandTotal = totalPrice + shippingCost;
+  
+  // COD requires 20% advance payment
+  const codAdvancePayment = Math.ceil(grandTotal * 0.2);
+  const codRemainingPayment = grandTotal - codAdvancePayment;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
       [e.target.id]: e.target.value
     }));
+  };
+
+  const validatePaymentStep = () => {
+    if (paymentMethod === 'bkash' || paymentMethod === 'nagad') {
+      if (!mobilePaymentNumber) {
+        toast.error('Please enter your mobile number');
+        return false;
+      }
+      if (!transactionId) {
+        toast.error('Please enter the transaction ID');
+        return false;
+      }
+    }
+    return true;
   };
 
   const handlePlaceOrder = async () => {
@@ -53,9 +73,19 @@ const CheckoutPage = () => {
       return;
     }
 
+    if (!validatePaymentStep()) return;
+
     setIsSubmitting(true);
 
     try {
+      // Build payment notes based on method
+      let paymentNotes = '';
+      if (paymentMethod === 'cod') {
+        paymentNotes = `COD - Advance: ${formatPrice(codAdvancePayment)}, Remaining: ${formatPrice(codRemainingPayment)}`;
+      } else if (paymentMethod === 'bkash' || paymentMethod === 'nagad') {
+        paymentNotes = `${paymentMethod.toUpperCase()} - TxID: ${transactionId}, From: ${mobilePaymentNumber}`;
+      }
+
       // Create the order
       const { data: order, error: orderError } = await supabase
         .from('orders')
@@ -66,6 +96,7 @@ const CheckoutPage = () => {
           shipping_city: formData.city,
           shipping_postal_code: formData.postalCode,
           payment_method: paymentMethod,
+          notes: paymentNotes,
           status: 'pending',
         })
         .select()
@@ -306,29 +337,132 @@ const CheckoutPage = () => {
                   <h2 className="font-display text-2xl">Payment Method</h2>
 
                   <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                    <label className="flex items-center gap-4 p-4 border border-border rounded-lg cursor-pointer hover:border-primary transition-colors">
-                      <RadioGroupItem value="cod" id="cod" />
+                    {/* Cash on Delivery */}
+                    <label className={`flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'cod' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary'}`}>
+                      <RadioGroupItem value="cod" id="cod" className="mt-1" />
                       <div className="flex-1">
-                        <p className="font-medium">Cash on Delivery</p>
-                        <p className="text-sm text-muted-foreground">Pay when you receive</p>
+                        <div className="flex items-center gap-2">
+                          <Truck size={20} className="text-primary" />
+                          <p className="font-medium">Cash on Delivery</p>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">Pay when you receive your order</p>
+                        <div className="mt-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                          <div className="flex items-start gap-2">
+                            <AlertCircle size={16} className="text-amber-500 mt-0.5 flex-shrink-0" />
+                            <div className="text-sm">
+                              <p className="font-medium text-amber-500">20% Advance Required</p>
+                              <p className="text-muted-foreground">Pay {formatPrice(codAdvancePayment)} via bKash/Nagad to confirm your order.</p>
+                              <p className="text-muted-foreground">Remaining {formatPrice(codRemainingPayment)} on delivery.</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <Truck size={24} className="text-primary" />
                     </label>
-                    <label className="flex items-center gap-4 p-4 border border-border rounded-lg cursor-pointer hover:border-primary transition-colors mt-3">
-                      <RadioGroupItem value="card" id="card" />
+
+                    {/* bKash */}
+                    <label className={`flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition-colors mt-3 ${paymentMethod === 'bkash' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary'}`}>
+                      <RadioGroupItem value="bkash" id="bkash" className="mt-1" />
                       <div className="flex-1">
-                        <p className="font-medium">Credit/Debit Card</p>
-                        <p className="text-sm text-muted-foreground">Secure payment via Stripe</p>
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-6 bg-[#E2136E] rounded flex items-center justify-center">
+                            <span className="text-white text-[10px] font-bold">bKash</span>
+                          </div>
+                          <p className="font-medium">bKash</p>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">Pay full amount via bKash mobile banking</p>
+                        {paymentMethod === 'bkash' && (
+                          <div className="mt-4 space-y-4">
+                            <div className="p-3 bg-[#E2136E]/10 border border-[#E2136E]/20 rounded-lg">
+                              <p className="text-sm font-medium mb-2">Send {formatPrice(grandTotal)} to:</p>
+                              <p className="text-lg font-mono font-bold text-[#E2136E]">01XXX-XXXXXX</p>
+                              <p className="text-xs text-muted-foreground mt-1">Personal bKash number</p>
+                            </div>
+                            <div>
+                              <Label htmlFor="bkashNumber">Your bKash Number</Label>
+                              <Input 
+                                id="bkashNumber"
+                                value={mobilePaymentNumber}
+                                onChange={(e) => setMobilePaymentNumber(e.target.value)}
+                                placeholder="01XXX-XXXXXX"
+                                className="mt-1"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="bkashTxId">Transaction ID</Label>
+                              <Input 
+                                id="bkashTxId"
+                                value={transactionId}
+                                onChange={(e) => setTransactionId(e.target.value)}
+                                placeholder="Enter bKash transaction ID"
+                                className="mt-1"
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <CreditCard size={24} className="text-primary" />
                     </label>
-                    <label className="flex items-center gap-4 p-4 border border-border rounded-lg cursor-pointer hover:border-primary transition-colors mt-3">
-                      <RadioGroupItem value="bkash" id="bkash" />
+
+                    {/* Nagad */}
+                    <label className={`flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition-colors mt-3 ${paymentMethod === 'nagad' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary'}`}>
+                      <RadioGroupItem value="nagad" id="nagad" className="mt-1" />
                       <div className="flex-1">
-                        <p className="font-medium">bKash</p>
-                        <p className="text-sm text-muted-foreground">Mobile payment</p>
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-6 bg-[#F6921E] rounded flex items-center justify-center">
+                            <span className="text-white text-[10px] font-bold">Nagad</span>
+                          </div>
+                          <p className="font-medium">Nagad</p>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">Pay full amount via Nagad mobile banking</p>
+                        {paymentMethod === 'nagad' && (
+                          <div className="mt-4 space-y-4">
+                            <div className="p-3 bg-[#F6921E]/10 border border-[#F6921E]/20 rounded-lg">
+                              <p className="text-sm font-medium mb-2">Send {formatPrice(grandTotal)} to:</p>
+                              <p className="text-lg font-mono font-bold text-[#F6921E]">01XXX-XXXXXX</p>
+                              <p className="text-xs text-muted-foreground mt-1">Personal Nagad number</p>
+                            </div>
+                            <div>
+                              <Label htmlFor="nagadNumber">Your Nagad Number</Label>
+                              <Input 
+                                id="nagadNumber"
+                                value={mobilePaymentNumber}
+                                onChange={(e) => setMobilePaymentNumber(e.target.value)}
+                                placeholder="01XXX-XXXXXX"
+                                className="mt-1"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="nagadTxId">Transaction ID</Label>
+                              <Input 
+                                id="nagadTxId"
+                                value={transactionId}
+                                onChange={(e) => setTransactionId(e.target.value)}
+                                placeholder="Enter Nagad transaction ID"
+                                className="mt-1"
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <div className="w-12 h-8 bg-pink-500 rounded flex items-center justify-center text-white text-xs font-bold">bKash</div>
+                    </label>
+
+                    {/* Card Payment */}
+                    <label className={`flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition-colors mt-3 ${paymentMethod === 'card' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary'}`}>
+                      <RadioGroupItem value="card" id="card" className="mt-1" />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <CreditCard size={20} className="text-primary" />
+                          <p className="font-medium">Credit/Debit Card</p>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">Pay securely with Visa, Mastercard, or American Express</p>
+                        {paymentMethod === 'card' && (
+                          <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
+                            <p className="text-sm text-muted-foreground flex items-center gap-2">
+                              <Shield size={16} className="text-primary" />
+                              Card payment will be processed securely after order confirmation.
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </label>
                   </RadioGroup>
 
@@ -336,7 +470,9 @@ const CheckoutPage = () => {
                     <Button variant="outline" onClick={() => setStep(1)} className="flex-1 py-6">
                       Back
                     </Button>
-                    <Button onClick={() => setStep(3)} className="flex-1 btn-primary py-6">
+                    <Button onClick={() => {
+                      if (validatePaymentStep()) setStep(3);
+                    }} className="flex-1 btn-primary py-6">
                       Review Order
                     </Button>
                   </div>
@@ -379,6 +515,29 @@ const CheckoutPage = () => {
                       {formData.city}, {formData.postalCode}<br />
                       {formData.phone}
                     </p>
+                  </div>
+
+                  {/* Payment Summary */}
+                  <div className="p-4 bg-card rounded-lg space-y-2">
+                    <h4 className="font-medium">Payment Method:</h4>
+                    <p className="text-sm text-muted-foreground capitalize">
+                      {paymentMethod === 'cod' && 'Cash on Delivery'}
+                      {paymentMethod === 'bkash' && 'bKash Mobile Banking'}
+                      {paymentMethod === 'nagad' && 'Nagad Mobile Banking'}
+                      {paymentMethod === 'card' && 'Credit/Debit Card'}
+                    </p>
+                    {paymentMethod === 'cod' && (
+                      <div className="mt-2 text-sm">
+                        <p className="text-amber-500">Advance Payment: {formatPrice(codAdvancePayment)}</p>
+                        <p className="text-muted-foreground">Pay on Delivery: {formatPrice(codRemainingPayment)}</p>
+                      </div>
+                    )}
+                    {(paymentMethod === 'bkash' || paymentMethod === 'nagad') && (
+                      <div className="mt-2 text-sm text-muted-foreground">
+                        <p>Transaction ID: {transactionId}</p>
+                        <p>From: {mobilePaymentNumber}</p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-3 p-4 bg-card rounded-lg">
@@ -446,6 +605,20 @@ const CheckoutPage = () => {
                     <span>Total</span>
                     <span className="text-primary">{formatPrice(grandTotal)}</span>
                   </div>
+                  
+                  {/* COD Advance Payment Info */}
+                  {paymentMethod === 'cod' && (
+                    <div className="pt-3 border-t border-border space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-amber-500">Advance (20%)</span>
+                        <span className="text-amber-500">{formatPrice(codAdvancePayment)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">On Delivery</span>
+                        <span>{formatPrice(codRemainingPayment)}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
