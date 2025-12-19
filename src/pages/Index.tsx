@@ -8,6 +8,7 @@ import FeaturedProducts from '@/components/home/FeaturedProducts';
 import NewArrivals from '@/components/home/NewArrivals';
 import BrandBanner from '@/components/home/BrandBanner';
 import Features from '@/components/home/Features';
+import { ProductChatbot } from '@/components/chat/ProductChatbot';
 
 const Index = () => {
   return (
@@ -49,6 +50,7 @@ const Index = () => {
       </main>
 
       <Footer />
+      <ProductChatbot />
     </>
   );
 };
