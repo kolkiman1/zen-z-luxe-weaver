@@ -42,27 +42,39 @@ const Index = () => {
       <CartSidebar />
 
       <main className="overflow-hidden">
-        <Hero />
+        <section className="scroll-snap-section">
+          <Hero />
+        </section>
         
-        <ParallaxSection speed={0.1} fadeIn>
-          <Features />
-        </ParallaxSection>
+        <section className="scroll-snap-section">
+          <ParallaxSection speed={0.1} fadeIn>
+            <Features />
+          </ParallaxSection>
+        </section>
         
-        <ParallaxSection speed={0.15} direction="up" fadeIn>
-          <NewArrivals />
-        </ParallaxSection>
+        <section className="scroll-snap-section">
+          <ParallaxSection speed={0.15} direction="up" fadeIn>
+            <NewArrivals />
+          </ParallaxSection>
+        </section>
         
-        <ParallaxSection speed={0.1} fadeIn>
-          <Categories />
-        </ParallaxSection>
+        <section className="scroll-snap-section">
+          <ParallaxSection speed={0.1} fadeIn>
+            <Categories />
+          </ParallaxSection>
+        </section>
         
-        <ParallaxSection speed={0.15} direction="up" fadeIn>
-          <FeaturedProducts />
-        </ParallaxSection>
+        <section className="scroll-snap-section">
+          <ParallaxSection speed={0.15} direction="up" fadeIn>
+            <FeaturedProducts />
+          </ParallaxSection>
+        </section>
         
-        <ParallaxSection speed={0.2} fadeIn scale>
-          <BrandBanner />
-        </ParallaxSection>
+        <section className="scroll-snap-section">
+          <ParallaxSection speed={0.2} fadeIn scale>
+            <BrandBanner />
+          </ParallaxSection>
+        </section>
       </main>
 
       <Footer />
