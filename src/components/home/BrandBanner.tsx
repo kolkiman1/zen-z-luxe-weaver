@@ -1,17 +1,33 @@
-import { motion } from 'framer-motion';
+import { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { AnimatedButton } from '@/components/ui/animated-button';
 
 const BrandBanner = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"]
+  });
+
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
+  const backgroundScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.1, 1.15, 1.2]);
+
   return (
-    <section className="relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0">
-        <img
-          src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1920&q=80"
-          alt="Indian Luxury Fashion"
-          className="w-full h-full object-cover"
-        />
+    <section ref={sectionRef} className="relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden">
+      {/* Background with Parallax */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          className="absolute inset-0 -top-[20%] -bottom-[20%]"
+          style={{ y: backgroundY, scale: backgroundScale }}
+        >
+          <img
+            src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1920&q=80"
+            alt="Indian Luxury Fashion"
+            className="w-full h-full object-cover"
+          />
+        </motion.div>
         <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />
       </div>
 
