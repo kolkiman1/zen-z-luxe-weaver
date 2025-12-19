@@ -74,21 +74,21 @@ export const useProducts = (category?: string) => {
   return { products, loading, error };
 };
 
-export const useProduct = (id: string) => {
+export const useProduct = (slug: string) => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
-      if (!id) return;
+      if (!slug) return;
       
       try {
         setLoading(true);
         const { data, error } = await supabase
           .from('products')
           .select('*')
-          .eq('id', id)
+          .eq('slug', slug)
           .maybeSingle();
 
         if (error) throw error;
@@ -103,7 +103,7 @@ export const useProduct = (id: string) => {
     };
 
     fetchProduct();
-  }, [id]);
+  }, [slug]);
 
   return { product, loading, error };
 };
