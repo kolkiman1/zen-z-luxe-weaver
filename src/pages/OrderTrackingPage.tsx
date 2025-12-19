@@ -11,7 +11,8 @@ import {
   Home,
   ArrowLeft,
   MapPin,
-  CreditCard
+  CreditCard,
+  XCircle
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -19,6 +20,19 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 
 interface OrderItem {
   id: string;
@@ -84,6 +98,7 @@ const OrderTrackingPage = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -134,6 +149,25 @@ const OrderTrackingPage = () => {
       nagad: 'Nagad',
     };
     return labels[method] || method;
+  };
+
+  const handleCancelOrder = async () => {
+    if (!order || !user) return;
+    
+    setCancelling(true);
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({ status: 'cancelled' })
+      .eq('id', order.id)
+      .eq('user_id', user.id);
+
+    if (updateError) {
+      toast.error('Failed to cancel order. Please try again.');
+    } else {
+      setOrder({ ...order, status: 'cancelled' });
+      toast.success('Order cancelled successfully');
+    }
+    setCancelling(false);
   };
 
   if (authLoading || loading) {
@@ -207,9 +241,35 @@ const OrderTrackingPage = () => {
                   })}
                 </p>
               </div>
-              <Badge className={`text-sm px-4 py-1.5 ${statusColors[order.status]}`}>
-                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-              </Badge>
+              <div className="flex items-center gap-3">
+                <Badge className={`text-sm px-4 py-1.5 ${statusColors[order.status]}`}>
+                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                </Badge>
+                {order.status === 'pending' && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm" disabled={cancelling}>
+                        <XCircle size={16} className="mr-1" />
+                        Cancel Order
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Cancel this order?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. Your order will be cancelled and you will not receive the items.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Keep Order</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleCancelOrder} disabled={cancelling}>
+                          {cancelling ? 'Cancelling...' : 'Yes, Cancel Order'}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
             </div>
 
             {/* Status Tracker */}
