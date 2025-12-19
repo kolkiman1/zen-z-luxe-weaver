@@ -1,9 +1,10 @@
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useFeaturedProducts } from '@/hooks/useProducts';
 import ProductCard from '@/components/products/ProductCard';
+import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 import { Button } from '@/components/ui/button';
 
 const FeaturedProducts = () => {
@@ -101,8 +102,18 @@ const FeaturedProducts = () => {
 
         {/* Products Row */}
         {loading ? (
-          <div className="flex justify-center items-center py-12 sm:py-16">
-            <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-primary" />
+          <div className="flex flex-row gap-4 sm:gap-6 md:gap-8 overflow-x-auto pb-4 no-scrollbar">
+            {[...Array(6)].map((_, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: index * 0.05 }}
+                className="flex-shrink-0 w-[200px] sm:w-[260px] md:w-[280px] lg:w-[300px]"
+              >
+                <ProductCardSkeleton />
+              </motion.div>
+            ))}
           </div>
         ) : (
           <motion.div
