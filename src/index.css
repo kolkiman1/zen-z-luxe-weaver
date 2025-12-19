@@ -148,6 +148,19 @@
   }
 }
 
+/* Scroll Snap Container */
+.scroll-snap-container {
+  scroll-snap-type: y proximity;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+/* Scroll Snap Section */
+.scroll-snap-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
 @layer components {
   /* Glass Effect */
   .glass {
