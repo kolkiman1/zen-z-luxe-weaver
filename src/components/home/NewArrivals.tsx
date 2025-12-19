@@ -9,8 +9,23 @@ const NewArrivals = () => {
   const { products: newArrivals, loading } = useNewArrivals();
 
   return (
-    <section className="section-padding bg-background">
-      <div className="container-luxury">
+    <section className="relative section-padding overflow-hidden">
+      {/* Video Background */}
+      <div className="absolute inset-0 z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+        >
+          <source src="/videos/new-arrivals-bg.mp4" type="video/mp4" />
+        </video>
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
+      </div>
+
+      <div className="container-luxury relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
