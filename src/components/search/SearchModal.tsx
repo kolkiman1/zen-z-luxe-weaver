@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, ArrowRight } from 'lucide-react';
+import { Search, X, ArrowRight, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { searchProducts, formatPrice, Product } from '@/lib/data';
+import { formatPrice, Product } from '@/lib/data';
+import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 
 interface SearchModalProps {
@@ -13,6 +14,7 @@ interface SearchModalProps {
 const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -22,12 +24,49 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
   }, [isOpen]);
 
   useEffect(() => {
-    if (query.length > 1) {
-      const searchResults = searchProducts(query);
-      setResults(searchResults.slice(0, 6));
-    } else {
-      setResults([]);
-    }
+    const searchProducts = async () => {
+      if (query.length < 2) {
+        setResults([]);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .or(`name.ilike.%${query}%,category.ilike.%${query}%,subcategory.ilike.%${query}%`)
+          .limit(6);
+
+        if (error) throw error;
+
+        const transformedProducts = (data || []).map((p): Product => ({
+          id: p.id,
+          name: p.name,
+          price: p.price,
+          originalPrice: p.original_price || undefined,
+          category: p.category as 'men' | 'women' | 'jewelry' | 'accessories',
+          subcategory: p.subcategory || '',
+          images: p.images || [],
+          sizes: p.sizes || undefined,
+          colors: Array.isArray(p.colors) ? (p.colors as { name: string; hex: string }[]) : undefined,
+          description: p.description || '',
+          details: [],
+          inStock: p.in_stock ?? true,
+          isNew: p.is_new ?? false,
+          isFeatured: p.is_featured ?? false,
+        }));
+
+        setResults(transformedProducts);
+      } catch (err) {
+        console.error('Search error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const debounce = setTimeout(searchProducts, 300);
+    return () => clearTimeout(debounce);
   }, [query]);
 
   useEffect(() => {
@@ -82,11 +121,14 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                   placeholder="Search for products..."
                   className="w-full h-16 pl-14 pr-4 bg-secondary border-border text-lg font-body placeholder:text-muted-foreground focus:border-primary"
                 />
+                {loading && (
+                  <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 animate-spin text-muted-foreground" />
+                )}
               </div>
 
               {/* Results */}
               <div className="mt-8">
-                {query.length > 1 && results.length === 0 ? (
+                {query.length > 1 && !loading && results.length === 0 ? (
                   <p className="text-center text-muted-foreground">
                     No products found for "{query}"
                   </p>
@@ -138,7 +180,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                 <div className="mt-12">
                   <h3 className="text-sm text-muted-foreground mb-4">Popular Searches</h3>
                   <div className="flex flex-wrap gap-2">
-                    {['Overcoat', 'Silk Dress', 'Gold Jewelry', 'Leather Belt', 'Watch'].map(
+                    {['Saree', 'Sherwani', 'Kurta', 'Lehenga', 'Jewelry', 'Anarkali'].map(
                       (term) => (
                         <button
                           key={term}

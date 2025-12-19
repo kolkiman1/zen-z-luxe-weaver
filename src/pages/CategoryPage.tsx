@@ -2,21 +2,22 @@ import { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { SlidersHorizontal, Grid3X3, Grid2X2, X } from 'lucide-react';
+import { SlidersHorizontal, Grid3X3, Grid2X2, X, Loader2 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
 import ProductCard from '@/components/products/ProductCard';
-import { products, categories, Product } from '@/lib/data';
+import { categories } from '@/lib/data';
+import { useProducts } from '@/hooks/useProducts';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 
 const subcategories: Record<string, string[]> = {
-  men: ['Outerwear', 'Knitwear', 'Blazers', 'Shirts', 'Pants'],
-  women: ['Dresses', 'Tops', 'Bags', 'Shoes', 'Skirts'],
-  jewelry: ['Necklaces', 'Earrings', 'Rings', 'Bracelets', 'Watches'],
-  accessories: ['Belts', 'Eyewear', 'Watches', 'Bags', 'Scarves'],
+  men: ['Sherwanis', 'Kurtas', 'Pathani', 'Traditional', 'Jackets', 'Blazers', 'Outerwear', 'Knitwear', 'Shirts', 'Pants'],
+  women: ['Sarees', 'Lehengas', 'Suits', 'Kurtas', 'Dresses', 'Tops', 'Bags', 'Shoes', 'Skirts'],
+  jewelry: ['Sets', 'Necklaces', 'Earrings', 'Rings', 'Bracelets', 'Bangles', 'Anklets'],
+  accessories: ['Dupattas', 'Belts', 'Eyewear', 'Watches', 'Bags', 'Scarves'],
 };
 
 const CategoryPage = () => {
@@ -24,22 +25,16 @@ const CategoryPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [gridCols, setGridCols] = useState(3);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState([0, 50000]);
+  const [priceRange, setPriceRange] = useState([0, 100000]);
   const [sortBy, setSortBy] = useState('featured');
 
+  const { products, loading, error } = useProducts(slug);
+
   const category = categories.find((c) => c.slug === slug);
-  const categoryName = category?.name || 'All Products';
+  const categoryName = category?.name || (slug === 'new-arrivals' ? 'New Arrivals' : 'All Products');
 
   const filteredProducts = useMemo(() => {
-    let filtered: Product[] = [];
-
-    if (slug === 'all' || slug === 'new-arrivals') {
-      filtered = slug === 'new-arrivals' 
-        ? products.filter((p) => p.isNew) 
-        : [...products];
-    } else {
-      filtered = products.filter((p) => p.category === slug);
-    }
+    let filtered = [...products];
 
     // Apply subcategory filter
     if (selectedSubcategories.length > 0) {
@@ -67,7 +62,7 @@ const CategoryPage = () => {
     }
 
     return filtered;
-  }, [slug, selectedSubcategories, priceRange, sortBy]);
+  }, [products, selectedSubcategories, priceRange, sortBy]);
 
   const toggleSubcategory = (sub: string) => {
     setSelectedSubcategories((prev) =>
@@ -77,9 +72,16 @@ const CategoryPage = () => {
 
   const clearFilters = () => {
     setSelectedSubcategories([]);
-    setPriceRange([0, 50000]);
+    setPriceRange([0, 100000]);
     setSortBy('featured');
   };
+
+  // Get unique subcategories from actual products
+  const availableSubcategories = useMemo(() => {
+    const fromProducts = [...new Set(products.map(p => p.subcategory).filter(Boolean))];
+    const predefined = slug && subcategories[slug] ? subcategories[slug] : [];
+    return [...new Set([...predefined, ...fromProducts])];
+  }, [products, slug]);
 
   return (
     <>
@@ -104,7 +106,7 @@ const CategoryPage = () => {
           >
             <h1 className="font-display text-4xl md:text-5xl mb-3">{categoryName}</h1>
             <p className="text-muted-foreground">
-              {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+              {loading ? 'Loading...' : `${filteredProducts.length} ${filteredProducts.length === 1 ? 'product' : 'products'}`}
             </p>
           </motion.div>
 
@@ -159,7 +161,7 @@ const CategoryPage = () => {
             >
               <div className="w-[280px] pr-8">
                 {/* Clear Filters */}
-                {(selectedSubcategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 50000) && (
+                {(selectedSubcategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 100000) && (
                   <Button
                     variant="ghost"
                     onClick={clearFilters}
@@ -171,11 +173,11 @@ const CategoryPage = () => {
                 )}
 
                 {/* Subcategories */}
-                {slug && subcategories[slug] && (
+                {availableSubcategories.length > 0 && (
                   <div className="mb-8">
                     <h3 className="font-display text-lg mb-4">Category</h3>
-                    <div className="space-y-3">
-                      {subcategories[slug].map((sub) => (
+                    <div className="space-y-3 max-h-64 overflow-y-auto">
+                      {availableSubcategories.map((sub) => (
                         <label key={sub} className="flex items-center gap-3 cursor-pointer">
                           <Checkbox
                             checked={selectedSubcategories.includes(sub)}
@@ -194,7 +196,7 @@ const CategoryPage = () => {
                   <Slider
                     value={priceRange}
                     onValueChange={setPriceRange}
-                    max={50000}
+                    max={100000}
                     step={1000}
                     className="mb-4"
                   />
@@ -208,7 +210,16 @@ const CategoryPage = () => {
 
             {/* Products Grid */}
             <div className="flex-1">
-              {filteredProducts.length === 0 ? (
+              {loading ? (
+                <div className="flex justify-center items-center py-16">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+              ) : error ? (
+                <div className="text-center py-16">
+                  <h3 className="font-display text-xl mb-2">Error loading products</h3>
+                  <p className="text-muted-foreground">{error}</p>
+                </div>
+              ) : filteredProducts.length === 0 ? (
                 <div className="text-center py-16">
                   <h3 className="font-display text-xl mb-2">No products found</h3>
                   <p className="text-muted-foreground mb-6">

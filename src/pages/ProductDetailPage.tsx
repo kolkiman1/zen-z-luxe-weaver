@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, ShoppingBag, Minus, Plus, ChevronLeft, ChevronRight, Check, Truck, RefreshCw, Shield } from 'lucide-react';
+import { Heart, ShoppingBag, Minus, Plus, ChevronLeft, ChevronRight, Check, Truck, RefreshCw, Shield, Loader2 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
 import ProductCard from '@/components/products/ProductCard';
-import { products, formatPrice } from '@/lib/data';
+import { formatPrice } from '@/lib/data';
+import { useProduct, useRelatedProducts } from '@/hooks/useProducts';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
@@ -15,17 +16,39 @@ import { toast } from 'sonner';
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const product = products.find((p) => p.id === id);
+  const { product, loading, error } = useProduct(id || '');
+  const { products: relatedProducts } = useRelatedProducts(product?.category || '', id || '');
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState<string | undefined>(product?.sizes?.[0]);
-  const [selectedColor, setSelectedColor] = useState(product?.colors?.[0]);
+  const [selectedSize, setSelectedSize] = useState<string | undefined>();
+  const [selectedColor, setSelectedColor] = useState<{ name: string; hex: string } | undefined>();
   const [quantity, setQuantity] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
 
-  if (!product) {
+  useEffect(() => {
+    if (product?.sizes?.length) {
+      setSelectedSize(product.sizes[0]);
+    }
+    if (product?.colors?.length) {
+      setSelectedColor(product.colors[0]);
+    }
+  }, [product]);
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <main className="pt-24 pb-16 min-h-screen flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error || !product) {
     return (
       <>
         <Header />
@@ -41,10 +64,6 @@ const ProductDetailPage = () => {
       </>
     );
   }
-
-  const relatedProducts = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
 
   const inWishlist = isInWishlist(product.id);
 
@@ -202,7 +221,7 @@ const ProductDetailPage = () => {
               <p className="text-foreground/70 leading-relaxed">{product.description}</p>
 
               {/* Size Selection */}
-              {product.sizes && (
+              {product.sizes && product.sizes.length > 0 && (
                 <div>
                   <h3 className="font-medium mb-3">Size</h3>
                   <div className="flex flex-wrap gap-2">
@@ -224,7 +243,7 @@ const ProductDetailPage = () => {
               )}
 
               {/* Color Selection */}
-              {product.colors && (
+              {product.colors && product.colors.length > 0 && (
                 <div>
                   <h3 className="font-medium mb-3">
                     Color: <span className="text-muted-foreground">{selectedColor?.name}</span>
@@ -309,17 +328,19 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Details */}
-              <div className="pt-6 border-t border-border">
-                <h3 className="font-display text-lg mb-4">Product Details</h3>
-                <ul className="space-y-2">
-                  {product.details.map((detail, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm text-foreground/80">
-                      <Check size={16} className="text-primary flex-shrink-0 mt-0.5" />
-                      {detail}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {product.details && product.details.length > 0 && (
+                <div className="pt-6 border-t border-border">
+                  <h3 className="font-display text-lg mb-4">Product Details</h3>
+                  <ul className="space-y-2">
+                    {product.details.map((detail, index) => (
+                      <li key={index} className="flex items-start gap-2 text-sm text-foreground/80">
+                        <Check size={16} className="text-primary flex-shrink-0 mt-0.5" />
+                        {detail}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </motion.div>
           </div>
 

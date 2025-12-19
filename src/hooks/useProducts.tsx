@@ -28,7 +28,7 @@ const transformProduct = (dbProduct: DbProduct): Product => ({
   subcategory: dbProduct.subcategory || '',
   images: dbProduct.images || [],
   sizes: dbProduct.sizes || undefined,
-  colors: dbProduct.colors || undefined,
+  colors: Array.isArray(dbProduct.colors) ? (dbProduct.colors as { name: string; hex: string }[]) : undefined,
   description: dbProduct.description || '',
   details: [],
   inStock: dbProduct.in_stock ?? true,
@@ -72,6 +72,71 @@ export const useProducts = (category?: string) => {
   }, [category]);
 
   return { products, loading, error };
+};
+
+export const useProduct = (id: string) => {
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) return;
+      
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+
+        if (error) throw error;
+        if (data) {
+          setProduct(transformProduct(data));
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch product');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
+
+  return { product, loading, error };
+};
+
+export const useRelatedProducts = (category: string, excludeId: string) => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('category', category)
+          .neq('id', excludeId)
+          .limit(4);
+
+        if (error) throw error;
+        setProducts((data || []).map(transformProduct));
+      } catch (err) {
+        console.error('Error fetching related products:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (category && excludeId) {
+      fetchProducts();
+    }
+  }, [category, excludeId]);
+
+  return { products, loading };
 };
 
 export const useFeaturedProducts = () => {
