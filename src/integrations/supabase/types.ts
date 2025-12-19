@@ -267,7 +267,45 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      inquiries_user_view: {
+        Row: {
+          admin_notes: string | null
+          created_at: string | null
+          email: string | null
+          id: string | null
+          message: string | null
+          name: string | null
+          status: string | null
+          subject: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: never
+          created_at?: string | null
+          email?: string | null
+          id?: string | null
+          message?: string | null
+          name?: string | null
+          status?: string | null
+          subject?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: never
+          created_at?: string | null
+          email?: string | null
+          id?: string | null
+          message?: string | null
+          name?: string | null
+          status?: string | null
+          subject?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
