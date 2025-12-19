@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { motion } from 'framer-motion';
-import { SlidersHorizontal, Grid3X3, Grid2X2, X, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { SlidersHorizontal, Grid3X3, Grid2X2, X, Loader2, ChevronDown, ArrowUpDown } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
@@ -12,6 +12,19 @@ import { useProducts } from '@/hooks/useProducts';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 const subcategories: Record<string, string[]> = {
   men: ['Sherwanis', 'Kurtas', 'Pathani', 'Traditional', 'Jackets', 'Blazers', 'Outerwear', 'Knitwear', 'Shirts', 'Pants'],
@@ -83,6 +96,65 @@ const CategoryPage = () => {
     return [...new Set([...predefined, ...fromProducts])];
   }, [products, slug]);
 
+  const sortOptions = [
+    { value: 'featured', label: 'Featured' },
+    { value: 'newest', label: 'Newest' },
+    { value: 'price-low', label: 'Price: Low to High' },
+    { value: 'price-high', label: 'Price: High to Low' },
+  ];
+
+  const currentSortLabel = sortOptions.find(opt => opt.value === sortBy)?.label || 'Sort';
+
+  const FilterContent = () => (
+    <div className="space-y-6">
+      {/* Clear Filters */}
+      {(selectedSubcategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 100000) && (
+        <Button
+          variant="ghost"
+          onClick={clearFilters}
+          className="text-sm text-muted-foreground w-full justify-start"
+        >
+          <X size={16} className="mr-1" />
+          Clear all filters
+        </Button>
+      )}
+
+      {/* Subcategories */}
+      {availableSubcategories.length > 0 && (
+        <div>
+          <h3 className="font-display text-lg mb-4">Category</h3>
+          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {availableSubcategories.map((sub) => (
+              <label key={sub} className="flex items-center gap-3 cursor-pointer">
+                <Checkbox
+                  checked={selectedSubcategories.includes(sub)}
+                  onCheckedChange={() => toggleSubcategory(sub)}
+                />
+                <span className="text-sm">{sub}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Price Range */}
+      <div>
+        <h3 className="font-display text-lg mb-4">Price Range</h3>
+        <Slider
+          value={priceRange}
+          onValueChange={setPriceRange}
+          max={100000}
+          step={1000}
+          className="mb-4"
+        />
+        <div className="flex justify-between text-sm text-muted-foreground">
+          <span>৳{priceRange[0].toLocaleString()}</span>
+          <span>৳{priceRange[1].toLocaleString()}</span>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <Helmet>
@@ -111,40 +183,80 @@ const CategoryPage = () => {
           </motion.div>
 
           {/* Toolbar */}
-          <div className="flex items-center justify-between gap-4 mb-8 pb-6 border-b border-border">
+          <div className="flex items-center justify-between gap-2 sm:gap-4 mb-6 sm:mb-8 pb-4 sm:pb-6 border-b border-border">
+            {/* Desktop Filter Button */}
             <Button
               variant="outline"
               onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className="gap-2"
+              className="hidden lg:flex gap-2"
             >
               <SlidersHorizontal size={18} />
               Filters
+              {(selectedSubcategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 100000) && (
+                <span className="ml-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                  {selectedSubcategories.length + (priceRange[0] > 0 || priceRange[1] < 100000 ? 1 : 0)}
+                </span>
+              )}
             </Button>
 
-            <div className="flex items-center gap-4">
-              {/* Sort */}
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-secondary border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary"
-              >
-                <option value="featured">Featured</option>
-                <option value="newest">Newest</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-              </select>
+            {/* Mobile Filter Sheet */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="lg:hidden gap-2">
+                  <SlidersHorizontal size={16} />
+                  <span className="hidden xs:inline">Filters</span>
+                  {(selectedSubcategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 100000) && (
+                    <span className="w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                      {selectedSubcategories.length + (priceRange[0] > 0 || priceRange[1] < 100000 ? 1 : 0)}
+                    </span>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] sm:w-[350px]">
+                <SheetHeader>
+                  <SheetTitle className="font-display text-xl">Filters</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6">
+                  <FilterContent />
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            <div className="flex items-center gap-2 sm:gap-4">
+              {/* Sort Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+                    <ArrowUpDown size={16} className="hidden xs:block" />
+                    <span className="hidden sm:inline">{currentSortLabel}</span>
+                    <span className="sm:hidden">Sort</span>
+                    <ChevronDown size={14} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-card border-border">
+                  {sortOptions.map((option) => (
+                    <DropdownMenuItem
+                      key={option.value}
+                      onClick={() => setSortBy(option.value)}
+                      className={`cursor-pointer ${sortBy === option.value ? 'bg-primary/10 text-primary' : ''}`}
+                    >
+                      {option.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               {/* Grid Toggle */}
               <div className="hidden md:flex items-center gap-1 bg-secondary rounded-lg p-1">
                 <button
                   onClick={() => setGridCols(2)}
-                  className={`p-2 rounded ${gridCols === 2 ? 'bg-primary text-primary-foreground' : ''}`}
+                  className={`p-2 rounded transition-colors ${gridCols === 2 ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
                 >
                   <Grid2X2 size={18} />
                 </button>
                 <button
                   onClick={() => setGridCols(3)}
-                  className={`p-2 rounded ${gridCols === 3 ? 'bg-primary text-primary-foreground' : ''}`}
+                  className={`p-2 rounded transition-colors ${gridCols === 3 ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
                 >
                   <Grid3X3 size={18} />
                 </button>
@@ -153,58 +265,14 @@ const CategoryPage = () => {
           </div>
 
           <div className="flex gap-8">
-            {/* Filters Sidebar */}
+            {/* Filters Sidebar - Desktop */}
             <motion.aside
               initial={false}
               animate={{ width: isFilterOpen ? 280 : 0, opacity: isFilterOpen ? 1 : 0 }}
               className="hidden lg:block overflow-hidden flex-shrink-0"
             >
               <div className="w-[280px] pr-8">
-                {/* Clear Filters */}
-                {(selectedSubcategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 100000) && (
-                  <Button
-                    variant="ghost"
-                    onClick={clearFilters}
-                    className="mb-6 text-sm text-muted-foreground"
-                  >
-                    <X size={16} className="mr-1" />
-                    Clear all filters
-                  </Button>
-                )}
-
-                {/* Subcategories */}
-                {availableSubcategories.length > 0 && (
-                  <div className="mb-8">
-                    <h3 className="font-display text-lg mb-4">Category</h3>
-                    <div className="space-y-3 max-h-64 overflow-y-auto">
-                      {availableSubcategories.map((sub) => (
-                        <label key={sub} className="flex items-center gap-3 cursor-pointer">
-                          <Checkbox
-                            checked={selectedSubcategories.includes(sub)}
-                            onCheckedChange={() => toggleSubcategory(sub)}
-                          />
-                          <span className="text-sm">{sub}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Price Range */}
-                <div className="mb-8">
-                  <h3 className="font-display text-lg mb-4">Price Range</h3>
-                  <Slider
-                    value={priceRange}
-                    onValueChange={setPriceRange}
-                    max={100000}
-                    step={1000}
-                    className="mb-4"
-                  />
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>৳{priceRange[0].toLocaleString()}</span>
-                    <span>৳{priceRange[1].toLocaleString()}</span>
-                  </div>
-                </div>
+                <FilterContent />
               </div>
             </motion.aside>
 
