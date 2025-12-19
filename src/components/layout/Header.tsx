@@ -249,12 +249,22 @@ const Header = () => {
                   transition={{ delay: 0.5 }}
                 >
                   {user ? (
-                    <button
-                      onClick={handleSignOut}
-                      className="font-display text-2xl text-foreground"
-                    >
-                      Sign Out
-                    </button>
+                    <>
+                      <button
+                        onClick={handleSignOut}
+                        className="font-display text-2xl text-foreground"
+                      >
+                        Sign Out
+                      </button>
+                      {isAdmin && (
+                        <Link
+                          to="/admin"
+                          className="font-display text-2xl text-foreground"
+                        >
+                          Admin Dashboard
+                        </Link>
+                      )}
+                    </>
                   ) : (
                     <Link
                       to="/auth"
