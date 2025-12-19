@@ -138,7 +138,7 @@ const Hero = () => {
       {/* Content */}
       <div className="container-luxury relative z-10 pt-20 md:pt-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
-          {/* Badge with animated text */}
+          {/* Badge with animated text and glow */}
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -146,17 +146,31 @@ const Hero = () => {
             className="inline-flex items-center gap-2 mb-4 md:mb-6"
           >
             <motion.span 
-              className="px-4 py-2 md:px-6 md:py-3 bg-primary/10 border border-primary/30 rounded-full text-primary text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide flex items-center gap-2 overflow-hidden"
+              className="relative px-4 py-2 md:px-6 md:py-3 bg-primary/10 border border-primary/30 rounded-full text-primary text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide flex items-center gap-2 overflow-hidden"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
             >
+              {/* Glow pulse background */}
+              <motion.span
+                className="absolute inset-0 rounded-full bg-primary/5"
+                animate={{
+                  boxShadow: [
+                    "0 0 10px hsl(var(--primary) / 0.1), inset 0 0 10px hsl(var(--primary) / 0.05)",
+                    "0 0 25px hsl(var(--primary) / 0.25), inset 0 0 20px hsl(var(--primary) / 0.1)",
+                    "0 0 10px hsl(var(--primary) / 0.1), inset 0 0 10px hsl(var(--primary) / 0.05)"
+                  ],
+                  opacity: [0.5, 1, 0.5]
+                }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              />
               <motion.span
                 animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.2, 1] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="relative z-10"
               >
                 <Sparkles size={18} className="text-gold" />
               </motion.span>
-              <span className="flex">
+              <span className="flex relative z-10">
                 {"Bangladesh's Biggest Trendy Fashion Shop".split("").map((char, index) => (
                   <motion.span
                     key={index}
