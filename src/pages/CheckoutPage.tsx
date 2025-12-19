@@ -374,7 +374,7 @@ const CheckoutPage = () => {
                           <div className="mt-4 space-y-4">
                             <div className="p-3 bg-[#E2136E]/10 border border-[#E2136E]/20 rounded-lg">
                               <p className="text-sm font-medium mb-2">Send {formatPrice(grandTotal)} to:</p>
-                              <p className="text-lg font-mono font-bold text-[#E2136E]">01XXX-XXXXXX</p>
+                              <p className="text-lg font-mono font-bold text-[#E2136E]">01778763089</p>
                               <p className="text-xs text-muted-foreground mt-1">Personal bKash number</p>
                             </div>
                             <div>
