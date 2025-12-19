@@ -8,8 +8,8 @@ const BrandBanner = () => {
       {/* Background */}
       <div className="absolute inset-0">
         <img
-          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1920&q=80"
-          alt="Luxury Fashion"
+          src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1920&q=80"
+          alt="Indian Luxury Fashion"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />
