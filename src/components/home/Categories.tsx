@@ -22,15 +22,16 @@ const Categories = () => {
           </p>
         </motion.div>
 
-        {/* Categories Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        {/* Categories Row */}
+        <div className="flex flex-row gap-4 md:gap-6 overflow-x-auto pb-4 no-scrollbar">
           {categories.map((category, index) => (
             <motion.div
               key={category.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1, duration: 0.5 }}
+              className="flex-shrink-0 w-[280px] md:w-[320px] lg:w-[calc(25%-18px)]"
             >
               <Link
                 to={`/category/${category.slug}`}
