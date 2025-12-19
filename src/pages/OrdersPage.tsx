@@ -186,9 +186,12 @@ const OrdersPage = () => {
                       {order.payment_method === 'bkash' && 'bKash'}
                       {' • '}{order.shipping_city}
                     </p>
-                    <button className="text-primary text-sm flex items-center gap-1 hover:underline">
-                      View Details <ChevronRight size={16} />
-                    </button>
+                    <Link 
+                      to={`/orders/${order.id}`}
+                      className="text-primary text-sm flex items-center gap-1 hover:underline"
+                    >
+                      Track Order <ChevronRight size={16} />
+                    </Link>
                   </div>
                 </motion.div>
               ))}
