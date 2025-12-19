@@ -242,7 +242,7 @@ const Hero = () => {
             designed for the modern Bangladeshi.
           </motion.p>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons with glow effects */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -250,15 +250,44 @@ const Hero = () => {
             className="flex flex-col sm:flex-row gap-3 sm:gap-4"
           >
             <Link to="/category/women" className="w-full sm:w-auto">
-              <Button className="btn-primary w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base gap-2 group">
-                Shop Women
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </Button>
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                className="relative group"
+              >
+                {/* Glow effect behind button */}
+                <motion.div
+                  className="absolute inset-0 rounded-lg bg-primary/50 blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-300"
+                />
+                <Button className="btn-primary relative w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base gap-2 group overflow-hidden">
+                  {/* Shimmer effect on hover */}
+                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  <span className="relative z-10">Shop Women</span>
+                  <ArrowRight size={18} className="relative z-10 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </motion.div>
             </Link>
             <Link to="/category/men" className="w-full sm:w-auto">
-              <Button variant="outline" className="btn-outline-gold w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base">
-                Shop Men
-              </Button>
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                className="relative group"
+              >
+                {/* Glow effect behind button */}
+                <motion.div
+                  className="absolute inset-0 rounded-lg bg-gold/40 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300"
+                />
+                <Button variant="outline" className="btn-outline-gold relative w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base overflow-hidden group">
+                  {/* Border glow animation */}
+                  <span className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ boxShadow: 'inset 0 0 20px hsl(var(--gold) / 0.3)' }} />
+                  {/* Shimmer effect on hover */}
+                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+                  <span className="relative z-10 flex items-center gap-2">
+                    Shop Men
+                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </Button>
+              </motion.div>
             </Link>
           </motion.div>
         </div>
