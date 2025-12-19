@@ -31,18 +31,18 @@ const NewArrivals = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12"
+          className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 md:mb-12"
         >
           <div>
-            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl mb-3">
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 sm:mb-3">
               New <span className="text-gradient-gold">Arrivals</span>
             </h2>
-            <p className="text-muted-foreground max-w-lg">
+            <p className="text-muted-foreground text-sm sm:text-base max-w-lg">
               The latest additions to our premium collection
             </p>
           </div>
           <Link to="/category/new-arrivals">
-            <Button variant="ghost" className="gap-2 group">
+            <Button variant="ghost" className="gap-2 group text-sm sm:text-base">
               Shop New
               <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -51,11 +51,11 @@ const NewArrivals = () => {
 
         {/* Products Grid */}
         {loading ? (
-          <div className="flex justify-center items-center py-16">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <div className="flex justify-center items-center py-12 sm:py-16">
+            <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
             {newArrivals.slice(0, 4).map((product, index) => (
               <ProductCard key={product.id} product={product} index={index} />
             ))}
