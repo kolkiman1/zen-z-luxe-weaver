@@ -54,7 +54,7 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
       >
         <Link to={`/product/${product.slug || product.id}`} className="block group">
           {/* Image Container */}
-          <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-secondary mb-4">
+          <div className="relative aspect-[3/4] overflow-hidden rounded-md sm:rounded-lg bg-secondary mb-2 sm:mb-3 md:mb-4">
             {/* Product Image */}
             <motion.img
               src={product.images[0]}
@@ -65,14 +65,14 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             />
 
             {/* Badges */}
-            <div className="absolute top-3 left-3 flex flex-col gap-2">
+            <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col gap-1 sm:gap-2">
               {product.isNew && (
-                <span className="px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
+                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium rounded-full">
                   NEW
                 </span>
               )}
               {product.originalPrice && (
-                <span className="px-3 py-1 bg-destructive text-destructive-foreground text-xs font-medium rounded-full">
+                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-destructive text-destructive-foreground text-[10px] sm:text-xs font-medium rounded-full">
                   SALE
                 </span>
               )}
@@ -80,7 +80,7 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
 
             {/* Quick Actions */}
             <motion.div
-              className="absolute top-3 right-3 flex flex-col gap-2"
+              className="absolute top-2 right-2 sm:top-3 sm:right-3 flex flex-col gap-1 sm:gap-2"
               initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 10 }}
               transition={{ duration: 0.2 }}
@@ -89,35 +89,36 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
                 size="icon"
                 variant="secondary"
                 onClick={handleToggleWishlist}
-                className={`w-9 h-9 rounded-full ${
+                className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full ${
                   inWishlist ? 'bg-primary text-primary-foreground' : 'glass'
                 }`}
               >
-                <Heart size={16} fill={inWishlist ? 'currentColor' : 'none'} />
+                <Heart className="w-3 h-3 sm:w-4 sm:h-4" fill={inWishlist ? 'currentColor' : 'none'} />
               </Button>
               <Button
                 size="icon"
                 variant="secondary"
                 onClick={handleQuickView}
-                className="w-9 h-9 rounded-full glass hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="w-7 h-7 sm:w-9 sm:h-9 rounded-full glass hover:bg-primary hover:text-primary-foreground transition-colors"
               >
-                <Eye size={16} />
+                <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
             </motion.div>
 
             {/* Add to Cart Button */}
             <motion.div
-              className="absolute bottom-0 left-0 right-0 p-4"
+              className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
               transition={{ duration: 0.3 }}
             >
               <Button
                 onClick={handleAddToCart}
-                className="w-full btn-primary py-5 gap-2"
+                className="w-full btn-primary py-3 sm:py-4 md:py-5 gap-1 sm:gap-2 text-xs sm:text-sm"
               >
-                <ShoppingBag size={16} />
-                Add to Cart
+                <ShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden xs:inline">Add to Cart</span>
+                <span className="xs:hidden">Add</span>
               </Button>
             </motion.div>
 
@@ -131,17 +132,17 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
           </div>
 
           {/* Product Info */}
-          <div className="space-y-1.5">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">
+          <div className="space-y-1 sm:space-y-1.5">
+            <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider line-clamp-1">
               {product.subcategory}
             </p>
-            <h3 className="font-display text-base md:text-lg font-medium line-clamp-1 group-hover:text-primary transition-colors">
+            <h3 className="font-display text-sm sm:text-base md:text-lg font-medium line-clamp-1 group-hover:text-primary transition-colors">
               {product.name}
             </h3>
-            <div className="flex items-center gap-2">
-              <span className="text-primary font-medium">{formatPrice(product.price)}</span>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="text-primary font-medium text-sm sm:text-base">{formatPrice(product.price)}</span>
               {product.originalPrice && (
-                <span className="text-muted-foreground line-through text-sm">
+                <span className="text-muted-foreground line-through text-xs sm:text-sm">
                   {formatPrice(product.originalPrice)}
                 </span>
               )}
@@ -149,15 +150,18 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
 
             {/* Colors */}
             {product.colors && product.colors.length > 0 && (
-              <div className="flex items-center gap-1.5 pt-1">
-                {product.colors.map((color) => (
+              <div className="flex items-center gap-1 sm:gap-1.5 pt-0.5 sm:pt-1">
+                {product.colors.slice(0, 4).map((color) => (
                   <span
                     key={color.name}
-                    className="w-4 h-4 rounded-full border border-border"
+                    className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-border"
                     style={{ backgroundColor: color.hex }}
                     title={color.name}
                   />
                 ))}
+                {product.colors.length > 4 && (
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">+{product.colors.length - 4}</span>
+                )}
               </div>
             )}
           </div>
