@@ -41,6 +41,7 @@ interface Order {
   shipping_city: string;
   shipping_postal_code: string | null;
   payment_method: string;
+  notes: string | null;
   created_at: string;
   order_items: OrderItem[];
 }
@@ -183,7 +184,14 @@ const AdminOrders = () => {
                             </SelectContent>
                           </Select>
                         </td>
-                        <td className="p-4 text-sm capitalize">{order.payment_method}</td>
+                        <td className="p-4 text-sm">
+                          <div className="capitalize">{order.payment_method}</div>
+                          {order.notes && (order.payment_method === 'bkash' || order.payment_method === 'nagad') && (
+                            <div className="text-xs text-muted-foreground mt-1 font-mono">
+                              {order.notes.match(/TxID:\s*([^,]+)/)?.[1]?.trim()}
+                            </div>
+                          )}
+                        </td>
                         <td className="p-4">
                           <div className="flex justify-end">
                             <Button
@@ -241,6 +249,31 @@ const AdminOrders = () => {
                     </p>
                   </div>
                 </div>
+
+                {/* Payment Details for bKash/Nagad */}
+                {selectedOrder.notes && (selectedOrder.payment_method === 'bkash' || selectedOrder.payment_method === 'nagad') && (
+                  <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                    <h4 className="font-medium mb-2 text-primary">Payment Details</h4>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      {selectedOrder.notes.includes('TxID:') && (
+                        <div>
+                          <p className="text-muted-foreground">Transaction ID</p>
+                          <p className="font-mono font-medium">
+                            {selectedOrder.notes.match(/TxID:\s*([^,]+)/)?.[1]?.trim() || '-'}
+                          </p>
+                        </div>
+                      )}
+                      {selectedOrder.notes.includes('From:') && (
+                        <div>
+                          <p className="text-muted-foreground">Payment From</p>
+                          <p className="font-mono font-medium">
+                            {selectedOrder.notes.match(/From:\s*(.+)/)?.[1]?.trim() || '-'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Shipping Info */}
                 <div>
