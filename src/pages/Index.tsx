@@ -42,10 +42,10 @@ const Index = () => {
       <main>
         <Hero />
         <Features />
+        <NewArrivals />
         <Categories />
         <FeaturedProducts />
         <BrandBanner />
-        <NewArrivals />
       </main>
 
       <Footer />
