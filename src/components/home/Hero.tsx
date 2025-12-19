@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -60,19 +60,8 @@ const TypewriterTagline = () => {
 };
 
 const Hero = () => {
-  const sectionRef = useRef<HTMLElement>(null);
-  
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end start"]
-  });
-
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const backgroundScale = useTransform(scrollYProgress, [0, 1], [1.1, 1.3]);
-  const overlayOpacity = useTransform(scrollYProgress, [0, 0.5], [0.85, 0.95]);
-
   return (
-    <section ref={sectionRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Animated Background Particles */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {[...Array(6)].map((_, i) => (
@@ -99,28 +88,19 @@ const Hero = () => {
         ))}
       </div>
 
-      {/* Background Image with Parallax */}
-      <div className="absolute inset-0 overflow-hidden">
+      {/* Background Image - Simple CSS parallax with fixed attachment */}
+      <div className="absolute inset-0">
         <motion.div
-          className="absolute inset-0 -top-[15%] -bottom-[15%]"
-          style={{ y: backgroundY, scale: backgroundScale }}
-        >
-          <motion.img
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
-            src="https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1920&q=80"
-            alt="Indian Fashion Model"
-            className="w-full h-full object-cover object-top"
-          />
-        </motion.div>
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-          style={{ opacity: overlayOpacity }}
-          className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/30" 
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
+          className="absolute inset-0 bg-cover bg-center bg-fixed"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1920&q=80')`,
+            backgroundPosition: 'center top',
+          }}
         />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/30" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
       </div>
 
