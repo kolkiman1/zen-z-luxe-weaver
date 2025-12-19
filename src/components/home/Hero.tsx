@@ -138,7 +138,7 @@ const Hero = () => {
       {/* Content */}
       <div className="container-luxury relative z-10 pt-20 md:pt-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
-          {/* Badge with animated text and glow */}
+          {/* Badge with animated text, glow, and shimmer */}
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -146,7 +146,7 @@ const Hero = () => {
             className="inline-flex items-center gap-2 mb-4 md:mb-6"
           >
             <motion.span 
-              className="relative px-4 py-2 md:px-6 md:py-3 bg-primary/10 border border-primary/30 rounded-full text-primary text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide flex items-center gap-2 overflow-hidden"
+              className="relative px-4 py-2 md:px-6 md:py-3 bg-primary/10 border border-primary/30 rounded-full text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide flex items-center gap-2 overflow-hidden"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
             >
@@ -163,6 +163,22 @@ const Hero = () => {
                 }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
               />
+              {/* Continuous shimmer sweep */}
+              <motion.span
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: "linear-gradient(90deg, transparent 0%, hsl(var(--gold) / 0.3) 50%, transparent 100%)",
+                  backgroundSize: "200% 100%",
+                }}
+                animate={{
+                  backgroundPosition: ["200% 0%", "-200% 0%"],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              />
               <motion.span
                 animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.2, 1] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -170,23 +186,36 @@ const Hero = () => {
               >
                 <Sparkles size={18} className="text-gold" />
               </motion.span>
-              <span className="flex relative z-10">
-                {"Bangladesh's Biggest Trendy Fashion Shop".split("").map((char, index) => (
-                  <motion.span
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      delay: 0.4 + index * 0.025,
-                      duration: 0.4,
-                      ease: [0.22, 1, 0.36, 1]
-                    }}
-                    className="inline-block"
-                    style={{ whiteSpace: char === " " ? "pre" : "normal" }}
-                  >
-                    {char}
-                  </motion.span>
-                ))}
+              {/* Text with shimmer gradient */}
+              <span className="relative z-10">
+                <span 
+                  className="relative inline-flex"
+                  style={{
+                    background: "linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, hsl(var(--gold)) 50%, hsl(var(--primary)) 60%, hsl(var(--primary)) 100%)",
+                    backgroundSize: "200% 100%",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    color: "transparent",
+                    animation: "shimmer 3s linear infinite",
+                  }}
+                >
+                  {"Bangladesh's Biggest Trendy Fashion Shop".split("").map((char, index) => (
+                    <motion.span
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        delay: 0.4 + index * 0.025,
+                        duration: 0.4,
+                        ease: [0.22, 1, 0.36, 1]
+                      }}
+                      className="inline-block"
+                      style={{ whiteSpace: char === " " ? "pre" : "normal" }}
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
+                </span>
               </span>
             </motion.span>
           </motion.div>
