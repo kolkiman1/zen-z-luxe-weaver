@@ -4,6 +4,7 @@ import { Product } from '@/lib/data';
 
 interface DbProduct {
   id: string;
+  slug: string;
   name: string;
   price: number;
   original_price: number | null;
@@ -16,11 +17,11 @@ interface DbProduct {
   in_stock: boolean | null;
   is_new: boolean | null;
   is_featured: boolean | null;
-  slug: string;
 }
 
 const transformProduct = (dbProduct: DbProduct): Product => ({
   id: dbProduct.id,
+  slug: dbProduct.slug,
   name: dbProduct.name,
   price: dbProduct.price,
   originalPrice: dbProduct.original_price || undefined,

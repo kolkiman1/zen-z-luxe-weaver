@@ -42,6 +42,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
 
         const transformedProducts = (data || []).map((p): Product => ({
           id: p.id,
+          slug: p.slug,
           name: p.name,
           price: p.price,
           originalPrice: p.original_price || undefined,
@@ -142,7 +143,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                         transition={{ delay: index * 0.05 }}
                       >
                         <Link
-                          to={`/product/${product.id}`}
+                          to={`/product/${product.slug || product.id}`}
                           onClick={handleClose}
                           className="flex items-center gap-4 p-4 rounded-lg bg-card hover:bg-secondary transition-colors group"
                         >

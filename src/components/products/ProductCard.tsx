@@ -43,7 +43,7 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link to={`/product/${product.id}`} className="block group">
+      <Link to={`/product/${product.slug || product.id}`} className="block group">
         {/* Image Container */}
         <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-secondary mb-4">
           {/* Product Image */}
