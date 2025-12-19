@@ -1,33 +1,109 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { ChevronLeft, CreditCard, Truck, Shield } from 'lucide-react';
+import { ChevronLeft, CreditCard, Truck, Shield, Loader2 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { formatPrice } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const CheckoutPage = () => {
   const { items, totalPrice, clearCart } = useCart();
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [shippingMethod, setShippingMethod] = useState('standard');
   const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    firstName: profile?.full_name?.split(' ')[0] || '',
+    lastName: profile?.full_name?.split(' ').slice(1).join(' ') || '',
+    email: user?.email || '',
+    phone: profile?.phone || '',
+    address: profile?.address || '',
+    city: profile?.city || '',
+    postalCode: profile?.postal_code || '',
+  });
 
   const shippingCost = shippingMethod === 'express' ? 200 : totalPrice >= 5000 ? 0 : 100;
   const grandTotal = totalPrice + shippingCost;
 
-  const handlePlaceOrder = () => {
-    toast.success('Order placed successfully!', {
-      description: 'You will receive a confirmation email shortly.',
-    });
-    clearCart();
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.id]: e.target.value
+    }));
+  };
+
+  const handlePlaceOrder = async () => {
+    if (!user) {
+      toast.error('Please sign in to place an order');
+      navigate('/auth');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Create the order
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          total_amount: grandTotal,
+          shipping_address: formData.address,
+          shipping_city: formData.city,
+          shipping_postal_code: formData.postalCode,
+          payment_method: paymentMethod,
+          status: 'pending',
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Create order items
+      const orderItems = items.map(item => ({
+        order_id: order.id,
+        product_id: item.product.id,
+        product_name: item.product.name,
+        product_image: item.product.images[0],
+        quantity: item.quantity,
+        size: item.selectedSize || null,
+        color: item.selectedColor?.name || null,
+        price: item.product.price,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      toast.success('Order placed successfully!', {
+        description: 'You will receive a confirmation email shortly.',
+      });
+      
+      clearCart();
+      navigate('/orders');
+    } catch (error: any) {
+      toast.error('Failed to place order', {
+        description: error.message || 'Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (items.length === 0) {
@@ -66,6 +142,15 @@ const CheckoutPage = () => {
             Continue Shopping
           </Link>
 
+          {/* Login prompt if not authenticated */}
+          {!user && (
+            <div className="mb-8 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+              <p className="text-sm">
+                <Link to="/auth" className="text-primary hover:underline font-medium">Sign in</Link> to save your order history and get faster checkout.
+              </p>
+            </div>
+          )}
+
           <div className="grid lg:grid-cols-3 gap-12">
             {/* Checkout Form */}
             <div className="lg:col-span-2 space-y-8">
@@ -102,37 +187,80 @@ const CheckoutPage = () => {
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="firstName">First Name</Label>
-                      <Input id="firstName" placeholder="Enter first name" className="mt-1" />
+                      <Input 
+                        id="firstName" 
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                        placeholder="Enter first name" 
+                        className="mt-1" 
+                      />
                     </div>
                     <div>
                       <Label htmlFor="lastName">Last Name</Label>
-                      <Input id="lastName" placeholder="Enter last name" className="mt-1" />
+                      <Input 
+                        id="lastName" 
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                        placeholder="Enter last name" 
+                        className="mt-1" 
+                      />
                     </div>
                   </div>
 
                   <div>
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="Enter email" className="mt-1" />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="Enter email" 
+                      className="mt-1" 
+                    />
                   </div>
 
                   <div>
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" placeholder="+880 1XXX-XXXXXX" className="mt-1" />
+                    <Input 
+                      id="phone" 
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      placeholder="+880 1XXX-XXXXXX" 
+                      className="mt-1" 
+                    />
                   </div>
 
                   <div>
                     <Label htmlFor="address">Address</Label>
-                    <Input id="address" placeholder="House no, Road, Area" className="mt-1" />
+                    <Input 
+                      id="address" 
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      placeholder="House no, Road, Area" 
+                      className="mt-1" 
+                    />
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="city">City</Label>
-                      <Input id="city" placeholder="e.g., Dhaka" className="mt-1" />
+                      <Input 
+                        id="city" 
+                        value={formData.city}
+                        onChange={handleInputChange}
+                        placeholder="e.g., Dhaka" 
+                        className="mt-1" 
+                      />
                     </div>
                     <div>
                       <Label htmlFor="postalCode">Postal Code</Label>
-                      <Input id="postalCode" placeholder="e.g., 1212" className="mt-1" />
+                      <Input 
+                        id="postalCode" 
+                        value={formData.postalCode}
+                        onChange={handleInputChange}
+                        placeholder="e.g., 1212" 
+                        className="mt-1" 
+                      />
                     </div>
                   </div>
 
@@ -242,17 +370,36 @@ const CheckoutPage = () => {
                     ))}
                   </div>
 
+                  {/* Shipping Info Summary */}
+                  <div className="p-4 bg-card rounded-lg space-y-2">
+                    <h4 className="font-medium">Shipping to:</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {formData.firstName} {formData.lastName}<br />
+                      {formData.address}<br />
+                      {formData.city}, {formData.postalCode}<br />
+                      {formData.phone}
+                    </p>
+                  </div>
+
                   <div className="flex items-center gap-3 p-4 bg-card rounded-lg">
                     <Shield size={24} className="text-primary" />
                     <p className="text-sm">Your payment information is secure and encrypted</p>
                   </div>
 
                   <div className="flex gap-4">
-                    <Button variant="outline" onClick={() => setStep(2)} className="flex-1 py-6">
+                    <Button variant="outline" onClick={() => setStep(2)} className="flex-1 py-6" disabled={isSubmitting}>
                       Back
                     </Button>
-                    <Button onClick={handlePlaceOrder} className="flex-1 btn-primary py-6">
-                      Place Order
+                    <Button 
+                      onClick={handlePlaceOrder} 
+                      className="flex-1 btn-primary py-6"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <Loader2 className="animate-spin" size={20} />
+                      ) : (
+                        'Place Order'
+                      )}
                     </Button>
                   </div>
                 </motion.div>
