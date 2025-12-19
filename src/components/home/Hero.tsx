@@ -1,47 +1,107 @@
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Animated Background Particles */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-primary/20 rounded-full"
+            style={{
+              left: `${15 + i * 15}%`,
+              top: `${20 + (i % 3) * 25}%`,
+            }}
+            animate={{
+              y: [-20, 20, -20],
+              x: [-10, 10, -10],
+              opacity: [0.3, 0.6, 0.3],
+              scale: [1, 1.5, 1],
+            }}
+            transition={{
+              duration: 4 + i * 0.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.3,
+            }}
+          />
+        ))}
+      </div>
+
       {/* Background Image - Indian Fashion Style */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.img
-          initial={{ scale: 1.1 }}
+          initial={{ scale: 1.15, opacity: 0 }}
           animate={{ 
             scale: [1.1, 1.15, 1.1],
             x: [0, 15, 0],
-            y: [0, -10, 0]
+            y: [0, -10, 0],
+            opacity: 1
           }}
           transition={{ 
-            duration: 20, 
-            ease: 'easeInOut',
-            repeat: Infinity,
-            repeatType: 'reverse'
+            scale: { duration: 20, ease: 'easeInOut', repeat: Infinity, repeatType: 'reverse' },
+            x: { duration: 20, ease: 'easeInOut', repeat: Infinity, repeatType: 'reverse' },
+            y: { duration: 20, ease: 'easeInOut', repeat: Infinity, repeatType: 'reverse' },
+            opacity: { duration: 1.5, ease: 'easeOut' }
           }}
           src="https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1920&q=80"
           alt="Indian Fashion Model"
           className="w-full h-full object-cover object-top"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/30" />
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/30" 
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
       </div>
+
+      {/* Animated Glow Orbs */}
+      <motion.div
+        className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-gold/10 rounded-full blur-3xl"
+        animate={{
+          scale: [1.2, 1, 1.2],
+          opacity: [0.2, 0.4, 0.2],
+        }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+      />
 
       {/* Content */}
       <div className="container-luxury relative z-10 pt-20 md:pt-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           {/* Badge */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="inline-block mb-4 md:mb-6"
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
+            className="inline-flex items-center gap-2 mb-4 md:mb-6"
           >
-            <span className="px-4 py-2 md:px-6 md:py-3 bg-primary/10 border border-primary/30 rounded-full text-primary text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide">
+            <motion.span 
+              className="px-4 py-2 md:px-6 md:py-3 bg-primary/10 border border-primary/30 rounded-full text-primary text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide flex items-center gap-2"
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            >
+              <motion.span
+                animate={{ rotate: [0, 15, -15, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Sparkles size={18} className="text-gold" />
+              </motion.span>
               Bangladesh's Biggest Trendy Fashion Shop
-            </span>
+            </motion.span>
           </motion.div>
 
           {/* Tagline */}

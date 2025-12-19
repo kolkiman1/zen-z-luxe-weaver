@@ -116,19 +116,15 @@ const FeaturedProducts = () => {
             {featuredProducts.slice(0, 8).map((product, index) => (
               <motion.div
                 key={product.id}
-                initial={{ opacity: 0, y: 40, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ 
-                  delay: index * 0.08, 
-                  duration: 0.5,
-                  ease: [0.25, 0.46, 0.45, 0.94]
+                  delay: index * 0.05, 
+                  duration: 0.4,
+                  ease: "easeOut"
                 }}
-                whileHover={{ 
-                  y: -8,
-                  transition: { duration: 0.3, ease: "easeOut" }
-                }}
-                className="flex-shrink-0 w-[200px] sm:w-[260px] md:w-[280px] lg:w-[300px] snap-start"
+                className="flex-shrink-0 w-[200px] sm:w-[260px] md:w-[280px] lg:w-[300px] snap-start transition-transform duration-300 ease-out hover:-translate-y-2 will-change-transform"
               >
                 <ProductCard product={product} index={index} />
               </motion.div>
