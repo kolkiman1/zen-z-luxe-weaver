@@ -104,33 +104,80 @@ const Hero = () => {
             </motion.span>
           </motion.div>
 
-          {/* Tagline */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="text-primary font-body text-xs sm:text-sm md:text-base tracking-[0.2em] md:tracking-[0.3em] uppercase mb-3 md:mb-4"
+          {/* Tagline with letter animation */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+            className="overflow-hidden mb-3 md:mb-4"
           >
-            Premium Fashion for the Next Generation
-          </motion.p>
+            <motion.p
+              initial={{ y: 20 }}
+              animate={{ y: 0 }}
+              transition={{ delay: 0.35, duration: 0.5, ease: "easeOut" }}
+              className="text-primary font-body text-xs sm:text-sm md:text-base tracking-[0.2em] md:tracking-[0.3em] uppercase"
+            >
+              {"Premium Fashion for the Next Generation".split("").map((char, index) => (
+                <motion.span
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ 
+                    delay: 0.4 + index * 0.02,
+                    duration: 0.3,
+                    ease: "easeOut"
+                  }}
+                  className="inline-block"
+                  style={{ whiteSpace: char === " " ? "pre" : "normal" }}
+                >
+                  {char}
+                </motion.span>
+              ))}
+            </motion.p>
+          </motion.div>
 
-          {/* Main Heading */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold leading-tight mb-4 md:mb-6"
-          >
-            Elevate Your
-            <br />
-            <span className="text-gradient-gold">Signature Style</span>
-          </motion.h1>
+          {/* Main Heading with staggered word animation */}
+          <div className="mb-4 md:mb-6 overflow-hidden">
+            <motion.h1
+              className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold leading-tight"
+            >
+              <span className="block overflow-hidden">
+                <motion.span
+                  initial={{ y: "100%" }}
+                  animate={{ y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.7, ease: [0.33, 1, 0.68, 1] }}
+                  className="block"
+                >
+                  Elevate Your
+                </motion.span>
+              </span>
+              <span className="block overflow-hidden">
+                <motion.span
+                  initial={{ y: "100%" }}
+                  animate={{ y: 0 }}
+                  transition={{ delay: 0.65, duration: 0.7, ease: [0.33, 1, 0.68, 1] }}
+                  className="block relative"
+                >
+                  <span className="text-gradient-gold relative">
+                    Signature Style
+                    {/* Animated underline */}
+                    <motion.span
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{ delay: 1.2, duration: 0.8, ease: "easeOut" }}
+                      className="absolute -bottom-1 left-0 right-0 h-[2px] md:h-[3px] bg-gradient-to-r from-gold via-gold-light to-gold origin-left"
+                    />
+                  </span>
+                </motion.span>
+              </span>
+            </motion.h1>
+          </div>
 
-          {/* Description */}
+          {/* Description with fade and blur effect */}
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.6 }}
+            initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ delay: 0.9, duration: 0.7, ease: "easeOut" }}
             className="text-foreground/70 text-sm sm:text-base md:text-lg max-w-lg mb-6 md:mb-8 leading-relaxed"
           >
             Discover curated luxury fashion, exquisite jewelry, and premium accessories
