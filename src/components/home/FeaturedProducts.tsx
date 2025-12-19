@@ -1,11 +1,12 @@
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useFeaturedProducts } from '@/hooks/useProducts';
 import ProductCard from '@/components/products/ProductCard';
 import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 import { Button } from '@/components/ui/button';
+import { AnimatedButton } from '@/components/ui/animated-button';
 
 const FeaturedProducts = () => {
   const { products: featuredProducts, loading } = useFeaturedProducts();
@@ -92,10 +93,14 @@ const FeaturedProducts = () => {
               </Button>
             </motion.div>
             <Link to="/category/all">
-              <Button variant="ghost" className="gap-2 group text-sm sm:text-base">
+              <AnimatedButton 
+                variant="ghost" 
+                className="gap-2 text-sm sm:text-base"
+                glowColor="gold"
+                showArrow
+              >
                 View All
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-              </Button>
+              </AnimatedButton>
             </Link>
           </div>
         </motion.div>

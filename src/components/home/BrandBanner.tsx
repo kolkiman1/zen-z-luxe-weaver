@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { AnimatedButton } from '@/components/ui/animated-button';
 
 const BrandBanner = () => {
   return (
@@ -59,14 +59,23 @@ const BrandBanner = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
           >
             <Link to="/about" className="w-full sm:w-auto">
-              <Button className="btn-primary w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base">
+              <AnimatedButton 
+                className="btn-primary w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base"
+                glowColor="primary"
+                showArrow
+              >
                 Our Story
-              </Button>
+              </AnimatedButton>
             </Link>
             <Link to="/category/all" className="w-full sm:w-auto">
-              <Button variant="outline" className="btn-outline-gold w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base">
+              <AnimatedButton 
+                variant="outline" 
+                className="btn-outline-gold w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base"
+                glowColor="gold"
+                showArrow
+              >
                 Explore Collection
-              </Button>
+              </AnimatedButton>
             </Link>
           </motion.div>
         </div>

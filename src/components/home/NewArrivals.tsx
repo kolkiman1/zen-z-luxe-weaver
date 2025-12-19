@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useNewArrivals } from '@/hooks/useProducts';
 import ProductCard from '@/components/products/ProductCard';
-import { Button } from '@/components/ui/button';
+import { AnimatedButton } from '@/components/ui/animated-button';
 
 const NewArrivals = () => {
   const { products: newArrivals, loading } = useNewArrivals();
@@ -42,10 +42,14 @@ const NewArrivals = () => {
             </p>
           </div>
           <Link to="/category/new-arrivals">
-            <Button variant="ghost" className="gap-2 group text-sm sm:text-base">
+            <AnimatedButton 
+              variant="ghost" 
+              className="gap-2 text-sm sm:text-base"
+              glowColor="gold"
+              showArrow
+            >
               Shop New
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-            </Button>
+            </AnimatedButton>
           </Link>
         </motion.div>
 
