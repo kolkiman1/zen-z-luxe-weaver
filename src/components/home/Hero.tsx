@@ -30,7 +30,7 @@ const Hero = () => {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="inline-block mb-4 md:mb-6"
           >
-            <span className="px-3 py-1.5 md:px-4 md:py-2 bg-primary/10 border border-primary/30 rounded-full text-primary text-xs md:text-sm font-medium tracking-wide">
+            <span className="px-4 py-2 md:px-6 md:py-3 bg-primary/10 border border-primary/30 rounded-full text-primary text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide">
               Bangladesh's Biggest Trendy Fashion Shop
             </span>
           </motion.div>
