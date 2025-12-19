@@ -138,7 +138,7 @@ const Hero = () => {
       {/* Content */}
       <div className="container-luxury relative z-10 pt-20 md:pt-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
-          {/* Badge */}
+          {/* Badge with animated text */}
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -146,17 +146,34 @@ const Hero = () => {
             className="inline-flex items-center gap-2 mb-4 md:mb-6"
           >
             <motion.span 
-              className="px-4 py-2 md:px-6 md:py-3 bg-primary/10 border border-primary/30 rounded-full text-primary text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide flex items-center gap-2"
+              className="px-4 py-2 md:px-6 md:py-3 bg-primary/10 border border-primary/30 rounded-full text-primary text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide flex items-center gap-2 overflow-hidden"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
             >
               <motion.span
-                animate={{ rotate: [0, 15, -15, 0] }}
+                animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.2, 1] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               >
                 <Sparkles size={18} className="text-gold" />
               </motion.span>
-              Bangladesh's Biggest Trendy Fashion Shop
+              <span className="flex">
+                {"Bangladesh's Biggest Trendy Fashion Shop".split("").map((char, index) => (
+                  <motion.span
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      delay: 0.4 + index * 0.025,
+                      duration: 0.4,
+                      ease: [0.22, 1, 0.36, 1]
+                    }}
+                    className="inline-block"
+                    style={{ whiteSpace: char === " " ? "pre" : "normal" }}
+                  >
+                    {char}
+                  </motion.span>
+                ))}
+              </span>
             </motion.span>
           </motion.div>
 
