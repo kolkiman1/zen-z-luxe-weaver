@@ -9,6 +9,7 @@ import NewArrivals from '@/components/home/NewArrivals';
 import BrandBanner from '@/components/home/BrandBanner';
 import Features from '@/components/home/Features';
 import { ProductChatbot } from '@/components/chat/ProductChatbot';
+import { ParallaxSection } from '@/components/ui/parallax-section';
 
 const Index = () => {
   return (
@@ -40,13 +41,28 @@ const Index = () => {
       <Header />
       <CartSidebar />
 
-      <main>
+      <main className="overflow-hidden">
         <Hero />
-        <Features />
-        <NewArrivals />
-        <Categories />
-        <FeaturedProducts />
-        <BrandBanner />
+        
+        <ParallaxSection speed={0.1} fadeIn>
+          <Features />
+        </ParallaxSection>
+        
+        <ParallaxSection speed={0.15} direction="up" fadeIn>
+          <NewArrivals />
+        </ParallaxSection>
+        
+        <ParallaxSection speed={0.1} fadeIn>
+          <Categories />
+        </ParallaxSection>
+        
+        <ParallaxSection speed={0.15} direction="up" fadeIn>
+          <FeaturedProducts />
+        </ParallaxSection>
+        
+        <ParallaxSection speed={0.2} fadeIn scale>
+          <BrandBanner />
+        </ParallaxSection>
       </main>
 
       <Footer />
