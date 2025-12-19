@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      inquiries: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           color: string | null
@@ -100,6 +139,72 @@ export type Database = {
           total_amount?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          colors: Json | null
+          created_at: string
+          description: string | null
+          id: string
+          images: string[]
+          in_stock: boolean | null
+          is_featured: boolean | null
+          is_new: boolean | null
+          name: string
+          original_price: number | null
+          price: number
+          rating: number | null
+          review_count: number | null
+          sizes: string[] | null
+          slug: string
+          stock_quantity: number | null
+          subcategory: string | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          colors?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[]
+          in_stock?: boolean | null
+          is_featured?: boolean | null
+          is_new?: boolean | null
+          name: string
+          original_price?: number | null
+          price: number
+          rating?: number | null
+          review_count?: number | null
+          sizes?: string[] | null
+          slug: string
+          stock_quantity?: number | null
+          subcategory?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          colors?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[]
+          in_stock?: boolean | null
+          is_featured?: boolean | null
+          is_new?: boolean | null
+          name?: string
+          original_price?: number | null
+          price?: number
+          rating?: number | null
+          review_count?: number | null
+          sizes?: string[] | null
+          slug?: string
+          stock_quantity?: number | null
+          subcategory?: string | null
+          updated_at?: string
         }
         Relationships: []
       }

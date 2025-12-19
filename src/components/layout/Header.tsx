@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Heart, ShoppingBag, Menu, X, User, LogOut } from 'lucide-react';
+import { Search, Heart, ShoppingBag, Menu, X, User, LogOut, Settings } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAdmin } from '@/hooks/useAdmin';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -31,6 +32,7 @@ const Header = () => {
   const { totalItems, setIsCartOpen } = useCart();
   const { items: wishlistItems } = useWishlist();
   const { user, profile, signOut } = useAuth();
+  const { isAdmin } = useAdmin();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -167,6 +169,17 @@ const Header = () => {
                         My Orders
                       </Link>
                     </DropdownMenuItem>
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin" className="cursor-pointer">
+                            <Settings size={16} className="mr-2" />
+                            Admin Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
                       <LogOut size={16} className="mr-2" />
