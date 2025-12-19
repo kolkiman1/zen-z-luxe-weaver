@@ -1,11 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Heart, ShoppingBag, Menu, X, User } from 'lucide-react';
+import { Search, Heart, ShoppingBag, Menu, X, User, LogOut } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import SearchModal from '@/components/search/SearchModal';
+import { toast } from 'sonner';
 
 const navLinks = [
   { name: 'Home', href: '/' },
@@ -21,7 +30,9 @@ const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { totalItems, setIsCartOpen } = useCart();
   const { items: wishlistItems } = useWishlist();
+  const { user, profile, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,6 +45,12 @@ const Header = () => {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success('Signed out successfully');
+    navigate('/');
+  };
 
   return (
     <>
@@ -127,15 +144,47 @@ const Header = () => {
                 )}
               </Button>
 
-              <Link to="/auth" className="hidden md:block">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-foreground hover:text-primary hover:bg-transparent"
-                >
-                  <User size={20} />
-                </Button>
-              </Link>
+              {/* User Menu */}
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="hidden md:flex text-foreground hover:text-primary hover:bg-transparent"
+                    >
+                      <User size={20} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="px-2 py-1.5">
+                      <p className="text-sm font-medium">{profile?.full_name || 'User'}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/orders" className="cursor-pointer">
+                        My Orders
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
+                      <LogOut size={16} className="mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link to="/auth" className="hidden md:block">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-foreground hover:text-primary hover:bg-transparent"
+                  >
+                    <User size={20} />
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -186,12 +235,21 @@ const Header = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 }}
                 >
-                  <Link
-                    to="/auth"
-                    className="font-display text-2xl text-foreground"
-                  >
-                    Account
-                  </Link>
+                  {user ? (
+                    <button
+                      onClick={handleSignOut}
+                      className="font-display text-2xl text-foreground"
+                    >
+                      Sign Out
+                    </button>
+                  ) : (
+                    <Link
+                      to="/auth"
+                      className="font-display text-2xl text-foreground"
+                    >
+                      Account
+                    </Link>
+                  )}
                 </motion.div>
               </div>
             </motion.nav>
