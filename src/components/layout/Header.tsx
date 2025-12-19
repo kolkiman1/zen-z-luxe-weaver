@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import SearchModal from '@/components/search/SearchModal';
+import WishlistSidebar from '@/components/wishlist/WishlistSidebar';
 import { toast } from 'sonner';
 
 const navLinks = [
@@ -29,6 +30,7 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const { totalItems, setIsCartOpen } = useCart();
   const { items: wishlistItems } = useWishlist();
   const { user, profile, signOut } = useAuth();
@@ -113,20 +115,19 @@ const Header = () => {
                 <Search size={20} />
               </Button>
 
-              <Link to="/wishlist">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative text-foreground hover:text-primary hover:bg-transparent"
-                >
-                  <Heart size={20} />
-                  {wishlistItems.length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                      {wishlistItems.length}
-                    </span>
-                  )}
-                </Button>
-              </Link>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsWishlistOpen(true)}
+                className="relative text-foreground hover:text-primary hover:bg-transparent"
+              >
+                <Heart size={20} />
+                {wishlistItems.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                    {wishlistItems.length}
+                  </span>
+                )}
+              </Button>
 
               <Button
                 variant="ghost"
@@ -282,6 +283,9 @@ const Header = () => {
 
       {/* Search Modal */}
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+
+      {/* Wishlist Sidebar */}
+      <WishlistSidebar isOpen={isWishlistOpen} onClose={() => setIsWishlistOpen(false)} />
     </>
   );
 };
