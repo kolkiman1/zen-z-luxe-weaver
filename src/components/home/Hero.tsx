@@ -1,7 +1,63 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+
+const useTypewriter = (text: string, speed: number = 50, delay: number = 0) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const [isComplete, setIsComplete] = useState(false);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    let currentIndex = 0;
+
+    const startTyping = () => {
+      timeout = setTimeout(() => {
+        if (currentIndex <= text.length) {
+          setDisplayedText(text.slice(0, currentIndex));
+          currentIndex++;
+          startTyping();
+        } else {
+          setIsComplete(true);
+        }
+      }, currentIndex === 0 ? delay : speed);
+    };
+
+    startTyping();
+
+    return () => clearTimeout(timeout);
+  }, [text, speed, delay]);
+
+  return { displayedText, isComplete };
+};
+
+const TypewriterTagline = () => {
+  const taglineText = "Premium Fashion for the Next Generation";
+  const { displayedText, isComplete } = useTypewriter(taglineText, 45, 400);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.3, duration: 0.3 }}
+      className="mb-3 md:mb-4 h-6 md:h-7"
+    >
+      <p className="text-primary font-body text-xs sm:text-sm md:text-base tracking-[0.2em] md:tracking-[0.3em] uppercase">
+        {displayedText}
+        <motion.span
+          animate={{ opacity: isComplete ? 0 : [1, 0, 1] }}
+          transition={{ 
+            duration: 0.8, 
+            repeat: isComplete ? 0 : Infinity,
+            ease: "linear"
+          }}
+          className="inline-block w-[2px] h-[1em] bg-primary ml-0.5 align-middle"
+        />
+      </p>
+    </motion.div>
+  );
+};
 
 const Hero = () => {
   return (
@@ -104,37 +160,8 @@ const Hero = () => {
             </motion.span>
           </motion.div>
 
-          {/* Tagline with letter animation */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.4 }}
-            className="overflow-hidden mb-3 md:mb-4"
-          >
-            <motion.p
-              initial={{ y: 20 }}
-              animate={{ y: 0 }}
-              transition={{ delay: 0.35, duration: 0.5, ease: "easeOut" }}
-              className="text-primary font-body text-xs sm:text-sm md:text-base tracking-[0.2em] md:tracking-[0.3em] uppercase"
-            >
-              {"Premium Fashion for the Next Generation".split("").map((char, index) => (
-                <motion.span
-                  key={index}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    delay: 0.4 + index * 0.02,
-                    duration: 0.3,
-                    ease: "easeOut"
-                  }}
-                  className="inline-block"
-                  style={{ whiteSpace: char === " " ? "pre" : "normal" }}
-                >
-                  {char}
-                </motion.span>
-              ))}
-            </motion.p>
-          </motion.div>
+          {/* Tagline with typewriter effect */}
+          <TypewriterTagline />
 
           {/* Main Heading with staggered word animation */}
           <div className="mb-4 md:mb-6 overflow-hidden">
