@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getNewArrivals } from '@/lib/data';
+import { useNewArrivals } from '@/hooks/useProducts';
 import ProductCard from '@/components/products/ProductCard';
 import { Button } from '@/components/ui/button';
 
 const NewArrivals = () => {
-  const newArrivals = getNewArrivals();
+  const { products: newArrivals, loading } = useNewArrivals();
 
   return (
     <section className="section-padding bg-background">
@@ -35,11 +35,17 @@ const NewArrivals = () => {
         </motion.div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-          {newArrivals.slice(0, 4).map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-16">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {newArrivals.slice(0, 4).map((product, index) => (
+              <ProductCard key={product.id} product={product} index={index} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
