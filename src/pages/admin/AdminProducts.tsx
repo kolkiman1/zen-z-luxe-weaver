@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Plus, Pencil, Trash2, Search, Loader2 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
+import ImageUpload from '@/components/admin/ImageUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/data';
 import { Button } from '@/components/ui/button';
@@ -58,7 +59,7 @@ const AdminProducts = () => {
     price: '',
     original_price: '',
     category: 'men',
-    images: '',
+    images: [] as string[],
     sizes: '',
     stock_quantity: '',
     is_new: false,
@@ -91,7 +92,7 @@ const AdminProducts = () => {
         price: product.price.toString(),
         original_price: product.original_price?.toString() || '',
         category: product.category,
-        images: product.images.join(', '),
+        images: product.images || [],
         sizes: product.sizes.join(', '),
         stock_quantity: product.stock_quantity.toString(),
         is_new: product.is_new,
@@ -106,7 +107,7 @@ const AdminProducts = () => {
         price: '',
         original_price: '',
         category: 'men',
-        images: '',
+        images: [],
         sizes: '',
         stock_quantity: '0',
         is_new: false,
@@ -135,7 +136,7 @@ const AdminProducts = () => {
       price: parseFloat(formData.price),
       original_price: formData.original_price ? parseFloat(formData.original_price) : null,
       category: formData.category,
-      images: formData.images.split(',').map(s => s.trim()).filter(Boolean),
+      images: formData.images,
       sizes: formData.sizes.split(',').map(s => s.trim()).filter(Boolean),
       stock_quantity: parseInt(formData.stock_quantity) || 0,
       in_stock: parseInt(formData.stock_quantity) > 0,
@@ -392,14 +393,14 @@ const AdminProducts = () => {
               </div>
 
               <div>
-                <Label htmlFor="images">Image URLs (comma-separated)</Label>
-                <Input
-                  id="images"
-                  value={formData.images}
-                  onChange={(e) => setFormData({ ...formData, images: e.target.value })}
-                  placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
-                  className="mt-1"
-                />
+                <Label>Product Images</Label>
+                <div className="mt-2">
+                  <ImageUpload
+                    images={formData.images}
+                    onImagesChange={(images) => setFormData({ ...formData, images })}
+                    maxImages={6}
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
