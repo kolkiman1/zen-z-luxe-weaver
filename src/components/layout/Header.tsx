@@ -96,6 +96,32 @@ const Header = () => {
                   }}
                 />
 
+                {/* Soft glitter particles */}
+                <div className="absolute -inset-2 overflow-hidden pointer-events-none">
+                  {[...Array(8)].map((_, i) => (
+                    <motion.span
+                      key={i}
+                      className="absolute w-1 h-1 rounded-full"
+                      style={{
+                        background: i % 2 === 0 ? 'hsl(var(--gold))' : 'hsl(var(--primary))',
+                        left: `${15 + (i * 10)}%`,
+                        top: `${20 + ((i % 3) * 25)}%`,
+                        boxShadow: `0 0 4px ${i % 2 === 0 ? 'hsl(var(--gold))' : 'hsl(var(--primary))'}`,
+                      }}
+                      animate={{
+                        opacity: [0.2, 0.8, 0.2],
+                        scale: [0.8, 1.2, 0.8],
+                      }}
+                      transition={{
+                        duration: 2 + (i * 0.3),
+                        repeat: Infinity,
+                        delay: i * 0.4,
+                        ease: 'easeInOut',
+                      }}
+                    />
+                  ))}
+                </div>
+
                 {/* Inner gradient background */}
                 <motion.div
                   className="absolute inset-0 rounded-xl opacity-20 group-hover:opacity-40 transition-opacity"
