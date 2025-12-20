@@ -88,17 +88,12 @@ const Header = () => {
                 style={{ transformStyle: 'preserve-3d' }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
-                {/* Pulsing outer glow */}
+                {/* Outer glow - static on hover only */}
                 <motion.div
-                  className="absolute -inset-4 rounded-2xl blur-2xl"
+                  className="absolute -inset-4 rounded-2xl blur-2xl opacity-0 group-hover:opacity-60 transition-opacity duration-500"
                   style={{
                     background: 'radial-gradient(ellipse at center, hsl(var(--primary) / 0.5), hsl(var(--gold) / 0.3), transparent 70%)',
                   }}
-                  animate={{
-                    opacity: [0.4, 0.8, 0.4],
-                    scale: [0.9, 1.1, 0.9],
-                  }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                 />
 
                 {/* Inner gradient background */}
@@ -106,56 +101,6 @@ const Header = () => {
                   className="absolute inset-0 rounded-xl opacity-20 group-hover:opacity-40 transition-opacity"
                   style={{
                     background: 'linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(var(--gold) / 0.2), hsl(var(--primary) / 0.3))',
-                  }}
-                />
-
-                {/* Floating sparkle particles */}
-                {[...Array(6)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="absolute rounded-full"
-                    style={{
-                      width: i % 2 === 0 ? '3px' : '2px',
-                      height: i % 2 === 0 ? '3px' : '2px',
-                      background: i % 2 === 0 ? 'hsl(var(--gold))' : 'hsl(var(--primary))',
-                      left: `${10 + i * 15}%`,
-                      top: '50%',
-                      boxShadow: i % 2 === 0 
-                        ? '0 0 6px hsl(var(--gold)), 0 0 12px hsl(var(--gold))'
-                        : '0 0 6px hsl(var(--primary)), 0 0 12px hsl(var(--primary))',
-                    }}
-                    animate={{
-                      y: [0, -20, 0],
-                      x: [0, i % 2 === 0 ? 5 : -5, 0],
-                      opacity: [0, 1, 0],
-                      scale: [0, 1.5, 0],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      delay: i * 0.3,
-                      ease: 'easeInOut',
-                    }}
-                  />
-                ))}
-
-                {/* Orbiting dot */}
-                <motion.div
-                  className="absolute w-2 h-2 rounded-full bg-gold"
-                  style={{
-                    boxShadow: '0 0 10px hsl(var(--gold)), 0 0 20px hsl(var(--gold))',
-                    top: '50%',
-                    left: '50%',
-                  }}
-                  animate={{
-                    x: [0, 50, 0, -50, 0],
-                    y: [-15, 0, 15, 0, -15],
-                    opacity: [0.8, 1, 0.8, 1, 0.8],
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
                   }}
                 />
                 
