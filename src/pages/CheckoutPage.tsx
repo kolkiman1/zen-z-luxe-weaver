@@ -137,6 +137,42 @@ const CheckoutPage = () => {
     }
   };
 
+  // Require login before showing checkout
+  if (!user) {
+    return (
+      <>
+        <Header />
+        <main className="pt-24 pb-16 min-h-screen flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center max-w-md mx-auto p-8"
+          >
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
+              <Shield size={40} className="text-primary" />
+            </div>
+            <h1 className="font-display text-3xl mb-4">Sign in to Continue</h1>
+            <p className="text-muted-foreground mb-8">
+              Please sign in or create an account to proceed with your order. This helps us keep your order history and shipping information secure.
+            </p>
+            <div className="space-y-3">
+              <Link to="/auth" state={{ from: '/checkout' }}>
+                <Button className="btn-primary w-full py-6">Sign In / Create Account</Button>
+              </Link>
+              <Link to="/category/all">
+                <Button variant="outline" className="w-full py-6">Continue Shopping</Button>
+              </Link>
+            </div>
+            <p className="text-xs text-muted-foreground mt-6">
+              Your cart items are saved and will be waiting for you.
+            </p>
+          </motion.div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <>
@@ -172,16 +208,6 @@ const CheckoutPage = () => {
             <ChevronLeft size={18} />
             Continue Shopping
           </Link>
-
-          {/* Login prompt if not authenticated */}
-          {!user && (
-            <div className="mb-8 p-4 bg-primary/10 border border-primary/20 rounded-lg">
-              <p className="text-sm">
-                <Link to="/auth" className="text-primary hover:underline font-medium">Sign in</Link> to save your order history and get faster checkout.
-              </p>
-            </div>
-          )}
-
           <div className="grid lg:grid-cols-3 gap-12">
             {/* Checkout Form */}
             <div className="lg:col-span-2 space-y-8">
