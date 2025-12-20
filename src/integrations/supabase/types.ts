@@ -16,6 +16,8 @@ export type Database = {
     Tables: {
       announcements: {
         Row: {
+          background_color: string | null
+          button_text: string | null
           created_at: string | null
           end_date: string | null
           id: string
@@ -26,6 +28,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          background_color?: string | null
+          button_text?: string | null
           created_at?: string | null
           end_date?: string | null
           id?: string
@@ -36,6 +40,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          background_color?: string | null
+          button_text?: string | null
           created_at?: string | null
           end_date?: string | null
           id?: string

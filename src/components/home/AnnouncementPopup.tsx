@@ -14,6 +14,8 @@ interface Announcement {
   id: string;
   title: string;
   message: string;
+  background_color: string | null;
+  button_text: string | null;
 }
 
 const AnnouncementPopup = () => {
@@ -27,7 +29,7 @@ const AnnouncementPopup = () => {
 
       const { data, error } = await supabase
         .from('announcements')
-        .select('id, title, message')
+        .select('id, title, message, background_color, button_text')
         .eq('is_active', true)
         .or('end_date.is.null,end_date.gt.now()')
         .order('created_at', { ascending: false })
@@ -60,21 +62,46 @@ const AnnouncementPopup = () => {
 
   if (!announcement) return null;
 
+  const bgColor = announcement.background_color || '#ffffff';
+  const buttonText = announcement.button_text || 'Got it!';
+  
+  // Calculate if text should be light or dark based on background
+  const isLightBg = () => {
+    const hex = bgColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.5;
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent 
+        className="sm:max-w-md border-0"
+        style={{ 
+          backgroundColor: bgColor,
+          color: isLightBg() ? '#1a1a1a' : '#ffffff'
+        }}
+      >
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Megaphone className="w-5 h-5 text-primary" />
+          <DialogTitle 
+            className="flex items-center gap-2"
+            style={{ color: isLightBg() ? '#1a1a1a' : '#ffffff' }}
+          >
+            <Megaphone className="w-5 h-5" style={{ color: isLightBg() ? 'hsl(var(--primary))' : '#ffffff' }} />
             {announcement.title}
           </DialogTitle>
         </DialogHeader>
-        <DialogDescription className="text-base leading-relaxed whitespace-pre-wrap">
+        <DialogDescription 
+          className="text-base leading-relaxed whitespace-pre-wrap"
+          style={{ color: isLightBg() ? '#4a4a4a' : '#e0e0e0' }}
+        >
           {announcement.message}
         </DialogDescription>
         <div className="flex justify-end mt-4">
           <Button onClick={handleDismiss}>
-            Got it!
+            {buttonText}
           </Button>
         </div>
       </DialogContent>
