@@ -8,7 +8,9 @@ import {
   MessageSquare, 
   LogOut,
   ChevronLeft,
-  Menu
+  Menu,
+  Users,
+  Megaphone
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -21,6 +23,8 @@ const navItems = [
   { name: 'Products', href: '/admin/products', icon: Package },
   { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
   { name: 'Inquiries', href: '/admin/inquiries', icon: MessageSquare },
+  { name: 'Users', href: '/admin/users', icon: Users },
+  { name: 'Announcements', href: '/admin/announcements', icon: Megaphone },
 ];
 
 interface AdminLayoutProps {
