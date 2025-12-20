@@ -78,65 +78,141 @@ const Header = () => {
             {/* Logo */}
             <Link to="/" className="flex-shrink-0 group">
               <motion.div
-                className="relative"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
+                className="relative py-1 px-3"
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
               >
-                {/* Glow effect behind logo */}
+                {/* Animated border frame */}
                 <motion.div
-                  className="absolute -inset-3 rounded-lg bg-gradient-to-r from-primary/20 via-gold/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    background: 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--gold)), hsl(var(--primary)))',
+                    backgroundSize: '200% 100%',
+                    padding: '1px',
+                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    WebkitMaskComposite: 'xor',
+                    maskComposite: 'exclude',
+                  }}
                   animate={{
                     backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
                   }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-                  style={{ backgroundSize: '200% 200%' }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                 />
                 
-                <motion.h1
-                  className="relative font-display text-xl md:text-2xl font-semibold tracking-wider"
-                >
-                  {/* Shimmer effect on text */}
-                  <span 
-                    className="relative inline-block"
+                {/* Glow effect behind logo */}
+                <motion.div
+                  className="absolute -inset-2 rounded-xl blur-xl"
+                  style={{
+                    background: 'linear-gradient(90deg, hsl(var(--primary) / 0.4), hsl(var(--gold) / 0.4), hsl(var(--primary) / 0.4))',
+                    backgroundSize: '200% 100%',
+                  }}
+                  animate={{
+                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                    opacity: [0.3, 0.6, 0.3],
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                />
+
+                {/* Sparkle particles */}
+                {[...Array(3)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-1 h-1 rounded-full bg-gold"
                     style={{
-                      background: 'linear-gradient(90deg, hsl(var(--foreground)) 0%, hsl(var(--foreground)) 40%, hsl(var(--gold)) 50%, hsl(var(--foreground)) 60%, hsl(var(--foreground)) 100%)',
-                      backgroundSize: '200% 100%',
-                      WebkitBackgroundClip: 'text',
-                      backgroundClip: 'text',
-                      color: 'transparent',
-                      animation: 'shimmer 4s linear infinite',
+                      left: `${20 + i * 30}%`,
+                      top: '50%',
                     }}
-                  >
-                    zen-z
-                  </span>
-                  {/* Animated dot */}
-                  <motion.span
-                    className="relative inline-block text-primary"
                     animate={{
-                      scale: [1, 1.3, 1],
-                      textShadow: [
-                        '0 0 0px hsl(var(--primary))',
-                        '0 0 12px hsl(var(--primary))',
-                        '0 0 0px hsl(var(--primary))',
-                      ],
+                      y: [-8, -16, -8],
+                      opacity: [0, 1, 0],
+                      scale: [0.5, 1, 0.5],
                     }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      delay: i * 0.4,
+                      ease: 'easeInOut',
+                    }}
+                  />
+                ))}
+                
+                <motion.h1
+                  className="relative font-display text-xl md:text-2xl font-bold tracking-wider"
+                >
+                  {/* zen-z with letter animation */}
+                  <span className="relative inline-flex">
+                    {'zen-z'.split('').map((char, index) => (
+                      <motion.span
+                        key={index}
+                        className="inline-block"
+                        style={{
+                          background: 'linear-gradient(135deg, hsl(var(--foreground)) 0%, hsl(var(--gold)) 50%, hsl(var(--foreground)) 100%)',
+                          backgroundSize: '200% 200%',
+                          WebkitBackgroundClip: 'text',
+                          backgroundClip: 'text',
+                          color: 'transparent',
+                          animation: 'shimmer 3s linear infinite',
+                          animationDelay: `${index * 0.1}s`,
+                        }}
+                        whileHover={{
+                          y: -3,
+                          transition: { duration: 0.2 },
+                        }}
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
+                  </span>
+                  
+                  {/* Animated glowing dot */}
+                  <motion.span
+                    className="relative inline-block mx-0.5"
+                    animate={{
+                      scale: [1, 1.5, 1],
+                    }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
                   >
-                    .
+                    <motion.span
+                      className="absolute inset-0 rounded-full bg-primary blur-sm"
+                      animate={{
+                        opacity: [0.5, 1, 0.5],
+                        scale: [1, 2, 1],
+                      }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                    <span 
+                      className="relative text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]"
+                      style={{
+                        textShadow: '0 0 20px hsl(var(--primary)), 0 0 40px hsl(var(--primary))',
+                      }}
+                    >
+                      .
+                    </span>
                   </motion.span>
-                  <span 
-                    className="relative inline-block"
-                    style={{
-                      background: 'linear-gradient(90deg, hsl(var(--foreground)) 0%, hsl(var(--foreground)) 40%, hsl(var(--gold)) 50%, hsl(var(--foreground)) 60%, hsl(var(--foreground)) 100%)',
-                      backgroundSize: '200% 100%',
-                      WebkitBackgroundClip: 'text',
-                      backgroundClip: 'text',
-                      color: 'transparent',
-                      animation: 'shimmer 4s linear infinite',
-                      animationDelay: '0.5s',
-                    }}
-                  >
-                    store
+                  
+                  {/* store with letter animation */}
+                  <span className="relative inline-flex">
+                    {'store'.split('').map((char, index) => (
+                      <motion.span
+                        key={index}
+                        className="inline-block"
+                        style={{
+                          background: 'linear-gradient(135deg, hsl(var(--foreground)) 0%, hsl(var(--gold)) 50%, hsl(var(--foreground)) 100%)',
+                          backgroundSize: '200% 200%',
+                          WebkitBackgroundClip: 'text',
+                          backgroundClip: 'text',
+                          color: 'transparent',
+                          animation: 'shimmer 3s linear infinite',
+                          animationDelay: `${(index + 5) * 0.1}s`,
+                        }}
+                        whileHover={{
+                          y: -3,
+                          transition: { duration: 0.2 },
+                        }}
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
                   </span>
                 </motion.h1>
               </motion.div>
