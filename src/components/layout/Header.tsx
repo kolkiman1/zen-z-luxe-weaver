@@ -88,22 +88,6 @@ const Header = () => {
                 style={{ transformStyle: 'preserve-3d' }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
-                {/* Animated rotating ring */}
-                <motion.div
-                  className="absolute inset-0 rounded-xl"
-                  style={{
-                    background: 'conic-gradient(from 0deg, hsl(var(--primary)), hsl(var(--gold)), hsl(var(--primary) / 0.5), hsl(var(--gold)), hsl(var(--primary)))',
-                    padding: '2px',
-                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    WebkitMaskComposite: 'xor',
-                    maskComposite: 'exclude',
-                  }}
-                  animate={{
-                    rotate: [0, 360],
-                  }}
-                  transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-                />
-                
                 {/* Pulsing outer glow */}
                 <motion.div
                   className="absolute -inset-4 rounded-2xl blur-2xl"
