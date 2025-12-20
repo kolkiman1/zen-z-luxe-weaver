@@ -143,63 +143,18 @@ const Header = () => {
                     ))}
                   </span>
                   
-                  {/* Animated glowing dot with rings */}
-                  <motion.span
-                    className="relative inline-block mx-1"
-                    animate={{
-                      scale: [1, 1.3, 1],
-                    }}
-                    transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
-                  >
-                    {/* Expanding rings */}
-                    {[...Array(3)].map((_, i) => (
-                      <motion.span
-                        key={i}
-                        className="absolute inset-0 rounded-full border border-primary"
-                        style={{
-                          top: '50%',
-                          left: '50%',
-                          transform: 'translate(-50%, -50%)',
-                          width: '8px',
-                          height: '8px',
-                        }}
-                        animate={{
-                          scale: [1, 3, 1],
-                          opacity: [0.8, 0, 0.8],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          delay: i * 0.6,
-                          ease: 'easeOut',
-                        }}
-                      />
-                    ))}
-                    <motion.span
-                      className="absolute rounded-full bg-primary blur-md"
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                      }}
-                      animate={{
-                        opacity: [0.5, 1, 0.5],
-                        scale: [0.8, 1.2, 0.8],
-                      }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
-                    />
+                  {/* Glowing dot - static */}
+                  <span className="relative inline-block mx-1">
                     <span 
                       className="relative text-primary font-black"
                       style={{
-                        textShadow: '0 0 20px hsl(var(--primary)), 0 0 40px hsl(var(--primary)), 0 0 60px hsl(var(--primary))',
-                        filter: 'drop-shadow(0 0 8px hsl(var(--primary)))',
+                        textShadow: '0 0 15px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
+                        filter: 'drop-shadow(0 0 6px hsl(var(--primary)))',
                       }}
                     >
                       .
                     </span>
-                  </motion.span>
+                  </span>
                   
                   {/* store with 3D letter animation */}
                   <span className="relative inline-flex">
