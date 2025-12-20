@@ -1,100 +1,141 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Instagram, Facebook, Twitter, Mail, MapPin, Phone } from 'lucide-react';
+import { Instagram, Facebook, Twitter, Mail, MapPin, Phone, ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 const Footer = () => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
+
   return (
-    <footer className="bg-card border-t border-border">
+    <footer className="relative bg-gradient-to-b from-background via-card to-card/95 overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gold/5 rounded-full blur-3xl" />
+      </div>
+
       {/* Newsletter Section */}
-      <div className="border-b border-border">
-        <div className="container-luxury py-12 md:py-16">
-          <div className="max-w-2xl mx-auto text-center">
-            <motion.h3
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="font-display text-2xl md:text-3xl mb-3"
-            >
+      <div className="relative border-b border-border/50">
+        <div className="container-luxury py-16 md:py-20">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-2xl mx-auto text-center"
+          >
+            <span className="inline-block px-4 py-1.5 mb-4 text-xs tracking-[0.2em] uppercase bg-primary/10 border border-primary/20 rounded-full text-primary">
+              Newsletter
+            </span>
+            <h3 className="font-display text-3xl md:text-4xl mb-4">
               Join the <span className="text-gradient-gold">Zen-Z</span> Community
-            </motion.h3>
-            <p className="text-muted-foreground mb-6">
+            </h3>
+            <p className="text-muted-foreground mb-8 max-w-md mx-auto">
               Subscribe for exclusive offers, new arrivals, and style inspiration.
             </p>
             <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <Input
                 type="email"
                 placeholder="Enter your email"
-                className="bg-secondary border-border focus:border-primary"
+                className="bg-secondary/50 border-border/50 focus:border-primary backdrop-blur-sm h-12"
               />
-              <Button className="btn-primary whitespace-nowrap px-8">
+              <Button className="btn-primary whitespace-nowrap px-8 h-12">
                 Subscribe
               </Button>
             </form>
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Main Footer */}
-      <div className="container-luxury py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+      <div className="relative container-luxury py-16 md:py-20">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16"
+        >
           {/* Brand */}
-          <div>
-            <Link to="/" className="inline-block mb-4">
+          <motion.div variants={itemVariants}>
+            <Link to="/" className="inline-block mb-6">
               <h2 className="font-display text-2xl font-semibold">
                 zen-z<span className="text-primary">.</span>store
               </h2>
             </Link>
-            <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
+            <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
               Premium Fashion for the Next Generation. Curated luxury pieces for the modern
               Bangladeshi.
             </p>
-            <div className="flex gap-3">
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
-              >
-                <Instagram size={18} />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
-              >
-                <Facebook size={18} />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
-              >
-                <Twitter size={18} />
-              </a>
+            <div className="flex gap-2">
+              {[
+                { icon: Instagram, label: 'Instagram' },
+                { icon: Facebook, label: 'Facebook' },
+                { icon: Twitter, label: 'Twitter' },
+              ].map(({ icon: Icon, label }) => (
+                <motion.a
+                  key={label}
+                  href="#"
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-11 h-11 rounded-full bg-secondary/50 backdrop-blur-sm border border-border/50 flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
+                >
+                  <Icon size={18} />
+                </motion.a>
+              ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Quick Links */}
-          <div>
-            <h4 className="font-display text-lg mb-4">Quick Links</h4>
-            <ul className="space-y-3">
+          <motion.div variants={itemVariants}>
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-8 h-px bg-gradient-to-r from-primary to-transparent" />
+              <h4 className="font-display text-sm tracking-[0.15em] uppercase text-foreground">
+                Quick Links
+              </h4>
+            </div>
+            <ul className="space-y-4">
               {['New Arrivals', 'Best Sellers', 'Men', 'Women', 'Jewelry', 'Accessories'].map(
                 (link) => (
                   <li key={link}>
                     <Link
                       to={`/category/${link.toLowerCase().replace(' ', '-')}`}
-                      className="text-muted-foreground hover:text-primary transition-colors text-sm"
+                      className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
                     >
-                      {link}
+                      <span className="w-0 group-hover:w-3 h-px bg-primary transition-all duration-300" />
+                      <span>{link}</span>
+                      <ArrowUpRight size={12} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                     </Link>
                   </li>
                 )
               )}
             </ul>
-          </div>
+          </motion.div>
 
           {/* Customer Service */}
-          <div>
-            <h4 className="font-display text-lg mb-4">Customer Service</h4>
-            <ul className="space-y-3">
+          <motion.div variants={itemVariants}>
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-8 h-px bg-gradient-to-r from-gold to-transparent" />
+              <h4 className="font-display text-sm tracking-[0.15em] uppercase text-foreground">
+                Customer Service
+              </h4>
+            </div>
+            <ul className="space-y-4">
               {[
                 'Contact Us',
                 'Shipping & Returns',
@@ -106,47 +147,91 @@ const Footer = () => {
                 <li key={link}>
                   <Link
                     to="#"
-                    className="text-muted-foreground hover:text-primary transition-colors text-sm"
+                    className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
                   >
-                    {link}
+                    <span className="w-0 group-hover:w-3 h-px bg-gold transition-all duration-300" />
+                    <span>{link}</span>
+                    <ArrowUpRight size={12} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
           {/* Contact */}
-          <div>
-            <h4 className="font-display text-lg mb-4">Contact Us</h4>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3 text-sm text-muted-foreground">
-                <MapPin size={18} className="flex-shrink-0 mt-0.5 text-primary" />
-                <span>Gulshan-2, Dhaka 1212, Bangladesh</span>
+          <motion.div variants={itemVariants}>
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-8 h-px bg-gradient-to-r from-primary via-gold to-transparent" />
+              <h4 className="font-display text-sm tracking-[0.15em] uppercase text-foreground">
+                Contact Us
+              </h4>
+            </div>
+            <ul className="space-y-5">
+              <li>
+                <motion.div
+                  whileHover={{ x: 4 }}
+                  className="flex items-start gap-4 group cursor-pointer"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                    <MapPin size={18} className="text-primary" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground/70 uppercase tracking-wider">Address</span>
+                    <p className="text-sm text-foreground mt-0.5">Gulshan-2, Dhaka 1212, Bangladesh</p>
+                  </div>
+                </motion.div>
               </li>
-              <li className="flex items-center gap-3 text-sm text-muted-foreground">
-                <Phone size={18} className="flex-shrink-0 text-primary" />
-                <span>+880 1XXX-XXXXXX</span>
+              <li>
+                <motion.div
+                  whileHover={{ x: 4 }}
+                  className="flex items-start gap-4 group cursor-pointer"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center flex-shrink-0 group-hover:bg-gold/20 transition-colors">
+                    <Phone size={18} className="text-gold" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground/70 uppercase tracking-wider">Phone</span>
+                    <p className="text-sm text-foreground mt-0.5">+880 1XXX-XXXXXX</p>
+                  </div>
+                </motion.div>
               </li>
-              <li className="flex items-center gap-3 text-sm text-muted-foreground">
-                <Mail size={18} className="flex-shrink-0 text-primary" />
-                <span>hello@zen-z.store</span>
+              <li>
+                <motion.div
+                  whileHover={{ x: 4 }}
+                  className="flex items-start gap-4 group cursor-pointer"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                    <Mail size={18} className="text-primary" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground/70 uppercase tracking-wider">Email</span>
+                    <p className="text-sm text-foreground mt-0.5">hello@zen-z.store</p>
+                  </div>
+                </motion.div>
               </li>
             </ul>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-border">
+      <div className="relative border-t border-border/30">
         <div className="container-luxury py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} zen-z.store. All rights reserved.</p>
+            <p className="flex items-center gap-1">
+              &copy; {new Date().getFullYear()} 
+              <span className="text-foreground font-medium">zen-z.store</span>
+              <span className="mx-1">·</span>
+              All rights reserved.
+            </p>
             <div className="flex items-center gap-6">
-              <Link to="#" className="hover:text-primary transition-colors">
+              <Link to="#" className="hover:text-foreground transition-colors relative group">
                 Terms & Conditions
+                <span className="absolute -bottom-0.5 left-0 w-0 group-hover:w-full h-px bg-primary transition-all duration-300" />
               </Link>
-              <Link to="#" className="hover:text-primary transition-colors">
+              <Link to="#" className="hover:text-foreground transition-colors relative group">
                 Privacy Policy
+                <span className="absolute -bottom-0.5 left-0 w-0 group-hover:w-full h-px bg-primary transition-all duration-300" />
               </Link>
             </div>
           </div>
