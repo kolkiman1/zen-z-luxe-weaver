@@ -142,7 +142,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
-            className="inline-flex items-center gap-2 mb-4 md:mb-6"
+            className="inline-flex items-center gap-2 mb-6 md:mb-8"
           >
             <motion.span 
               className="relative px-4 py-2 md:px-6 md:py-3 bg-primary/10 border border-primary/30 rounded-full text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide flex items-center gap-2 overflow-hidden"
@@ -185,8 +185,38 @@ const Hero = () => {
               >
                 <Sparkles size={18} className="text-gold" />
               </motion.span>
-              {/* Text with shimmer gradient */}
-              <span className="relative z-10">
+              {/* Text with emphasized "Bangladesh's Biggest" */}
+              <span className="relative z-10 flex flex-wrap items-center gap-1">
+                {/* Bangladesh's Biggest - Pure white with glow effect */}
+                <motion.span
+                  className="relative font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                  animate={{
+                    textShadow: [
+                      "0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(255,255,255,0.3)",
+                      "0 0 20px rgba(255,255,255,0.8), 0 0 40px rgba(255,255,255,0.5)",
+                      "0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(255,255,255,0.3)"
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  {"Bangladesh's Biggest".split("").map((char, index) => (
+                    <motion.span
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        delay: 0.4 + index * 0.03,
+                        duration: 0.4,
+                        ease: [0.22, 1, 0.36, 1]
+                      }}
+                      className="inline-block"
+                      style={{ whiteSpace: char === " " ? "pre" : "normal" }}
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
+                </motion.span>
+                {/* Trendy Fashion Shop - Regular shimmer */}
                 <span 
                   className="relative inline-flex"
                   style={{
@@ -198,13 +228,13 @@ const Hero = () => {
                     animation: "shimmer 3s linear infinite",
                   }}
                 >
-                  {"Bangladesh's Biggest Trendy Fashion Shop".split("").map((char, index) => (
+                  {"Trendy Fashion Shop".split("").map((char, index) => (
                     <motion.span
                       key={index}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{
-                        delay: 0.4 + index * 0.025,
+                        delay: 0.4 + 19 * 0.03 + index * 0.025,
                         duration: 0.4,
                         ease: [0.22, 1, 0.36, 1]
                       }}
@@ -223,7 +253,7 @@ const Hero = () => {
           <TypewriterTagline />
 
           {/* Main Heading with staggered word animation */}
-          <div className="mb-4 md:mb-6 overflow-hidden">
+          <div className="mb-6 md:mb-10 overflow-hidden mt-4 md:mt-6">
             <motion.h1
               className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold leading-tight"
             >
@@ -264,7 +294,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ delay: 0.9, duration: 0.7, ease: "easeOut" }}
-            className="text-foreground/70 text-sm sm:text-base md:text-lg max-w-lg mb-6 md:mb-8 leading-relaxed"
+            className="text-foreground/70 text-sm sm:text-base md:text-lg max-w-lg mb-8 md:mb-12 leading-relaxed"
           >
             Discover curated luxury fashion, exquisite jewelry, and premium accessories
             designed for the modern Bangladeshi.
