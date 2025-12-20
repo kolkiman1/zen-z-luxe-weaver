@@ -88,16 +88,28 @@ const Hero = () => {
         ))}
       </div>
 
-      {/* Background Image - Simple CSS parallax with fixed attachment */}
-      <div className="absolute inset-0">
+      {/* Background Image with Ken Burns zoom effect */}
+      <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: 'easeOut' }}
-          className="absolute inset-0 bg-cover bg-center bg-fixed"
+          initial={{ opacity: 0, scale: 1 }}
+          animate={{ 
+            opacity: 1, 
+            scale: [1, 1.08, 1.12, 1.08, 1],
+          }}
+          transition={{ 
+            opacity: { duration: 1.2, ease: 'easeOut' },
+            scale: { 
+              duration: 25, 
+              ease: 'linear',
+              repeat: Infinity,
+              repeatType: 'reverse',
+            }
+          }}
+          className="absolute inset-0 bg-cover bg-center will-change-transform"
           style={{
             backgroundImage: `url('https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1920&q=80')`,
             backgroundPosition: 'center top',
+            transform: 'translateZ(0)',
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/30" />
