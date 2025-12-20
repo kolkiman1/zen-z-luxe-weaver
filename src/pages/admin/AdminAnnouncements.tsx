@@ -38,6 +38,8 @@ interface Announcement {
   start_date: string;
   end_date: string | null;
   created_at: string;
+  background_color: string | null;
+  button_text: string | null;
 }
 
 const AdminAnnouncements = () => {
@@ -52,6 +54,8 @@ const AdminAnnouncements = () => {
     message: '',
     is_active: true,
     end_date: '',
+    background_color: '#ffffff',
+    button_text: 'Got it!',
   });
 
   const fetchAnnouncements = async () => {
@@ -81,6 +85,8 @@ const AdminAnnouncements = () => {
       message: '',
       is_active: true,
       end_date: '',
+      background_color: '#ffffff',
+      button_text: 'Got it!',
     });
     setEditingId(null);
   };
@@ -91,6 +97,8 @@ const AdminAnnouncements = () => {
       message: announcement.message,
       is_active: announcement.is_active,
       end_date: announcement.end_date ? format(new Date(announcement.end_date), 'yyyy-MM-dd') : '',
+      background_color: announcement.background_color || '#ffffff',
+      button_text: announcement.button_text || 'Got it!',
     });
     setEditingId(announcement.id);
     setDialogOpen(true);
@@ -110,6 +118,8 @@ const AdminAnnouncements = () => {
         message: formData.message.trim(),
         is_active: formData.is_active,
         end_date: formData.end_date ? new Date(formData.end_date).toISOString() : null,
+        background_color: formData.background_color,
+        button_text: formData.button_text.trim() || 'Got it!',
       };
 
       if (editingId) {
@@ -228,6 +238,37 @@ const AdminAnnouncements = () => {
                   <p className="text-xs text-muted-foreground">
                     Leave empty to show indefinitely
                   </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="background_color">Background Color</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="background_color"
+                        type="color"
+                        value={formData.background_color}
+                        onChange={(e) => setFormData({ ...formData, background_color: e.target.value })}
+                        className="w-12 h-10 p-1 cursor-pointer"
+                      />
+                      <Input
+                        value={formData.background_color}
+                        onChange={(e) => setFormData({ ...formData, background_color: e.target.value })}
+                        placeholder="#ffffff"
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="button_text">Button Text</Label>
+                    <Input
+                      id="button_text"
+                      placeholder="Got it!"
+                      value={formData.button_text}
+                      onChange={(e) => setFormData({ ...formData, button_text: e.target.value })}
+                    />
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2">
