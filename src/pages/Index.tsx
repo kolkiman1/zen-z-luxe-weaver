@@ -10,6 +10,7 @@ import BrandBanner from '@/components/home/BrandBanner';
 import Features from '@/components/home/Features';
 import { ProductChatbot } from '@/components/chat/ProductChatbot';
 import { ParallaxSection } from '@/components/ui/parallax-section';
+import AnnouncementPopup from '@/components/home/AnnouncementPopup';
 
 const Index = () => {
   return (
@@ -79,6 +80,7 @@ const Index = () => {
 
       <Footer />
       <ProductChatbot />
+      <AnnouncementPopup />
     </>
   );
 };
