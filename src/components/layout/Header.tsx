@@ -76,15 +76,70 @@ const Header = () => {
             </button>
 
             {/* Logo */}
-            <Link to="/" className="flex-shrink-0">
-              <motion.h1
-                className="font-display text-xl md:text-2xl font-semibold tracking-wider"
-                whileHover={{ scale: 1.02 }}
+            <Link to="/" className="flex-shrink-0 group">
+              <motion.div
+                className="relative"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <span className="text-foreground">zen-z</span>
-                <span className="text-primary">.</span>
-                <span className="text-foreground">store</span>
-              </motion.h1>
+                {/* Glow effect behind logo */}
+                <motion.div
+                  className="absolute -inset-3 rounded-lg bg-gradient-to-r from-primary/20 via-gold/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  animate={{
+                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                  style={{ backgroundSize: '200% 200%' }}
+                />
+                
+                <motion.h1
+                  className="relative font-display text-xl md:text-2xl font-semibold tracking-wider"
+                >
+                  {/* Shimmer effect on text */}
+                  <span 
+                    className="relative inline-block"
+                    style={{
+                      background: 'linear-gradient(90deg, hsl(var(--foreground)) 0%, hsl(var(--foreground)) 40%, hsl(var(--gold)) 50%, hsl(var(--foreground)) 60%, hsl(var(--foreground)) 100%)',
+                      backgroundSize: '200% 100%',
+                      WebkitBackgroundClip: 'text',
+                      backgroundClip: 'text',
+                      color: 'transparent',
+                      animation: 'shimmer 4s linear infinite',
+                    }}
+                  >
+                    zen-z
+                  </span>
+                  {/* Animated dot */}
+                  <motion.span
+                    className="relative inline-block text-primary"
+                    animate={{
+                      scale: [1, 1.3, 1],
+                      textShadow: [
+                        '0 0 0px hsl(var(--primary))',
+                        '0 0 12px hsl(var(--primary))',
+                        '0 0 0px hsl(var(--primary))',
+                      ],
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                  >
+                    .
+                  </motion.span>
+                  <span 
+                    className="relative inline-block"
+                    style={{
+                      background: 'linear-gradient(90deg, hsl(var(--foreground)) 0%, hsl(var(--foreground)) 40%, hsl(var(--gold)) 50%, hsl(var(--foreground)) 60%, hsl(var(--foreground)) 100%)',
+                      backgroundSize: '200% 100%',
+                      WebkitBackgroundClip: 'text',
+                      backgroundClip: 'text',
+                      color: 'transparent',
+                      animation: 'shimmer 4s linear infinite',
+                      animationDelay: '0.5s',
+                    }}
+                  >
+                    store
+                  </span>
+                </motion.h1>
+              </motion.div>
             </Link>
 
             {/* Desktop Navigation */}
