@@ -76,86 +76,136 @@ const Header = () => {
             </button>
 
             {/* Logo */}
-            <Link to="/" className="flex-shrink-0 group">
+            <Link to="/" className="flex-shrink-0 group perspective-1000">
               <motion.div
-                className="relative py-1 px-3"
-                whileHover={{ scale: 1.08 }}
+                className="relative py-2 px-4"
+                whileHover={{ 
+                  scale: 1.1,
+                  rotateX: 5,
+                  rotateY: -5,
+                }}
                 whileTap={{ scale: 0.95 }}
+                style={{ transformStyle: 'preserve-3d' }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
-                {/* Animated border frame */}
+                {/* Animated rotating ring */}
                 <motion.div
-                  className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  className="absolute inset-0 rounded-xl"
                   style={{
-                    background: 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--gold)), hsl(var(--primary)))',
-                    backgroundSize: '200% 100%',
-                    padding: '1px',
+                    background: 'conic-gradient(from 0deg, hsl(var(--primary)), hsl(var(--gold)), hsl(var(--primary) / 0.5), hsl(var(--gold)), hsl(var(--primary)))',
+                    padding: '2px',
                     WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                     WebkitMaskComposite: 'xor',
                     maskComposite: 'exclude',
                   }}
                   animate={{
-                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                    rotate: [0, 360],
                   }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                  transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
                 />
                 
-                {/* Glow effect behind logo */}
+                {/* Pulsing outer glow */}
                 <motion.div
-                  className="absolute -inset-2 rounded-xl blur-xl"
+                  className="absolute -inset-4 rounded-2xl blur-2xl"
                   style={{
-                    background: 'linear-gradient(90deg, hsl(var(--primary) / 0.4), hsl(var(--gold) / 0.4), hsl(var(--primary) / 0.4))',
-                    backgroundSize: '200% 100%',
+                    background: 'radial-gradient(ellipse at center, hsl(var(--primary) / 0.5), hsl(var(--gold) / 0.3), transparent 70%)',
                   }}
                   animate={{
-                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-                    opacity: [0.3, 0.6, 0.3],
+                    opacity: [0.4, 0.8, 0.4],
+                    scale: [0.9, 1.1, 0.9],
                   }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                 />
 
-                {/* Sparkle particles */}
-                {[...Array(3)].map((_, i) => (
+                {/* Inner gradient background */}
+                <motion.div
+                  className="absolute inset-0 rounded-xl opacity-20 group-hover:opacity-40 transition-opacity"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(var(--gold) / 0.2), hsl(var(--primary) / 0.3))',
+                  }}
+                />
+
+                {/* Floating sparkle particles */}
+                {[...Array(6)].map((_, i) => (
                   <motion.div
                     key={i}
-                    className="absolute w-1 h-1 rounded-full bg-gold"
+                    className="absolute rounded-full"
                     style={{
-                      left: `${20 + i * 30}%`,
+                      width: i % 2 === 0 ? '3px' : '2px',
+                      height: i % 2 === 0 ? '3px' : '2px',
+                      background: i % 2 === 0 ? 'hsl(var(--gold))' : 'hsl(var(--primary))',
+                      left: `${10 + i * 15}%`,
                       top: '50%',
+                      boxShadow: i % 2 === 0 
+                        ? '0 0 6px hsl(var(--gold)), 0 0 12px hsl(var(--gold))'
+                        : '0 0 6px hsl(var(--primary)), 0 0 12px hsl(var(--primary))',
                     }}
                     animate={{
-                      y: [-8, -16, -8],
+                      y: [0, -20, 0],
+                      x: [0, i % 2 === 0 ? 5 : -5, 0],
                       opacity: [0, 1, 0],
-                      scale: [0.5, 1, 0.5],
+                      scale: [0, 1.5, 0],
                     }}
                     transition={{
-                      duration: 1.5,
+                      duration: 2,
                       repeat: Infinity,
-                      delay: i * 0.4,
+                      delay: i * 0.3,
                       ease: 'easeInOut',
                     }}
                   />
                 ))}
+
+                {/* Orbiting dot */}
+                <motion.div
+                  className="absolute w-2 h-2 rounded-full bg-gold"
+                  style={{
+                    boxShadow: '0 0 10px hsl(var(--gold)), 0 0 20px hsl(var(--gold))',
+                    top: '50%',
+                    left: '50%',
+                  }}
+                  animate={{
+                    x: [0, 50, 0, -50, 0],
+                    y: [-15, 0, 15, 0, -15],
+                    opacity: [0.8, 1, 0.8, 1, 0.8],
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                />
                 
                 <motion.h1
-                  className="relative font-display text-xl md:text-2xl font-bold tracking-wider"
+                  className="relative font-display text-xl md:text-2xl font-black tracking-wider"
+                  style={{ transformStyle: 'preserve-3d' }}
                 >
-                  {/* zen-z with letter animation */}
+                  {/* zen-z with 3D letter animation */}
                   <span className="relative inline-flex">
                     {'zen-z'.split('').map((char, index) => (
                       <motion.span
                         key={index}
-                        className="inline-block"
+                        className="inline-block relative"
                         style={{
-                          background: 'linear-gradient(135deg, hsl(var(--foreground)) 0%, hsl(var(--gold)) 50%, hsl(var(--foreground)) 100%)',
-                          backgroundSize: '200% 200%',
+                          background: 'linear-gradient(180deg, hsl(var(--foreground)) 0%, hsl(var(--gold)) 50%, hsl(var(--foreground)) 100%)',
+                          backgroundSize: '100% 300%',
                           WebkitBackgroundClip: 'text',
                           backgroundClip: 'text',
                           color: 'transparent',
-                          animation: 'shimmer 3s linear infinite',
-                          animationDelay: `${index * 0.1}s`,
+                          textShadow: '0 2px 10px hsl(var(--gold) / 0.3)',
+                        }}
+                        animate={{
+                          backgroundPosition: ['0% 0%', '0% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          delay: index * 0.15,
+                          ease: 'easeInOut',
                         }}
                         whileHover={{
-                          y: -3,
+                          y: -5,
+                          scale: 1.2,
+                          rotateY: 15,
                           transition: { duration: 0.2 },
                         }}
                       >
@@ -164,49 +214,91 @@ const Header = () => {
                     ))}
                   </span>
                   
-                  {/* Animated glowing dot */}
+                  {/* Animated glowing dot with rings */}
                   <motion.span
-                    className="relative inline-block mx-0.5"
+                    className="relative inline-block mx-1"
                     animate={{
-                      scale: [1, 1.5, 1],
+                      scale: [1, 1.3, 1],
                     }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
                   >
+                    {/* Expanding rings */}
+                    {[...Array(3)].map((_, i) => (
+                      <motion.span
+                        key={i}
+                        className="absolute inset-0 rounded-full border border-primary"
+                        style={{
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          width: '8px',
+                          height: '8px',
+                        }}
+                        animate={{
+                          scale: [1, 3, 1],
+                          opacity: [0.8, 0, 0.8],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          delay: i * 0.6,
+                          ease: 'easeOut',
+                        }}
+                      />
+                    ))}
                     <motion.span
-                      className="absolute inset-0 rounded-full bg-primary blur-sm"
+                      className="absolute rounded-full bg-primary blur-md"
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                      }}
                       animate={{
                         opacity: [0.5, 1, 0.5],
-                        scale: [1, 2, 1],
+                        scale: [0.8, 1.2, 0.8],
                       }}
-                      transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
                     />
                     <span 
-                      className="relative text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]"
+                      className="relative text-primary font-black"
                       style={{
-                        textShadow: '0 0 20px hsl(var(--primary)), 0 0 40px hsl(var(--primary))',
+                        textShadow: '0 0 20px hsl(var(--primary)), 0 0 40px hsl(var(--primary)), 0 0 60px hsl(var(--primary))',
+                        filter: 'drop-shadow(0 0 8px hsl(var(--primary)))',
                       }}
                     >
                       .
                     </span>
                   </motion.span>
                   
-                  {/* store with letter animation */}
+                  {/* store with 3D letter animation */}
                   <span className="relative inline-flex">
                     {'store'.split('').map((char, index) => (
                       <motion.span
                         key={index}
-                        className="inline-block"
+                        className="inline-block relative"
                         style={{
-                          background: 'linear-gradient(135deg, hsl(var(--foreground)) 0%, hsl(var(--gold)) 50%, hsl(var(--foreground)) 100%)',
-                          backgroundSize: '200% 200%',
+                          background: 'linear-gradient(180deg, hsl(var(--foreground)) 0%, hsl(var(--gold)) 50%, hsl(var(--foreground)) 100%)',
+                          backgroundSize: '100% 300%',
                           WebkitBackgroundClip: 'text',
                           backgroundClip: 'text',
                           color: 'transparent',
-                          animation: 'shimmer 3s linear infinite',
-                          animationDelay: `${(index + 5) * 0.1}s`,
+                          textShadow: '0 2px 10px hsl(var(--gold) / 0.3)',
+                        }}
+                        animate={{
+                          backgroundPosition: ['0% 0%', '0% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          delay: (index + 6) * 0.15,
+                          ease: 'easeInOut',
                         }}
                         whileHover={{
-                          y: -3,
+                          y: -5,
+                          scale: 1.2,
+                          rotateY: -15,
                           transition: { duration: 0.2 },
                         }}
                       >
@@ -215,6 +307,30 @@ const Header = () => {
                     ))}
                   </span>
                 </motion.h1>
+
+                {/* Shine sweep effect */}
+                <motion.div
+                  className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                >
+                  <motion.div
+                    className="absolute inset-0"
+                    style={{
+                      background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)',
+                      transform: 'translateX(-100%)',
+                    }}
+                    animate={{
+                      transform: ['translateX(-100%)', 'translateX(100%)'],
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      repeatDelay: 2,
+                      ease: 'easeInOut',
+                    }}
+                  />
+                </motion.div>
               </motion.div>
             </Link>
 
