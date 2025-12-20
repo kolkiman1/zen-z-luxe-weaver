@@ -185,9 +185,37 @@ const Hero = () => {
               >
                 <Sparkles size={18} className="text-gold" />
               </motion.span>
-              {/* Text with emphasized "Bangladesh's Biggest" */}
-              <span className="relative z-10 flex flex-wrap items-center gap-1">
-                {/* Bangladesh's Biggest - Pure white with glow effect */}
+              {/* Text with emphasized "Biggest" only */}
+              <span className="relative z-10">
+                <span 
+                  className="relative inline-flex"
+                  style={{
+                    background: "linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, hsl(var(--gold)) 50%, hsl(var(--primary)) 60%, hsl(var(--primary)) 100%)",
+                    backgroundSize: "200% 100%",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    color: "transparent",
+                    animation: "shimmer 3s linear infinite",
+                  }}
+                >
+                  {"Bangladesh's ".split("").map((char, index) => (
+                    <motion.span
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        delay: 0.4 + index * 0.025,
+                        duration: 0.4,
+                        ease: [0.22, 1, 0.36, 1]
+                      }}
+                      className="inline-block"
+                      style={{ whiteSpace: char === " " ? "pre" : "normal" }}
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
+                </span>
+                {/* Biggest - Pure white with glow effect */}
                 <motion.span
                   className="relative font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]"
                   animate={{
@@ -199,18 +227,17 @@ const Hero = () => {
                   }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 >
-                  {"Bangladesh's Biggest".split("").map((char, index) => (
+                  {"Biggest".split("").map((char, index) => (
                     <motion.span
                       key={index}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{
-                        delay: 0.4 + index * 0.03,
+                        delay: 0.4 + 13 * 0.025 + index * 0.03,
                         duration: 0.4,
                         ease: [0.22, 1, 0.36, 1]
                       }}
                       className="inline-block"
-                      style={{ whiteSpace: char === " " ? "pre" : "normal" }}
                     >
                       {char}
                     </motion.span>
@@ -228,13 +255,13 @@ const Hero = () => {
                     animation: "shimmer 3s linear infinite",
                   }}
                 >
-                  {"Trendy Fashion Shop".split("").map((char, index) => (
+                  {" Trendy Fashion Shop".split("").map((char, index) => (
                     <motion.span
                       key={index}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{
-                        delay: 0.4 + 19 * 0.03 + index * 0.025,
+                        delay: 0.4 + 20 * 0.025 + index * 0.025,
                         duration: 0.4,
                         ease: [0.22, 1, 0.36, 1]
                       }}
