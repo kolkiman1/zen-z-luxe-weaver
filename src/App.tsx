@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { NewsletterProvider } from "@/contexts/NewsletterContext";
 import Index from "./pages/Index";
 import CategoryPage from "./pages/CategoryPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
@@ -29,28 +30,30 @@ const App = () => (
       <AuthProvider>
         <CartProvider>
           <WishlistProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/category/:slug" element={<CategoryPage />} />
-                  <Route path="/product/:id" element={<ProductDetailPage />} />
-                  <Route path="/wishlist" element={<WishlistPage />} />
-                  <Route path="/checkout" element={<CheckoutPage />} />
-                  <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/orders" element={<OrdersPage />} />
-                  <Route path="/orders/:orderId" element={<OrderTrackingPage />} />
-                  {/* Admin Routes */}
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/admin/products" element={<AdminProducts />} />
-                  <Route path="/admin/orders" element={<AdminOrders />} />
-                  <Route path="/admin/inquiries" element={<AdminInquiries />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
+            <NewsletterProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/category/:slug" element={<CategoryPage />} />
+                    <Route path="/product/:id" element={<ProductDetailPage />} />
+                    <Route path="/wishlist" element={<WishlistPage />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/auth" element={<AuthPage />} />
+                    <Route path="/orders" element={<OrdersPage />} />
+                    <Route path="/orders/:orderId" element={<OrderTrackingPage />} />
+                    {/* Admin Routes */}
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/products" element={<AdminProducts />} />
+                    <Route path="/admin/orders" element={<AdminOrders />} />
+                    <Route path="/admin/inquiries" element={<AdminInquiries />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+              </TooltipProvider>
+            </NewsletterProvider>
           </WishlistProvider>
         </CartProvider>
       </AuthProvider>

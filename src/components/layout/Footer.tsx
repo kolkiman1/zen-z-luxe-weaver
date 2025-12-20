@@ -1,10 +1,33 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Instagram, Facebook, Twitter, Mail, MapPin, Phone, ArrowUpRight } from 'lucide-react';
+import { Instagram, Facebook, Twitter, Mail, MapPin, Phone, ArrowUpRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useNewsletter } from '@/contexts/NewsletterContext';
+import { toast } from 'sonner';
 
 const Footer = () => {
+  const { isSubscribed, subscribe } = useNewsletter();
+  const [email, setEmail] = useState('');
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast.error('Please enter your email');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Please enter a valid email');
+      return;
+    }
+    subscribe(email);
+    toast.success('Welcome to the Zen-Z community!', {
+      description: 'You\'ll receive exclusive offers and style inspiration.',
+    });
+    setEmail('');
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -29,38 +52,60 @@ const Footer = () => {
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gold/5 rounded-full blur-3xl" />
       </div>
 
-      {/* Newsletter Section */}
-      <div className="relative border-b border-border/50">
-        <div className="container-luxury py-16 md:py-20">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="max-w-2xl mx-auto text-center"
-          >
-            <span className="inline-block px-4 py-1.5 mb-4 text-xs tracking-[0.2em] uppercase bg-primary/10 border border-primary/20 rounded-full text-primary">
-              Newsletter
-            </span>
-            <h3 className="font-display text-3xl md:text-4xl mb-4">
-              Join the <span className="text-gradient-gold">Zen-Z</span> Community
-            </h3>
-            <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-              Subscribe for exclusive offers, new arrivals, and style inspiration.
-            </p>
-            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="bg-secondary/50 border-border/50 focus:border-primary backdrop-blur-sm h-12"
-              />
-              <Button className="btn-primary whitespace-nowrap px-8 h-12">
-                Subscribe
-              </Button>
-            </form>
-          </motion.div>
+      {/* Newsletter Section - Only show if not subscribed */}
+      {!isSubscribed && (
+        <div className="relative border-b border-border/50">
+          <div className="container-luxury py-16 md:py-20">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="max-w-2xl mx-auto text-center"
+            >
+              <span className="inline-block px-4 py-1.5 mb-4 text-xs tracking-[0.2em] uppercase bg-primary/10 border border-primary/20 rounded-full text-primary">
+                Newsletter
+              </span>
+              <h3 className="font-display text-3xl md:text-4xl mb-4">
+                Join the <span className="text-gradient-gold">Zen-Z</span> Community
+              </h3>
+              <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+                Subscribe for exclusive offers, new arrivals, and style inspiration.
+              </p>
+              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-secondary/50 border-border/50 focus:border-primary backdrop-blur-sm h-12"
+                />
+                <Button type="submit" className="btn-primary whitespace-nowrap px-8 h-12">
+                  Subscribe
+                </Button>
+              </form>
+            </motion.div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Subscribed confirmation banner */}
+      {isSubscribed && (
+        <div className="relative border-b border-border/50">
+          <div className="container-luxury py-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center justify-center gap-3 text-primary"
+            >
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                <Check size={16} />
+              </div>
+              <span className="font-medium">You're part of the Zen-Z community!</span>
+            </motion.div>
+          </div>
+        </div>
+      )}
 
       {/* Main Footer */}
       <div className="relative container-luxury py-16 md:py-20">

@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -14,7 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import AdminOrderNotifications from './AdminOrderNotifications';
 
 const navItems = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -145,6 +145,9 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
         <main className="p-6">
           {children}
         </main>
+
+        {/* Order Notifications */}
+        <AdminOrderNotifications />
       </div>
     </div>
   );

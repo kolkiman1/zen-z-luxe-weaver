@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, Search, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Loader2, Eye } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUpload from '@/components/admin/ImageUpload';
+import ProductPreview from '@/components/admin/ProductPreview';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/data';
 import { Button } from '@/components/ui/button';
@@ -310,14 +311,16 @@ const AdminProducts = () => {
 
         {/* Product Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingProduct ? 'Edit Product' : 'Add New Product'}
               </DialogTitle>
             </DialogHeader>
 
-            <div className="grid gap-4 py-4">
+            <div className="grid lg:grid-cols-3 gap-6 py-4">
+              {/* Form Section */}
+              <div className="lg:col-span-2 grid gap-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">Name *</Label>
@@ -445,6 +448,12 @@ const AdminProducts = () => {
                   />
                   <span>Featured Product</span>
                 </label>
+              </div>
+              </div>
+
+              {/* Live Preview Section */}
+              <div className="lg:col-span-1">
+                <ProductPreview formData={formData} />
               </div>
             </div>
 
