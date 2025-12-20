@@ -76,70 +76,145 @@ const Header = () => {
             </button>
 
             {/* Logo */}
-            <Link to="/" className="flex-shrink-0 group">
+            <Link to="/" className="flex-shrink-0 group perspective-1000">
               <motion.div
                 className="relative py-2 px-4"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                whileHover={{ 
+                  scale: 1.1,
+                  rotateX: 5,
+                  rotateY: -5,
+                }}
+                whileTap={{ scale: 0.95 }}
+                style={{ transformStyle: 'preserve-3d' }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
-                {/* Subtle glow on hover */}
-                <div
-                  className="absolute -inset-2 rounded-xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500"
+                {/* Outer glow - static on hover only */}
+                <motion.div
+                  className="absolute -inset-4 rounded-2xl blur-2xl opacity-0 group-hover:opacity-60 transition-opacity duration-500"
                   style={{
-                    background: 'radial-gradient(ellipse at center, hsl(var(--gold) / 0.4), transparent 70%)',
+                    background: 'radial-gradient(ellipse at center, hsl(var(--primary) / 0.5), hsl(var(--gold) / 0.3), transparent 70%)',
                   }}
                 />
 
-                {/* Elegant border on hover */}
-                <div
-                  className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                {/* Inner gradient background */}
+                <motion.div
+                  className="absolute inset-0 rounded-xl opacity-20 group-hover:opacity-40 transition-opacity"
                   style={{
                     background: 'linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(var(--gold) / 0.2), hsl(var(--primary) / 0.3))',
-                    padding: '1px',
-                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    WebkitMaskComposite: 'xor',
-                    maskComposite: 'exclude',
                   }}
                 />
                 
-                <h1 className="relative font-display text-xl md:text-2xl font-bold tracking-wider flex items-center">
-                  {/* zen-z text with gradient */}
-                  <span 
-                    className="relative"
-                    style={{
-                      background: 'linear-gradient(135deg, hsl(var(--foreground)) 0%, hsl(var(--gold)) 100%)',
-                      WebkitBackgroundClip: 'text',
-                      backgroundClip: 'text',
-                      color: 'transparent',
-                    }}
-                  >
-                    zen-z
+                <motion.h1
+                  className="relative font-display text-xl md:text-2xl font-black tracking-wider"
+                  style={{ transformStyle: 'preserve-3d' }}
+                >
+                  {/* zen-z with 3D letter animation */}
+                  <span className="relative inline-flex">
+                    {'zen-z'.split('').map((char, index) => (
+                      <motion.span
+                        key={index}
+                        className="inline-block relative"
+                        style={{
+                          background: 'linear-gradient(180deg, hsl(var(--foreground)) 0%, hsl(var(--gold)) 50%, hsl(var(--foreground)) 100%)',
+                          backgroundSize: '100% 300%',
+                          WebkitBackgroundClip: 'text',
+                          backgroundClip: 'text',
+                          color: 'transparent',
+                          textShadow: '0 2px 10px hsl(var(--gold) / 0.3)',
+                        }}
+                        animate={{
+                          backgroundPosition: ['0% 0%', '0% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          delay: index * 0.15,
+                          ease: 'easeInOut',
+                        }}
+                        whileHover={{
+                          y: -5,
+                          scale: 1.2,
+                          rotateY: 15,
+                          transition: { duration: 0.2 },
+                        }}
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
                   </span>
                   
-                  {/* Glowing dot */}
-                  <span 
-                    className="relative text-primary font-bold mx-0.5"
-                    style={{
-                      textShadow: '0 0 12px hsl(var(--primary)), 0 0 24px hsl(var(--primary))',
-                    }}
-                  >
-                    .
+                  {/* Glowing dot - static */}
+                  <span className="relative inline-block mx-1">
+                    <span 
+                      className="relative text-primary font-black"
+                      style={{
+                        textShadow: '0 0 15px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
+                        filter: 'drop-shadow(0 0 6px hsl(var(--primary)))',
+                      }}
+                    >
+                      .
+                    </span>
                   </span>
                   
-                  {/* store text with gradient */}
-                  <span 
-                    className="relative"
-                    style={{
-                      background: 'linear-gradient(135deg, hsl(var(--gold)) 0%, hsl(var(--foreground)) 100%)',
-                      WebkitBackgroundClip: 'text',
-                      backgroundClip: 'text',
-                      color: 'transparent',
-                    }}
-                  >
-                    store
+                  {/* store with 3D letter animation */}
+                  <span className="relative inline-flex">
+                    {'store'.split('').map((char, index) => (
+                      <motion.span
+                        key={index}
+                        className="inline-block relative"
+                        style={{
+                          background: 'linear-gradient(180deg, hsl(var(--foreground)) 0%, hsl(var(--gold)) 50%, hsl(var(--foreground)) 100%)',
+                          backgroundSize: '100% 300%',
+                          WebkitBackgroundClip: 'text',
+                          backgroundClip: 'text',
+                          color: 'transparent',
+                          textShadow: '0 2px 10px hsl(var(--gold) / 0.3)',
+                        }}
+                        animate={{
+                          backgroundPosition: ['0% 0%', '0% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          delay: (index + 6) * 0.15,
+                          ease: 'easeInOut',
+                        }}
+                        whileHover={{
+                          y: -5,
+                          scale: 1.2,
+                          rotateY: -15,
+                          transition: { duration: 0.2 },
+                        }}
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
                   </span>
-                </h1>
+                </motion.h1>
+
+                {/* Shine sweep effect */}
+                <motion.div
+                  className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                >
+                  <motion.div
+                    className="absolute inset-0"
+                    style={{
+                      background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)',
+                      transform: 'translateX(-100%)',
+                    }}
+                    animate={{
+                      transform: ['translateX(-100%)', 'translateX(100%)'],
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      repeatDelay: 2,
+                      ease: 'easeInOut',
+                    }}
+                  />
+                </motion.div>
               </motion.div>
             </Link>
 
