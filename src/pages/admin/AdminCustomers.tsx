@@ -24,10 +24,12 @@ import {
   Mail,
   Phone,
   MapPin,
-  Calendar
+  Calendar,
+  Download
 } from 'lucide-react';
 import { formatPrice } from '@/lib/data';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 interface Customer {
   user_id: string;
@@ -114,6 +116,36 @@ const AdminCustomers = () => {
   const purchasedCount = customers.filter((c) => c.has_purchased).length;
   const notPurchasedCount = customers.filter((c) => !c.has_purchased).length;
 
+  const exportToCSV = () => {
+    const headers = ['Name', 'Email', 'Phone', 'City', 'Total Orders', 'Total Spent', 'Status', 'Joined Date'];
+    const csvData = filteredCustomers.map((customer) => [
+      customer.full_name || 'N/A',
+      customer.email || 'N/A',
+      customer.phone || 'N/A',
+      customer.city || 'N/A',
+      customer.total_orders.toString(),
+      customer.total_spent.toString(),
+      customer.has_purchased ? 'Buyer' : 'Prospect',
+      new Date(customer.created_at).toLocaleDateString(),
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map((row) => row.map((cell) => `"${cell}"`).join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `customers-${activeTab}-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(`Exported ${filteredCustomers.length} customers to CSV`);
+  };
+
   return (
     <>
       <Helmet>
@@ -198,14 +230,20 @@ const AdminCustomers = () => {
                   </TabsTrigger>
                 </TabsList>
 
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by name, email, or phone..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-full sm:w-80"
-                  />
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search by name, email, or phone..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 w-full sm:w-80"
+                    />
+                  </div>
+                  <Button variant="outline" onClick={exportToCSV}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Export CSV
+                  </Button>
                 </div>
               </div>
 
