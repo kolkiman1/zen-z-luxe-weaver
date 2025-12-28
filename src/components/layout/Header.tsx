@@ -323,6 +323,11 @@ const Header = () => {
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
+                      <Link to="/dashboard" className="cursor-pointer">
+                        My Account
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link to="/orders" className="cursor-pointer">
                         My Orders
                       </Link>

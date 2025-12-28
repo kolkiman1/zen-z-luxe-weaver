@@ -21,7 +21,9 @@ import AdminProducts from "./pages/admin/AdminProducts";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminInquiries from "./pages/admin/AdminInquiries";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminCustomers from "./pages/admin/AdminCustomers";
 import AdminAnnouncements from "./pages/admin/AdminAnnouncements";
+import UserDashboard from "./pages/UserDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,10 +48,12 @@ const App = () => (
                     <Route path="/auth" element={<AuthPage />} />
                     <Route path="/orders" element={<OrdersPage />} />
                     <Route path="/orders/:orderId" element={<OrderTrackingPage />} />
+                    <Route path="/dashboard" element={<UserDashboard />} />
                     {/* Admin Routes */}
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/admin/products" element={<AdminProducts />} />
                     <Route path="/admin/orders" element={<AdminOrders />} />
+                    <Route path="/admin/customers" element={<AdminCustomers />} />
                     <Route path="/admin/inquiries" element={<AdminInquiries />} />
                     <Route path="/admin/users" element={<AdminUsers />} />
                     <Route path="/admin/announcements" element={<AdminAnnouncements />} />
