@@ -189,6 +189,7 @@ export type Database = {
           created_at: string
           id: string
           notes: string | null
+          order_number: string | null
           payment_method: string
           shipping_address: string
           shipping_city: string
@@ -202,6 +203,7 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          order_number?: string | null
           payment_method: string
           shipping_address: string
           shipping_city: string
@@ -215,6 +217,7 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          order_number?: string | null
           payment_method?: string
           shipping_address?: string
           shipping_city?: string
