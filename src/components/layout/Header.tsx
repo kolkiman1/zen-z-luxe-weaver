@@ -406,37 +406,73 @@ const Header = () => {
                     </Link>
                   </motion.div>
                 ))}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  {user ? (
-                    <>
-                      <button
-                        onClick={handleSignOut}
+                {user ? (
+                  <>
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.5 }}
+                    >
+                      <Link
+                        to="/dashboard"
                         className="font-display text-2xl text-foreground"
                       >
-                        Sign Out
-                      </button>
-                      {isAdmin && (
+                        My Account
+                      </Link>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      <Link
+                        to="/orders"
+                        className="font-display text-2xl text-foreground"
+                      >
+                        My Orders
+                      </Link>
+                    </motion.div>
+                    {isAdmin && (
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.7 }}
+                      >
                         <Link
                           to="/admin"
                           className="font-display text-2xl text-foreground"
                         >
                           Admin Dashboard
                         </Link>
-                      )}
-                    </>
-                  ) : (
+                      </motion.div>
+                    )}
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.8 }}
+                    >
+                      <button
+                        onClick={handleSignOut}
+                        className="font-display text-2xl text-destructive"
+                      >
+                        Sign Out
+                      </button>
+                    </motion.div>
+                  </>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
                     <Link
                       to="/auth"
                       className="font-display text-2xl text-foreground"
                     >
                       Account
                     </Link>
-                  )}
-                </motion.div>
+                  </motion.div>
+                )}
               </div>
             </motion.nav>
           </motion.div>
