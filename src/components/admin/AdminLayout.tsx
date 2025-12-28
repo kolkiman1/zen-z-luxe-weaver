@@ -22,8 +22,9 @@ const navItems = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Products', href: '/admin/products', icon: Package },
   { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
+  { name: 'Customers', href: '/admin/customers', icon: Users },
   { name: 'Inquiries', href: '/admin/inquiries', icon: MessageSquare },
-  { name: 'Users', href: '/admin/users', icon: Users },
+  { name: 'Admins', href: '/admin/users', icon: Users },
   { name: 'Announcements', href: '/admin/announcements', icon: Megaphone },
 ];
 
