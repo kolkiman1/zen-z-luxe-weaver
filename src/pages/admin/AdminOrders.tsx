@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { Search, Eye, Package, MapPin, Filter, Copy, Check } from 'lucide-react';
+import { Search, Eye, Package, MapPin, Filter, Copy, Check, Printer, FileText } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/data';
@@ -22,6 +22,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
+import OrderInvoice from '@/components/admin/OrderInvoice';
+import ShippingLabel from '@/components/admin/ShippingLabel';
 
 interface OrderItem {
   id: string;
@@ -66,6 +68,45 @@ const AdminOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [printMode, setPrintMode] = useState<'invoice' | 'label' | null>(null);
+  const [customerInfo, setCustomerInfo] = useState<{ full_name?: string; email?: string; phone?: string } | null>(null);
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = async (order: Order, mode: 'invoice' | 'label') => {
+    // Fetch customer info
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name, email, phone')
+      .eq('user_id', order.user_id)
+      .single();
+    
+    setCustomerInfo(profile);
+    setSelectedOrder(order);
+    setPrintMode(mode);
+    
+    setTimeout(() => {
+      if (printRef.current) {
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(`
+            <html>
+              <head>
+                <title>${mode === 'invoice' ? 'Invoice' : 'Shipping Label'} - ${order.order_number || order.id}</title>
+                <style>
+                  body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+                  @media print { body { padding: 0; } }
+                </style>
+              </head>
+              <body>${printRef.current.innerHTML}</body>
+            </html>
+          `);
+          printWindow.document.close();
+          printWindow.print();
+        }
+      }
+      setPrintMode(null);
+    }, 100);
+  };
 
   const fetchOrders = async () => {
     const { data, error } = await supabase
@@ -296,7 +337,23 @@ const AdminOrders = () => {
                           )}
                         </td>
                         <td className="p-4">
-                          <div className="flex justify-end">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => { e.stopPropagation(); handlePrint(order, 'invoice'); }}
+                              title="Print Invoice"
+                            >
+                              <FileText size={14} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => { e.stopPropagation(); handlePrint(order, 'label'); }}
+                              title="Print Label"
+                            >
+                              <Printer size={14} />
+                            </Button>
                             <Button
                               variant="outline"
                               size="sm"
@@ -328,8 +385,20 @@ const AdminOrders = () => {
           )}
         </div>
 
+        {/* Hidden Print Components */}
+        <div className="hidden">
+          <div ref={printRef}>
+            {printMode === 'invoice' && selectedOrder && (
+              <OrderInvoice order={selectedOrder} customer={customerInfo} />
+            )}
+            {printMode === 'label' && selectedOrder && (
+              <ShippingLabel order={selectedOrder} customer={customerInfo} />
+            )}
+          </div>
+        </div>
+
         {/* Order Details Dialog */}
-        <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+        <Dialog open={!!selectedOrder && !printMode} onOpenChange={() => setSelectedOrder(null)}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-3">
