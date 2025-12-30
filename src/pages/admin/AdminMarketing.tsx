@@ -42,6 +42,7 @@ import {
 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import DiscountAnalytics from '@/components/admin/DiscountAnalytics';
+import { useActivityLog } from '@/hooks/useActivityLog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -145,6 +146,7 @@ interface NewDiscountCode {
 }
 
 const AdminMarketing = () => {
+  const { logActivity } = useActivityLog();
   const [productCount, setProductCount] = useState(0);
   const [orderCount, setOrderCount] = useState(0);
   const [customerCount, setCustomerCount] = useState(0);
@@ -363,6 +365,7 @@ ${siteUrls
         expiresAt: new Date(data.expires_at).toISOString().split('T')[0],
         isActive: data.is_active,
       }, ...prev]);
+      await logActivity('discount_created', 'discount', data.id, { code: data.code, type: data.type, value: data.value });
     }
     
     const nextExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -390,6 +393,7 @@ ${siteUrls
   };
 
   const deleteDiscountCode = async (id: string) => {
+    const codeToDelete = discountCodes.find(c => c.id === id);
     const { error } = await supabase
       .from('discount_codes')
       .delete()
@@ -401,6 +405,7 @@ ${siteUrls
       return;
     }
 
+    await logActivity('discount_deleted', 'discount', id, { code: codeToDelete?.code });
     setDiscountCodes(codes => codes.filter(c => c.id !== id));
     toast.success('Discount code deleted');
   };
@@ -445,6 +450,7 @@ ${siteUrls
         sentAt: data.sent_at,
         createdAt: data.created_at,
       }, ...prev]);
+      await logActivity('campaign_created', 'campaign', data.id, { campaign_name: data.name });
       setNewCampaign({ name: '', subject: '', template: 'promotional' });
       toast.success('Campaign created as draft');
     }
@@ -452,6 +458,7 @@ ${siteUrls
   };
 
   const deleteCampaign = async (id: string) => {
+    const campaignToDelete = campaigns.find(c => c.id === id);
     const { error } = await supabase
       .from('email_campaigns')
       .delete()
@@ -463,6 +470,7 @@ ${siteUrls
       return;
     }
 
+    await logActivity('campaign_deleted', 'campaign', id, { campaign_name: campaignToDelete?.name });
     setCampaigns(prev => prev.filter(c => c.id !== id));
     toast.success('Campaign deleted');
   };

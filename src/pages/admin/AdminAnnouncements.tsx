@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useActivityLog } from '@/hooks/useActivityLog';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,6 +44,7 @@ interface Announcement {
 }
 
 const AdminAnnouncements = () => {
+  const { logActivity } = useActivityLog();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -129,13 +131,17 @@ const AdminAnnouncements = () => {
           .eq('id', editingId);
 
         if (error) throw error;
+        await logActivity('announcement_updated', 'announcement', editingId, { title: formData.title });
         toast.success('Announcement updated');
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('announcements')
-          .insert(payload);
+          .insert(payload)
+          .select()
+          .single();
 
         if (error) throw error;
+        await logActivity('announcement_created', 'announcement', data?.id, { title: formData.title });
         toast.success('Announcement created');
       }
 
@@ -167,6 +173,7 @@ const AdminAnnouncements = () => {
   };
 
   const deleteAnnouncement = async (id: string) => {
+    const announcementToDelete = announcements.find(a => a.id === id);
     try {
       const { error } = await supabase
         .from('announcements')
@@ -174,6 +181,7 @@ const AdminAnnouncements = () => {
         .eq('id', id);
 
       if (error) throw error;
+      await logActivity('announcement_deleted', 'announcement', id, { title: announcementToDelete?.title });
       toast.success('Announcement deleted');
       fetchAnnouncements();
     } catch (error) {
