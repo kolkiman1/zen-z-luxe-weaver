@@ -130,6 +130,28 @@ serve(async (req) => {
     
     if (!rateLimit.allowed) {
       console.warn(`Rate limit exceeded for admin user ${user.id} (${user.email})`);
+      
+      // Log rate limit hit as security event
+      try {
+        const supabaseService = createClient(
+          Deno.env.get('SUPABASE_URL')!,
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+        );
+        
+        await supabaseService.from('security_events').insert({
+          event_type: 'rate_limit_hit',
+          user_id: user.id,
+          user_email: user.email,
+          details: {
+            endpoint: 'google-analytics',
+            reset_in_seconds: Math.ceil(rateLimit.resetIn / 1000),
+          },
+          severity: 'medium',
+        });
+      } catch (logError) {
+        console.error('Failed to log rate limit security event:', logError);
+      }
+      
       return new Response(
         JSON.stringify({ 
           error: "Too Many Requests", 

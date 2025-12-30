@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.robots]
 verify_jwt = false
+
+[functions.admin-notify]
+verify_jwt = false
+
+[functions.log-security-event]
+verify_jwt = false

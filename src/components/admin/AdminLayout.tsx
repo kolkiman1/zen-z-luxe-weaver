@@ -12,7 +12,8 @@ import {
   Users,
   Megaphone,
   Activity,
-  Search
+  Search,
+  Shield
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -28,6 +29,7 @@ const navItems = [
   { name: 'Analytics', href: '/admin/analytics', icon: LayoutDashboard },
   { name: 'Tracking', href: '/admin/tracking', icon: Activity },
   { name: 'SEO', href: '/admin/seo', icon: Search },
+  { name: 'Security', href: '/admin/security', icon: Shield },
   { name: 'Marketing', href: '/admin/marketing', icon: Megaphone },
   { name: 'Inquiries', href: '/admin/inquiries', icon: MessageSquare },
   { name: 'Admins', href: '/admin/users', icon: Users },

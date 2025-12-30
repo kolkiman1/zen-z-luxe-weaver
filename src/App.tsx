@@ -29,6 +29,7 @@ import AdminMarketing from "./pages/admin/AdminMarketing";
 import AdminActivityLogs from "./pages/admin/AdminActivityLogs";
 import AdminTrackingAnalytics from "./pages/admin/AdminTrackingAnalytics";
 import AdminSeoSettings from "./pages/admin/AdminSeoSettings";
+import AdminSecurityDashboard from "./pages/admin/AdminSecurityDashboard";
 import UserDashboard from "./pages/UserDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -69,6 +70,7 @@ const App = () => (
                     <Route path="/admin/announcements" element={<AdminAnnouncements />} />
                     <Route path="/admin/activity-logs" element={<AdminActivityLogs />} />
                     <Route path="/admin/seo" element={<AdminSeoSettings />} />
+                    <Route path="/admin/security" element={<AdminSecurityDashboard />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>
