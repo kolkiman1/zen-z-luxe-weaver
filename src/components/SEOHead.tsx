@@ -1,6 +1,19 @@
 import { Helmet } from 'react-helmet-async';
 import { useSeoSettings } from '@/hooks/useSiteSettings';
 
+interface ProductStructuredData {
+  name: string;
+  description?: string;
+  image?: string;
+  price: number;
+  currency?: string;
+  availability?: 'InStock' | 'OutOfStock' | 'PreOrder';
+  sku?: string;
+  brand?: string;
+  rating?: number;
+  reviewCount?: number;
+}
+
 interface SEOHeadProps {
   title?: string;
   description?: string;
@@ -19,6 +32,7 @@ interface SEOHeadProps {
     currency?: string;
     availability?: 'in stock' | 'out of stock';
   };
+  structuredData?: ProductStructuredData;
 }
 
 export const SEOHead = ({
@@ -31,6 +45,7 @@ export const SEOHead = ({
   noIndex = false,
   article,
   product,
+  structuredData,
 }: SEOHeadProps) => {
   const { data: seoSettings } = useSeoSettings();
 
@@ -46,6 +61,61 @@ export const SEOHead = ({
   const finalKeywords = keywords ? `${keywords}, ${siteKeywords}` : siteKeywords;
   const finalImage = image || defaultImage;
   const finalUrl = url ? `${canonicalBase}${url}` : canonicalBase;
+
+  // Generate JSON-LD structured data for products
+  const generateProductSchema = () => {
+    if (!structuredData) return null;
+
+    const schema: Record<string, unknown> = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: structuredData.name,
+      description: structuredData.description || finalDescription,
+      image: structuredData.image || finalImage,
+      brand: {
+        '@type': 'Brand',
+        name: structuredData.brand || siteName,
+      },
+      offers: {
+        '@type': 'Offer',
+        price: structuredData.price,
+        priceCurrency: structuredData.currency || 'BDT',
+        availability: `https://schema.org/${structuredData.availability || 'InStock'}`,
+        url: finalUrl,
+      },
+    };
+
+    if (structuredData.sku) {
+      schema.sku = structuredData.sku;
+    }
+
+    if (structuredData.rating && structuredData.reviewCount) {
+      schema.aggregateRating = {
+        '@type': 'AggregateRating',
+        ratingValue: structuredData.rating,
+        reviewCount: structuredData.reviewCount,
+      };
+    }
+
+    return schema;
+  };
+
+  // Generate Organization schema for homepage
+  const generateOrganizationSchema = () => {
+    if (type !== 'website' || url) return null;
+
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: siteName,
+      url: canonicalBase,
+      logo: defaultImage,
+      description: siteDescription,
+    };
+  };
+
+  const productSchema = generateProductSchema();
+  const orgSchema = generateOrganizationSchema();
 
   return (
     <Helmet>
@@ -110,8 +180,21 @@ export const SEOHead = ({
       {/* Additional Meta Tags */}
       <meta name="theme-color" content="#6366f1" />
       <meta name="format-detection" content="telephone=no" />
+
+      {/* JSON-LD Structured Data */}
+      {productSchema && (
+        <script type="application/ld+json">
+          {JSON.stringify(productSchema)}
+        </script>
+      )}
+      {orgSchema && (
+        <script type="application/ld+json">
+          {JSON.stringify(orgSchema)}
+        </script>
+      )}
     </Helmet>
   );
 };
 
 export default SEOHead;
+
