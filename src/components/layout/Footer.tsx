@@ -155,20 +155,25 @@ const Footer = () => {
               </h4>
             </div>
             <ul className="space-y-4">
-              {['New Arrivals', 'Best Sellers', 'Men', 'Women', 'Jewelry', 'Accessories'].map(
-                (link) => (
-                  <li key={link}>
-                    <Link
-                      to={`/category/${link.toLowerCase().replace(' ', '-')}`}
-                      className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
-                    >
-                      <span className="w-0 group-hover:w-3 h-px bg-primary transition-all duration-300" />
-                      <span>{link}</span>
-                      <ArrowUpRight size={12} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                    </Link>
-                  </li>
-                )
-              )}
+              {[
+                { label: 'New Arrivals', href: '/category/new-arrivals' },
+                { label: 'Men', href: '/category/men' },
+                { label: 'Women', href: '/category/women' },
+                { label: 'Jewelry', href: '/category/jewelry' },
+                { label: 'Accessories', href: '/category/accessories' },
+                { label: 'About Us', href: '/about' },
+              ].map((link) => (
+                <li key={link.label}>
+                  <Link
+                    to={link.href}
+                    className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
+                  >
+                    <span className="w-0 group-hover:w-3 h-px bg-primary transition-all duration-300" />
+                    <span>{link.label}</span>
+                    <ArrowUpRight size={12} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                  </Link>
+                </li>
+              ))}
             </ul>
           </motion.div>
 
@@ -182,20 +187,20 @@ const Footer = () => {
             </div>
             <ul className="space-y-4">
               {[
-                'Contact Us',
-                'Shipping & Returns',
-                'Size Guide',
-                'Track Order',
-                'FAQs',
-                'Privacy Policy',
+                { label: 'Contact Us', href: '/contact' },
+                { label: 'Shipping & Delivery', href: '/shipping' },
+                { label: 'Returns & Refunds', href: '/returns' },
+                { label: 'Size Guide', href: '/size-guide' },
+                { label: 'FAQs', href: '/faq' },
+                { label: 'Track Order', href: '/orders' },
               ].map((link) => (
-                <li key={link}>
+                <li key={link.label}>
                   <Link
-                    to="#"
+                    to={link.href}
                     className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
                   >
                     <span className="w-0 group-hover:w-3 h-px bg-gold transition-all duration-300" />
-                    <span>{link}</span>
+                    <span>{link.label}</span>
                     <ArrowUpRight size={12} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                   </Link>
                 </li>
@@ -270,11 +275,11 @@ const Footer = () => {
               All rights reserved.
             </p>
             <div className="flex items-center gap-6">
-              <Link to="#" className="hover:text-foreground transition-colors relative group">
+              <Link to="/terms" className="hover:text-foreground transition-colors relative group">
                 Terms & Conditions
                 <span className="absolute -bottom-0.5 left-0 w-0 group-hover:w-full h-px bg-primary transition-all duration-300" />
               </Link>
-              <Link to="#" className="hover:text-foreground transition-colors relative group">
+              <Link to="/privacy" className="hover:text-foreground transition-colors relative group">
                 Privacy Policy
                 <span className="absolute -bottom-0.5 left-0 w-0 group-hover:w-full h-px bg-primary transition-all duration-300" />
               </Link>
