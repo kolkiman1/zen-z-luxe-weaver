@@ -6,6 +6,7 @@ import { Package, ChevronRight, Loader2 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSeoSettings } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
@@ -39,9 +40,12 @@ const statusColors: Record<string, string> = {
 
 const OrdersPage = () => {
   const { user, loading: authLoading } = useAuth();
+  const { data: seoSettings } = useSeoSettings();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -88,8 +92,9 @@ const OrdersPage = () => {
   return (
     <>
       <Helmet>
-        <title>My Orders | zen-z.store</title>
-        <meta name="description" content="View your order history at zen-z.store." />
+        <title>My Orders | {siteName}</title>
+        <meta name="description" content={`View your order history at ${siteName}.`} />
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       <Header />

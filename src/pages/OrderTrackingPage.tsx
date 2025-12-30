@@ -17,6 +17,7 @@ import {
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSeoSettings } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
@@ -94,11 +95,14 @@ const statusColors: Record<string, string> = {
 const OrderTrackingPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const { user, loading: authLoading } = useAuth();
+  const { data: seoSettings } = useSeoSettings();
   const navigate = useNavigate();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  
+  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -206,8 +210,9 @@ const OrderTrackingPage = () => {
   return (
     <>
       <Helmet>
-        <title>Track Order #{order.id.slice(0, 8).toUpperCase()} | zen-z.store</title>
+        <title>Track Order #{order.id.slice(0, 8).toUpperCase()} | {siteName}</title>
         <meta name="description" content="Track your order status and delivery progress." />
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       <Header />

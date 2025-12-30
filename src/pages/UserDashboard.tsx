@@ -27,6 +27,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { useSeoSettings } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -94,6 +95,7 @@ interface PaymentMethod {
 const UserDashboard = () => {
   const { user, profile, loading: authLoading, updateProfile } = useAuth();
   const { items: wishlistItems } = useWishlist();
+  const { data: seoSettings } = useSeoSettings();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -452,12 +454,14 @@ const UserDashboard = () => {
   }
 
   const totalSpent = orders.reduce((sum, order) => sum + Number(order.total_amount), 0);
+  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
 
   return (
     <>
       <Helmet>
-        <title>My Account | zen-z.store</title>
-        <meta name="description" content="Manage your account, view orders, and update your profile at zen-z.store." />
+        <title>My Account | {siteName}</title>
+        <meta name="description" content={`Manage your account, view orders, and update your profile at ${siteName}.`} />
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       <Header />

@@ -9,6 +9,7 @@ import CartSidebar from '@/components/cart/CartSidebar';
 import ProductCard from '@/components/products/ProductCard';
 import { formatPrice } from '@/lib/data';
 import { useProduct, useRelatedProducts } from '@/hooks/useProducts';
+import { useSeoSettings } from '@/hooks/useSiteSettings';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,7 @@ const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { product, loading, error } = useProduct(id || '');
   const { products: relatedProducts } = useRelatedProducts(product?.category || '', id || '');
+  const { data: seoSettings } = useSeoSettings();
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
@@ -82,23 +84,43 @@ const ProductDetailPage = () => {
     setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length);
   };
 
+  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
+  const productImage = product.images[0]?.startsWith('http') 
+    ? product.images[0] 
+    : `${seoSettings?.canonicalUrl || 'https://zen-z.store'}${product.images[0]}`;
+
   return (
     <>
       <Helmet>
-        <title>{product.name} | zen-z.store</title>
-        <meta name="description" content={product.description} />
+        <title>{product.name} | {siteName}</title>
+        <meta name="description" content={product.description || `Shop ${product.name} at ${siteName}`} />
+        <meta name="keywords" content={`${product.name}, ${product.category}, ${seoSettings?.keywords || 'premium fashion'}`} />
+        {seoSettings?.canonicalUrl && (
+          <link rel="canonical" href={`${seoSettings.canonicalUrl}/product/${id}`} />
+        )}
+        <meta property="og:title" content={`${product.name} | ${siteName}`} />
+        <meta property="og:description" content={product.description || `Shop ${product.name}`} />
+        <meta property="og:image" content={productImage} />
+        <meta property="og:type" content="product" />
+        {seoSettings?.twitterHandle && <meta name="twitter:site" content={seoSettings.twitterHandle} />}
+        <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Product",
             "name": product.name,
             "description": product.description,
-            "image": product.images[0],
+            "image": productImage,
+            "brand": {
+              "@type": "Brand",
+              "name": siteName
+            },
             "offers": {
               "@type": "Offer",
               "price": product.price,
               "priceCurrency": "BDT",
-              "availability": product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+              "availability": product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+              "url": `${seoSettings?.canonicalUrl || 'https://zen-z.store'}/product/${id}`
             }
           })}
         </script>

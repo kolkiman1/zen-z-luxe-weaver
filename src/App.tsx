@@ -8,6 +8,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NewsletterProvider } from "@/contexts/NewsletterContext";
+import { TrackingScripts } from "@/components/TrackingScripts";
 import Index from "./pages/Index";
 import CategoryPage from "./pages/CategoryPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
@@ -39,6 +40,7 @@ const App = () => (
           <WishlistProvider>
             <NewsletterProvider>
               <TooltipProvider>
+                <TrackingScripts />
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
