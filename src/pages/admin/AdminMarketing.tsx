@@ -21,6 +21,22 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
+  Percent,
+  Users,
+  Target,
+  Zap,
+  Gift,
+  Calendar,
+  Send,
+  MessageSquare,
+  Image,
+  Settings,
+  Download,
+  FileJson,
+  Code,
+  Star,
+  Heart,
+  ShoppingBag,
 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -32,6 +48,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -43,6 +60,8 @@ interface SeoSettings {
   twitterHandle: string;
   googleAnalyticsId: string;
   facebookPixelId: string;
+  googleTagManagerId: string;
+  hotjarId: string;
 }
 
 interface UrlItem {
@@ -50,28 +69,68 @@ interface UrlItem {
   title: string;
   indexed: boolean;
   priority: string;
+  lastModified: string;
+}
+
+interface DiscountCode {
+  id: string;
+  code: string;
+  type: 'percentage' | 'fixed';
+  value: number;
+  minOrder: number;
+  usageLimit: number;
+  usedCount: number;
+  expiresAt: string;
+  isActive: boolean;
+}
+
+interface EmailCampaign {
+  id: string;
+  name: string;
+  subject: string;
+  status: 'draft' | 'scheduled' | 'sent';
+  recipients: number;
+  openRate: number;
+  clickRate: number;
+  scheduledAt?: string;
 }
 
 const siteUrls: UrlItem[] = [
-  { path: '/', title: 'Homepage', indexed: true, priority: 'High' },
-  { path: '/category/mens', title: "Men's Collection", indexed: true, priority: 'High' },
-  { path: '/category/womens', title: "Women's Collection", indexed: true, priority: 'High' },
-  { path: '/category/accessories', title: 'Accessories', indexed: true, priority: 'Medium' },
-  { path: '/auth', title: 'Sign In / Sign Up', indexed: false, priority: 'Low' },
-  { path: '/checkout', title: 'Checkout', indexed: false, priority: 'Low' },
+  { path: '/', title: 'Homepage', indexed: true, priority: 'High', lastModified: '2024-01-15' },
+  { path: '/category/mens', title: "Men's Collection", indexed: true, priority: 'High', lastModified: '2024-01-14' },
+  { path: '/category/womens', title: "Women's Collection", indexed: true, priority: 'High', lastModified: '2024-01-14' },
+  { path: '/category/accessories', title: 'Accessories', indexed: true, priority: 'Medium', lastModified: '2024-01-13' },
+  { path: '/auth', title: 'Sign In / Sign Up', indexed: false, priority: 'Low', lastModified: '2024-01-10' },
+  { path: '/checkout', title: 'Checkout', indexed: false, priority: 'Low', lastModified: '2024-01-10' },
 ];
 
 const seoChecklist = [
-  { id: 'meta-title', label: 'Meta titles under 60 characters', status: 'pass' },
-  { id: 'meta-desc', label: 'Meta descriptions under 160 characters', status: 'pass' },
-  { id: 'h1-tags', label: 'Single H1 tag per page', status: 'pass' },
-  { id: 'img-alt', label: 'All images have alt attributes', status: 'warning' },
-  { id: 'canonical', label: 'Canonical URLs configured', status: 'pass' },
-  { id: 'mobile', label: 'Mobile-responsive design', status: 'pass' },
-  { id: 'ssl', label: 'SSL certificate active', status: 'pass' },
-  { id: 'sitemap', label: 'XML sitemap generated', status: 'pending' },
-  { id: 'robots', label: 'robots.txt configured', status: 'pass' },
-  { id: 'structured', label: 'Structured data (JSON-LD)', status: 'warning' },
+  { id: 'meta-title', label: 'Meta titles optimized (under 60 chars)', status: 'pass', impact: 'high' },
+  { id: 'meta-desc', label: 'Meta descriptions optimized (under 160 chars)', status: 'pass', impact: 'high' },
+  { id: 'h1-tags', label: 'Single H1 tag per page', status: 'pass', impact: 'high' },
+  { id: 'img-alt', label: 'All images have alt attributes', status: 'warning', impact: 'medium' },
+  { id: 'canonical', label: 'Canonical URLs configured', status: 'pass', impact: 'high' },
+  { id: 'mobile', label: 'Mobile-responsive design', status: 'pass', impact: 'high' },
+  { id: 'ssl', label: 'SSL certificate active (HTTPS)', status: 'pass', impact: 'high' },
+  { id: 'sitemap', label: 'XML sitemap generated', status: 'pending', impact: 'medium' },
+  { id: 'robots', label: 'robots.txt configured', status: 'pass', impact: 'medium' },
+  { id: 'structured', label: 'Schema markup (JSON-LD)', status: 'warning', impact: 'high' },
+  { id: 'core-vitals', label: 'Core Web Vitals optimized', status: 'pass', impact: 'high' },
+  { id: 'internal-links', label: 'Internal linking structure', status: 'pass', impact: 'medium' },
+  { id: 'page-speed', label: 'Page load speed < 3s', status: 'pass', impact: 'high' },
+  { id: 'og-tags', label: 'Open Graph tags configured', status: 'pass', impact: 'medium' },
+];
+
+const mockDiscountCodes: DiscountCode[] = [
+  { id: '1', code: 'WELCOME10', type: 'percentage', value: 10, minOrder: 500, usageLimit: 100, usedCount: 45, expiresAt: '2024-12-31', isActive: true },
+  { id: '2', code: 'FLAT200', type: 'fixed', value: 200, minOrder: 1000, usageLimit: 50, usedCount: 12, expiresAt: '2024-06-30', isActive: true },
+  { id: '3', code: 'SUMMER25', type: 'percentage', value: 25, minOrder: 1500, usageLimit: 200, usedCount: 180, expiresAt: '2024-08-31', isActive: false },
+];
+
+const mockCampaigns: EmailCampaign[] = [
+  { id: '1', name: 'New Arrivals Alert', subject: '🔥 Fresh Styles Just Dropped!', status: 'sent', recipients: 1250, openRate: 32.5, clickRate: 8.2 },
+  { id: '2', name: 'Weekend Sale', subject: 'Weekend Flash Sale - Up to 40% Off', status: 'scheduled', recipients: 1180, openRate: 0, clickRate: 0, scheduledAt: '2024-01-20T10:00:00' },
+  { id: '3', name: 'Cart Abandonment', subject: 'You left something behind...', status: 'draft', recipients: 0, openRate: 0, clickRate: 0 },
 ];
 
 const AdminMarketing = () => {
@@ -79,14 +138,19 @@ const AdminMarketing = () => {
   const [orderCount, setOrderCount] = useState(0);
   const [customerCount, setCustomerCount] = useState(0);
   const [copied, setCopied] = useState<string | null>(null);
+  const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>(mockDiscountCodes);
+  const [campaigns, setCampaigns] = useState<EmailCampaign[]>(mockCampaigns);
+  const [newCode, setNewCode] = useState({ code: '', type: 'percentage' as const, value: 10, minOrder: 500, usageLimit: 100 });
   const [seoSettings, setSeoSettings] = useState<SeoSettings>({
     siteName: 'zen-z.store',
-    siteDescription: 'Premium fashion and lifestyle products for the modern generation',
-    siteKeywords: 'fashion, clothing, mens wear, womens wear, accessories, online shopping, bangladesh',
+    siteDescription: 'Premium fashion and lifestyle products for the modern generation. Shop trendy clothing, accessories, and more.',
+    siteKeywords: 'fashion, clothing, mens wear, womens wear, accessories, online shopping, bangladesh, trendy, streetwear',
     ogImage: '/og-image.jpg',
     twitterHandle: '@zenzstore',
     googleAnalyticsId: '',
     facebookPixelId: '',
+    googleTagManagerId: '',
+    hotjarId: '',
   });
 
   useEffect(() => {
@@ -120,6 +184,7 @@ ${siteUrls
   .map(
     u => `  <url>
     <loc>${baseUrl}${u.path}</loc>
+    <lastmod>${u.lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>${u.priority === 'High' ? '1.0' : u.priority === 'Medium' ? '0.7' : '0.4'}</priority>
   </url>`
@@ -134,6 +199,58 @@ ${siteUrls
     a.download = 'sitemap.xml';
     a.click();
     toast.success('Sitemap downloaded');
+  };
+
+  const generateSchemaMarkup = () => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": seoSettings.siteName,
+      "description": seoSettings.siteDescription,
+      "url": window.location.origin,
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": `${window.location.origin}/search?q={search_term_string}`,
+        "query-input": "required name=search_term_string"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": seoSettings.siteName,
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${window.location.origin}/logo.png`
+        }
+      }
+    };
+    
+    const blob = new Blob([JSON.stringify(schema, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'schema.json';
+    a.click();
+    toast.success('Schema markup downloaded');
+  };
+
+  const addDiscountCode = () => {
+    if (!newCode.code) {
+      toast.error('Please enter a discount code');
+      return;
+    }
+    const code: DiscountCode = {
+      id: Date.now().toString(),
+      ...newCode,
+      usedCount: 0,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      isActive: true,
+    };
+    setDiscountCodes([...discountCodes, code]);
+    setNewCode({ code: '', type: 'percentage', value: 10, minOrder: 500, usageLimit: 100 });
+    toast.success('Discount code created');
+  };
+
+  const toggleDiscountCode = (id: string) => {
+    setDiscountCodes(codes => codes.map(c => c.id === id ? { ...c, isActive: !c.isActive } : c));
   };
 
   const seoScore = Math.round(
@@ -153,17 +270,28 @@ ${siteUrls
     }
   };
 
+  const getImpactBadge = (impact: string) => {
+    switch (impact) {
+      case 'high':
+        return <Badge variant="destructive" className="text-xs">High Impact</Badge>;
+      case 'medium':
+        return <Badge variant="secondary" className="text-xs">Medium</Badge>;
+      default:
+        return <Badge variant="outline" className="text-xs">Low</Badge>;
+    }
+  };
+
   return (
     <>
       <Helmet>
         <title>Marketing & SEO | Admin - zen-z.store</title>
-        <meta name="description" content="SEO settings, marketing tools, and analytics for zen-z.store" />
+        <meta name="description" content="Complete marketing toolkit with SEO, campaigns, discount codes, and analytics" />
       </Helmet>
 
-      <AdminLayout title="Marketing & SEO Tools">
+      <AdminLayout title="Marketing Hub">
         <div className="space-y-6">
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
@@ -181,10 +309,10 @@ ${siteUrls
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-green-500/10 rounded-lg">
-                    <BarChart3 size={20} className="text-green-500" />
+                    <ShoppingBag size={20} className="text-green-500" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Total Orders</p>
+                    <p className="text-sm text-muted-foreground">Orders</p>
                     <p className="text-xl font-display font-bold">{orderCount}</p>
                   </div>
                 </div>
@@ -194,7 +322,7 @@ ${siteUrls
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-500/10 rounded-lg">
-                    <TrendingUp size={20} className="text-blue-500" />
+                    <Users size={20} className="text-blue-500" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Customers</p>
@@ -216,25 +344,50 @@ ${siteUrls
                 </div>
               </CardContent>
             </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-pink-500/10 rounded-lg">
+                    <Tag size={20} className="text-pink-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Active Codes</p>
+                    <p className="text-xl font-display font-bold">{discountCodes.filter(c => c.isActive).length}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           <Tabs defaultValue="seo" className="space-y-6">
-            <TabsList className="flex-wrap">
+            <TabsList className="flex-wrap h-auto gap-1">
               <TabsTrigger value="seo" className="gap-2">
                 <Search size={16} />
-                SEO Settings
+                SEO
+              </TabsTrigger>
+              <TabsTrigger value="discounts" className="gap-2">
+                <Percent size={16} />
+                Discounts
+              </TabsTrigger>
+              <TabsTrigger value="campaigns" className="gap-2">
+                <Mail size={16} />
+                Campaigns
               </TabsTrigger>
               <TabsTrigger value="sitemap" className="gap-2">
                 <Globe size={16} />
-                Sitemap & URLs
+                Sitemap
               </TabsTrigger>
               <TabsTrigger value="social" className="gap-2">
                 <Share2 size={16} />
-                Social Media
+                Social
               </TabsTrigger>
               <TabsTrigger value="tracking" className="gap-2">
                 <BarChart3 size={16} />
-                Tracking Codes
+                Tracking
+              </TabsTrigger>
+              <TabsTrigger value="schema" className="gap-2">
+                <Code size={16} />
+                Schema
               </TabsTrigger>
             </TabsList>
 
@@ -245,23 +398,28 @@ ${siteUrls
                   <Card>
                     <CardHeader>
                       <CardTitle>Meta Information</CardTitle>
-                      <CardDescription>Configure your site's SEO meta tags</CardDescription>
+                      <CardDescription>Configure your site's primary SEO meta tags</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="siteName">Site Name</Label>
+                        <Label htmlFor="siteName">Site Title</Label>
                         <Input
                           id="siteName"
                           value={seoSettings.siteName}
                           onChange={e => setSeoSettings({ ...seoSettings, siteName: e.target.value })}
                           placeholder="Your site name"
                         />
-                        <p className="text-xs text-muted-foreground">
-                          {seoSettings.siteName.length}/60 characters
-                        </p>
+                        <div className="flex justify-between">
+                          <p className="text-xs text-muted-foreground">
+                            {seoSettings.siteName.length}/60 characters
+                          </p>
+                          {seoSettings.siteName.length > 60 && (
+                            <p className="text-xs text-destructive">Too long for optimal display</p>
+                          )}
+                        </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="siteDescription">Site Description</Label>
+                        <Label htmlFor="siteDescription">Meta Description</Label>
                         <Textarea
                           id="siteDescription"
                           value={seoSettings.siteDescription}
@@ -269,12 +427,17 @@ ${siteUrls
                           placeholder="Brief description of your site"
                           rows={3}
                         />
-                        <p className="text-xs text-muted-foreground">
-                          {seoSettings.siteDescription.length}/160 characters
-                        </p>
+                        <div className="flex justify-between">
+                          <p className="text-xs text-muted-foreground">
+                            {seoSettings.siteDescription.length}/160 characters
+                          </p>
+                          {seoSettings.siteDescription.length > 160 && (
+                            <p className="text-xs text-destructive">Will be truncated in search results</p>
+                          )}
+                        </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="siteKeywords">Keywords (comma-separated)</Label>
+                        <Label htmlFor="siteKeywords">Target Keywords</Label>
                         <Textarea
                           id="siteKeywords"
                           value={seoSettings.siteKeywords}
@@ -282,6 +445,9 @@ ${siteUrls
                           placeholder="fashion, clothing, online store..."
                           rows={2}
                         />
+                        <p className="text-xs text-muted-foreground">
+                          {seoSettings.siteKeywords.split(',').filter(k => k.trim()).length} keywords
+                        </p>
                       </div>
                       <Button onClick={() => toast.success('SEO settings saved!')}>
                         Save Changes
@@ -289,49 +455,344 @@ ${siteUrls
                     </CardContent>
                   </Card>
 
-                  {/* SEO Preview */}
+                  {/* Google Search Preview */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>Search Preview</CardTitle>
-                      <CardDescription>How your site appears in search results</CardDescription>
+                      <CardTitle>Google Search Preview</CardTitle>
+                      <CardDescription>How your site appears in Google search results</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="bg-secondary/50 rounded-lg p-4 space-y-1">
-                        <p className="text-blue-600 text-lg hover:underline cursor-pointer">
-                          {seoSettings.siteName} - Premium Fashion & Lifestyle
+                      <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-purple-500" />
+                          <div className="text-xs text-gray-600 dark:text-gray-400">
+                            {window.location.host} › shop
+                          </div>
+                        </div>
+                        <p className="text-blue-600 dark:text-blue-400 text-xl hover:underline cursor-pointer mb-1">
+                          {seoSettings.siteName} - Premium Fashion & Lifestyle Store
                         </p>
-                        <p className="text-green-700 text-sm">{window.location.origin}</p>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
                           {seoSettings.siteDescription}
                         </p>
+                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Star size={12} className="text-yellow-500 fill-yellow-500" />
+                            4.8 (120 reviews)
+                          </span>
+                          <span>৳299 - ৳9,999</span>
+                          <span>In stock</span>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
 
                 {/* SEO Checklist */}
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center justify-between">
+                        <span>SEO Health</span>
+                        <Badge variant={seoScore >= 80 ? 'default' : seoScore >= 60 ? 'secondary' : 'destructive'}>
+                          {seoScore}%
+                        </Badge>
+                      </CardTitle>
+                      <Progress value={seoScore} className="mt-2" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                        {seoChecklist.map(item => (
+                          <div key={item.id} className="flex items-start gap-3 p-2 hover:bg-secondary/50 rounded-lg transition-colors">
+                            {getStatusIcon(item.status)}
+                            <div className="flex-1">
+                              <span className="text-sm">{item.label}</span>
+                              <div className="mt-1">{getImpactBadge(item.impact)}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Quick Actions</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <Button variant="outline" className="w-full justify-start gap-2" onClick={generateSitemap}>
+                        <Download size={16} />
+                        Download Sitemap
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start gap-2" onClick={generateSchemaMarkup}>
+                        <FileJson size={16} />
+                        Export Schema Markup
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start gap-2" onClick={() => window.open('https://search.google.com/search-console', '_blank')}>
+                        <ExternalLink size={16} />
+                        Google Search Console
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Discount Codes */}
+            <TabsContent value="discounts">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Active Discount Codes</CardTitle>
+                      <CardDescription>Manage promotional codes and offers</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {discountCodes.map(code => (
+                          <div
+                            key={code.id}
+                            className={`flex items-center justify-between p-4 rounded-lg border ${
+                              code.isActive ? 'bg-secondary/30' : 'bg-muted/50 opacity-60'
+                            }`}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="p-2 bg-primary/10 rounded-lg">
+                                <Tag className="text-primary" size={20} />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-mono font-bold">{code.code}</p>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-6 w-6"
+                                    onClick={() => copyToClipboard(code.code, code.id)}
+                                  >
+                                    {copied === code.id ? <Check size={12} /> : <Copy size={12} />}
+                                  </Button>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  {code.type === 'percentage' ? `${code.value}% off` : `৳${code.value} off`}
+                                  {code.minOrder > 0 && ` on orders over ৳${code.minOrder}`}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <div className="text-right">
+                                <p className="text-sm font-medium">{code.usedCount}/{code.usageLimit} used</p>
+                                <Progress value={(code.usedCount / code.usageLimit) * 100} className="w-24 h-1.5 mt-1" />
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xs text-muted-foreground">Expires</p>
+                                <p className="text-sm">{code.expiresAt}</p>
+                              </div>
+                              <Switch
+                                checked={code.isActive}
+                                onCheckedChange={() => toggleDiscountCode(code.id)}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span>SEO Checklist</span>
-                      <Badge variant={seoScore >= 80 ? 'default' : 'secondary'}>
-                        {seoScore}%
-                      </Badge>
-                    </CardTitle>
-                    <CardDescription>Technical SEO status</CardDescription>
-                    <Progress value={seoScore} className="mt-2" />
+                    <CardTitle>Create New Code</CardTitle>
+                    <CardDescription>Add a new promotional discount</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      {seoChecklist.map(item => (
-                        <li key={item.id} className="flex items-center gap-3">
-                          {getStatusIcon(item.status)}
-                          <span className="text-sm">{item.label}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Code</Label>
+                      <Input
+                        value={newCode.code}
+                        onChange={e => setNewCode({ ...newCode, code: e.target.value.toUpperCase() })}
+                        placeholder="SUMMER20"
+                        className="font-mono"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Type</Label>
+                        <Select
+                          value={newCode.type}
+                          onValueChange={(v) => setNewCode({ ...newCode, type: v as 'percentage' | 'fixed' })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="percentage">Percentage</SelectItem>
+                            <SelectItem value="fixed">Fixed Amount</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Value</Label>
+                        <Input
+                          type="number"
+                          value={newCode.value}
+                          onChange={e => setNewCode({ ...newCode, value: parseInt(e.target.value) || 0 })}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Min Order (৳)</Label>
+                        <Input
+                          type="number"
+                          value={newCode.minOrder}
+                          onChange={e => setNewCode({ ...newCode, minOrder: parseInt(e.target.value) || 0 })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Usage Limit</Label>
+                        <Input
+                          type="number"
+                          value={newCode.usageLimit}
+                          onChange={e => setNewCode({ ...newCode, usageLimit: parseInt(e.target.value) || 0 })}
+                        />
+                      </div>
+                    </div>
+                    <Button className="w-full" onClick={addDiscountCode}>
+                      <Gift size={16} className="mr-2" />
+                      Create Code
+                    </Button>
                   </CardContent>
                 </Card>
+              </div>
+            </TabsContent>
+
+            {/* Email Campaigns */}
+            <TabsContent value="campaigns">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Email Campaigns</CardTitle>
+                      <CardDescription>Create and manage email marketing campaigns</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {campaigns.map(campaign => (
+                          <div
+                            key={campaign.id}
+                            className="flex items-center justify-between p-4 rounded-lg border bg-secondary/30"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className={`p-2 rounded-lg ${
+                                campaign.status === 'sent' ? 'bg-green-500/10' :
+                                campaign.status === 'scheduled' ? 'bg-blue-500/10' :
+                                'bg-muted'
+                              }`}>
+                                <Mail className={
+                                  campaign.status === 'sent' ? 'text-green-500' :
+                                  campaign.status === 'scheduled' ? 'text-blue-500' :
+                                  'text-muted-foreground'
+                                } size={20} />
+                              </div>
+                              <div>
+                                <p className="font-medium">{campaign.name}</p>
+                                <p className="text-sm text-muted-foreground">{campaign.subject}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-6">
+                              {campaign.status === 'sent' && (
+                                <>
+                                  <div className="text-center">
+                                    <p className="text-lg font-bold text-green-500">{campaign.openRate}%</p>
+                                    <p className="text-xs text-muted-foreground">Open Rate</p>
+                                  </div>
+                                  <div className="text-center">
+                                    <p className="text-lg font-bold text-blue-500">{campaign.clickRate}%</p>
+                                    <p className="text-xs text-muted-foreground">Click Rate</p>
+                                  </div>
+                                </>
+                              )}
+                              {campaign.status === 'scheduled' && campaign.scheduledAt && (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Calendar size={14} />
+                                  {new Date(campaign.scheduledAt).toLocaleDateString()}
+                                </div>
+                              )}
+                              <Badge variant={
+                                campaign.status === 'sent' ? 'default' :
+                                campaign.status === 'scheduled' ? 'secondary' :
+                                'outline'
+                              }>
+                                {campaign.status}
+                              </Badge>
+                              <Button variant="ghost" size="sm">
+                                <Settings size={16} />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Campaign Stats</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="p-4 bg-secondary/50 rounded-lg text-center">
+                        <p className="text-3xl font-bold text-primary">{customerCount}</p>
+                        <p className="text-sm text-muted-foreground">Total Subscribers</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-3 bg-green-500/10 rounded-lg text-center">
+                          <p className="text-xl font-bold text-green-500">32.5%</p>
+                          <p className="text-xs text-muted-foreground">Avg Open Rate</p>
+                        </div>
+                        <div className="p-3 bg-blue-500/10 rounded-lg text-center">
+                          <p className="text-xl font-bold text-blue-500">8.2%</p>
+                          <p className="text-xs text-muted-foreground">Avg Click Rate</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Quick Campaign</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Campaign Name</Label>
+                        <Input placeholder="Flash Sale Alert" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Subject Line</Label>
+                        <Input placeholder="🔥 48-Hour Flash Sale!" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Template</Label>
+                        <Select defaultValue="promo">
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="promo">Promotional</SelectItem>
+                            <SelectItem value="newsletter">Newsletter</SelectItem>
+                            <SelectItem value="product">Product Launch</SelectItem>
+                            <SelectItem value="abandoned">Cart Recovery</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button className="w-full">
+                        <Send size={16} className="mr-2" />
+                        Create Campaign
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             </TabsContent>
 
@@ -343,8 +804,8 @@ ${siteUrls
                     <CardTitle className="flex items-center justify-between">
                       <span>Site URLs</span>
                       <Button size="sm" variant="outline" onClick={generateSitemap}>
-                        <RefreshCw size={14} className="mr-2" />
-                        Generate Sitemap
+                        <Download size={14} className="mr-2" />
+                        Download XML
                       </Button>
                     </CardTitle>
                     <CardDescription>Pages indexed by search engines</CardDescription>
@@ -388,10 +849,10 @@ ${siteUrls
                 <Card>
                   <CardHeader>
                     <CardTitle>robots.txt</CardTitle>
-                    <CardDescription>Control search engine crawling</CardDescription>
+                    <CardDescription>Control search engine crawling behavior</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm">
+                    <div className="bg-gray-900 rounded-lg p-4 font-mono text-sm text-green-400">
                       <pre className="whitespace-pre-wrap">
 {`User-agent: *
 Allow: /
@@ -399,14 +860,19 @@ Disallow: /admin/
 Disallow: /checkout
 Disallow: /auth
 Disallow: /dashboard
+Disallow: /api/
 
-Sitemap: ${window.location.origin}/sitemap.xml`}
+# Sitemap location
+Sitemap: ${window.location.origin}/sitemap.xml
+
+# Crawl-delay for bots
+Crawl-delay: 1`}
                       </pre>
                     </div>
                     <Button
                       variant="outline"
                       className="mt-4 gap-2"
-                      onClick={() => copyToClipboard(`User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /checkout\nDisallow: /auth\nDisallow: /dashboard\n\nSitemap: ${window.location.origin}/sitemap.xml`, 'robots')}
+                      onClick={() => copyToClipboard(`User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /checkout\nDisallow: /auth\nDisallow: /dashboard\nDisallow: /api/\n\nSitemap: ${window.location.origin}/sitemap.xml\n\nCrawl-delay: 1`, 'robots')}
                     >
                       {copied === 'robots' ? <Check size={14} /> : <Copy size={14} />}
                       Copy robots.txt
@@ -422,7 +888,7 @@ Sitemap: ${window.location.origin}/sitemap.xml`}
                 <Card>
                   <CardHeader>
                     <CardTitle>Open Graph Settings</CardTitle>
-                    <CardDescription>Configure how your site appears when shared</CardDescription>
+                    <CardDescription>Configure how your site appears when shared on social platforms</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
@@ -434,11 +900,11 @@ Sitemap: ${window.location.origin}/sitemap.xml`}
                         placeholder="https://your-site.com/og-image.jpg"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Recommended: 1200x630 pixels
+                        Recommended: 1200x630 pixels for optimal display
                       </p>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="twitterHandle">Twitter Handle</Label>
+                      <Label htmlFor="twitterHandle">Twitter/X Handle</Label>
                       <Input
                         id="twitterHandle"
                         value={seoSettings.twitterHandle}
@@ -455,17 +921,20 @@ Sitemap: ${window.location.origin}/sitemap.xml`}
                 <Card>
                   <CardHeader>
                     <CardTitle>Social Preview</CardTitle>
-                    <CardDescription>How your content appears on social media</CardDescription>
+                    <CardDescription>How your links appear on Facebook, Twitter, LinkedIn</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="bg-secondary/50 rounded-lg overflow-hidden">
-                      <div className="aspect-[1200/630] bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                        <span className="text-muted-foreground">OG Image Preview</span>
+                    <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border shadow-sm">
+                      <div className="aspect-[1200/630] bg-gradient-to-br from-primary/20 via-purple-500/20 to-pink-500/20 flex items-center justify-center relative">
+                        <div className="text-center">
+                          <Heart className="w-12 h-12 mx-auto text-primary/50 mb-2" />
+                          <span className="text-muted-foreground">OG Image Preview</span>
+                        </div>
                       </div>
-                      <div className="p-4">
-                        <p className="text-xs text-muted-foreground uppercase">{window.location.host}</p>
-                        <p className="font-semibold">{seoSettings.siteName}</p>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
+                      <div className="p-4 bg-gray-50 dark:bg-gray-900">
+                        <p className="text-xs text-gray-500 uppercase tracking-wide">{window.location.host}</p>
+                        <p className="font-semibold text-gray-900 dark:text-white mt-1">{seoSettings.siteName}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-1">
                           {seoSettings.siteDescription}
                         </p>
                       </div>
@@ -480,7 +949,10 @@ Sitemap: ${window.location.origin}/sitemap.xml`}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Google Analytics</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="text-blue-500" />
+                      Google Analytics 4
+                    </CardTitle>
                     <CardDescription>Track website traffic and user behavior</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -492,23 +964,29 @@ Sitemap: ${window.location.origin}/sitemap.xml`}
                         onChange={e => setSeoSettings({ ...seoSettings, googleAnalyticsId: e.target.value })}
                         placeholder="G-XXXXXXXXXX"
                       />
-                      <p className="text-xs text-muted-foreground">
-                        Find this in your Google Analytics 4 property settings
-                      </p>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <Eye size={16} className="text-muted-foreground" />
-                        <span className="text-sm">Page Views</span>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Eye size={16} className="text-muted-foreground" />
+                          <span className="text-sm">Page Views</span>
+                        </div>
+                        <Switch defaultChecked />
                       </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <MousePointer size={16} className="text-muted-foreground" />
-                        <span className="text-sm">Click Tracking</span>
+                      <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <MousePointer size={16} className="text-muted-foreground" />
+                          <span className="text-sm">Click Tracking</span>
+                        </div>
+                        <Switch defaultChecked />
                       </div>
-                      <Switch defaultChecked />
+                      <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <ShoppingBag size={16} className="text-muted-foreground" />
+                          <span className="text-sm">E-commerce Events</span>
+                        </div>
+                        <Switch defaultChecked />
+                      </div>
                     </div>
                     <Button onClick={() => toast.success('Analytics settings saved!')}>
                       Save Changes
@@ -518,8 +996,11 @@ Sitemap: ${window.location.origin}/sitemap.xml`}
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Facebook Pixel</CardTitle>
-                    <CardDescription>Track conversions from Facebook ads</CardDescription>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="text-blue-600" />
+                      Facebook Pixel
+                    </CardTitle>
+                    <CardDescription>Track conversions from Facebook/Meta ads</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
@@ -531,23 +1012,198 @@ Sitemap: ${window.location.origin}/sitemap.xml`}
                         placeholder="XXXXXXXXXXXXXXXXXX"
                       />
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <Tag size={16} className="text-muted-foreground" />
-                        <span className="text-sm">Purchase Events</span>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Tag size={16} className="text-muted-foreground" />
+                          <span className="text-sm">Purchase Events</span>
+                        </div>
+                        <Switch defaultChecked />
                       </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <Tag size={16} className="text-muted-foreground" />
-                        <span className="text-sm">Add to Cart Events</span>
+                      <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <ShoppingBag size={16} className="text-muted-foreground" />
+                          <span className="text-sm">Add to Cart</span>
+                        </div>
+                        <Switch defaultChecked />
                       </div>
-                      <Switch defaultChecked />
+                      <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Eye size={16} className="text-muted-foreground" />
+                          <span className="text-sm">View Content</span>
+                        </div>
+                        <Switch defaultChecked />
+                      </div>
                     </div>
                     <Button onClick={() => toast.success('Pixel settings saved!')}>
                       Save Changes
                     </Button>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Settings className="text-gray-500" />
+                      Google Tag Manager
+                    </CardTitle>
+                    <CardDescription>Manage all your tracking tags in one place</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="gtmId">Container ID</Label>
+                      <Input
+                        id="gtmId"
+                        value={seoSettings.googleTagManagerId}
+                        onChange={e => setSeoSettings({ ...seoSettings, googleTagManagerId: e.target.value })}
+                        placeholder="GTM-XXXXXXX"
+                      />
+                    </div>
+                    <Button onClick={() => toast.success('GTM settings saved!')}>
+                      Save Changes
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Zap className="text-orange-500" />
+                      Hotjar
+                    </CardTitle>
+                    <CardDescription>Heatmaps, recordings, and user feedback</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="hotjarId">Site ID</Label>
+                      <Input
+                        id="hotjarId"
+                        value={seoSettings.hotjarId}
+                        onChange={e => setSeoSettings({ ...seoSettings, hotjarId: e.target.value })}
+                        placeholder="XXXXXXX"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                        <span className="text-sm">Heatmaps</span>
+                        <Switch defaultChecked />
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                        <span className="text-sm">Session Recordings</span>
+                        <Switch />
+                      </div>
+                    </div>
+                    <Button onClick={() => toast.success('Hotjar settings saved!')}>
+                      Save Changes
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Schema Markup */}
+            <TabsContent value="schema">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Schema Markup Generator</CardTitle>
+                    <CardDescription>Generate structured data for rich search results</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Globe size={16} className="text-blue-500" />
+                          <span className="text-sm">Website Schema</span>
+                        </div>
+                        <Badge variant="default">Active</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <ShoppingBag size={16} className="text-green-500" />
+                          <span className="text-sm">Product Schema</span>
+                        </div>
+                        <Badge variant="default">Active</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Star size={16} className="text-yellow-500" />
+                          <span className="text-sm">Review Schema</span>
+                        </div>
+                        <Badge variant="secondary">Pending</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <MessageSquare size={16} className="text-purple-500" />
+                          <span className="text-sm">FAQ Schema</span>
+                        </div>
+                        <Badge variant="outline">Not Set</Badge>
+                      </div>
+                    </div>
+                    <Button className="w-full" onClick={generateSchemaMarkup}>
+                      <Download size={16} className="mr-2" />
+                      Export All Schemas
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>JSON-LD Preview</CardTitle>
+                    <CardDescription>Website structured data</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-gray-900 rounded-lg p-4 font-mono text-xs text-green-400 overflow-x-auto max-h-80">
+                      <pre>{JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "WebSite",
+                        "name": seoSettings.siteName,
+                        "description": seoSettings.siteDescription,
+                        "url": window.location.origin,
+                        "potentialAction": {
+                          "@type": "SearchAction",
+                          "target": `${window.location.origin}/search?q={query}`,
+                          "query-input": "required name=query"
+                        }
+                      }, null, 2)}</pre>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="mt-4 gap-2"
+                      onClick={() => {
+                        const schema = JSON.stringify({
+                          "@context": "https://schema.org",
+                          "@type": "WebSite",
+                          "name": seoSettings.siteName,
+                          "description": seoSettings.siteDescription,
+                          "url": window.location.origin
+                        }, null, 2);
+                        copyToClipboard(schema, 'schema');
+                      }}
+                    >
+                      {copied === 'schema' ? <Check size={14} /> : <Copy size={14} />}
+                      Copy Schema
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle>Rich Results Test</CardTitle>
+                    <CardDescription>Validate your structured data with Google</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-4">
+                      <Input
+                        placeholder="Enter page URL to test..."
+                        defaultValue={window.location.origin}
+                        className="flex-1"
+                      />
+                      <Button onClick={() => window.open(`https://search.google.com/test/rich-results?url=${encodeURIComponent(window.location.origin)}`, '_blank')}>
+                        <ExternalLink size={16} className="mr-2" />
+                        Test in Google
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
