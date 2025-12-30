@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useActivityLog } from '@/hooks/useActivityLog';
 import AdminLayout from '@/components/admin/AdminLayout';
+import ImageUpload from '@/components/admin/ImageUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Megaphone, Plus, Trash2, Loader2, Edit } from 'lucide-react';
+import { Megaphone, Plus, Trash2, Loader2, Edit, ImageIcon } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -41,6 +42,7 @@ interface Announcement {
   created_at: string;
   background_color: string | null;
   button_text: string | null;
+  image_url: string | null;
 }
 
 const AdminAnnouncements = () => {
@@ -58,6 +60,7 @@ const AdminAnnouncements = () => {
     end_date: '',
     background_color: '#ffffff',
     button_text: 'Got it!',
+    image_url: '',
   });
 
   const fetchAnnouncements = async () => {
@@ -89,6 +92,7 @@ const AdminAnnouncements = () => {
       end_date: '',
       background_color: '#ffffff',
       button_text: 'Got it!',
+      image_url: '',
     });
     setEditingId(null);
   };
@@ -101,6 +105,7 @@ const AdminAnnouncements = () => {
       end_date: announcement.end_date ? format(new Date(announcement.end_date), 'yyyy-MM-dd') : '',
       background_color: announcement.background_color || '#ffffff',
       button_text: announcement.button_text || 'Got it!',
+      image_url: announcement.image_url || '',
     });
     setEditingId(announcement.id);
     setDialogOpen(true);
@@ -122,6 +127,7 @@ const AdminAnnouncements = () => {
         end_date: formData.end_date ? new Date(formData.end_date).toISOString() : null,
         background_color: formData.background_color,
         button_text: formData.button_text.trim() || 'Got it!',
+        image_url: formData.image_url || null,
       };
 
       if (editingId) {
@@ -279,6 +285,15 @@ const AdminAnnouncements = () => {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <Label>Image (optional)</Label>
+                  <ImageUpload
+                    images={formData.image_url ? [formData.image_url] : []}
+                    onImagesChange={(images) => setFormData({ ...formData, image_url: images[0] || '' })}
+                    maxImages={1}
+                  />
+                </div>
+
                 <div className="flex items-center gap-2">
                   <Switch
                     id="is_active"
@@ -320,22 +335,34 @@ const AdminAnnouncements = () => {
                     key={announcement.id}
                     className="flex items-start justify-between p-4 border rounded-lg"
                   >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium">{announcement.title}</h3>
-                        <Badge variant={announcement.is_active ? 'default' : 'secondary'}>
-                          {announcement.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
+                    <div className="flex gap-4 flex-1">
+                      {announcement.image_url && (
+                        <img
+                          src={announcement.image_url}
+                          alt={announcement.title}
+                          className="w-16 h-16 rounded-lg object-cover shrink-0"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-medium">{announcement.title}</h3>
+                          {announcement.image_url && (
+                            <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                          )}
+                          <Badge variant={announcement.is_active ? 'default' : 'secondary'}>
+                            {announcement.is_active ? 'Active' : 'Inactive'}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {announcement.message}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Created: {format(new Date(announcement.created_at), 'PPp')}
+                          {announcement.end_date && (
+                            <> · Ends: {format(new Date(announcement.end_date), 'PP')}</>
+                          )}
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {announcement.message}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Created: {format(new Date(announcement.created_at), 'PPp')}
-                        {announcement.end_date && (
-                          <> · Ends: {format(new Date(announcement.end_date), 'PP')}</>
-                        )}
-                      </p>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
                       <Switch

@@ -54,6 +54,7 @@ export type Database = {
           created_at: string | null
           end_date: string | null
           id: string
+          image_url: string | null
           is_active: boolean | null
           message: string
           start_date: string | null
@@ -66,6 +67,7 @@ export type Database = {
           created_at?: string | null
           end_date?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           message: string
           start_date?: string | null
@@ -78,6 +80,7 @@ export type Database = {
           created_at?: string | null
           end_date?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           message?: string
           start_date?: string | null
