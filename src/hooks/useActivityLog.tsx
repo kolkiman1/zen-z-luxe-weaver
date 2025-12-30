@@ -30,6 +30,16 @@ export type TargetType =
   | 'campaign'
   | 'inquiry';
 
+// Actions that trigger email notifications
+const NOTIFY_ACTIONS: ActivityAction[] = [
+  'admin_added',
+  'admin_removed',
+  'admin_invite_created',
+  'product_deleted',
+  'order_status_updated',
+  'discount_deleted',
+];
+
 export const useActivityLog = () => {
   const { user } = useAuth();
 
@@ -42,6 +52,7 @@ export const useActivityLog = () => {
     if (!user) return;
 
     try {
+      // Insert activity log
       const { error } = await supabase
         .from('admin_activity_logs')
         .insert([{
@@ -55,6 +66,26 @@ export const useActivityLog = () => {
 
       if (error) {
         console.error('Failed to log activity:', error);
+        return;
+      }
+
+      // Send notification for important actions
+      if (NOTIFY_ACTIONS.includes(action)) {
+        try {
+          await supabase.functions.invoke('admin-notify', {
+            body: {
+              type: 'admin_action',
+              action,
+              actorEmail: user.email,
+              targetType,
+              targetId,
+              details: details as Record<string, unknown>,
+            },
+          });
+        } catch (notifyError) {
+          // Don't fail the main action if notification fails
+          console.error('Failed to send notification:', notifyError);
+        }
       }
     } catch (error) {
       console.error('Failed to log activity:', error);

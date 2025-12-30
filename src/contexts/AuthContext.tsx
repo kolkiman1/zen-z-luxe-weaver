@@ -94,10 +94,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+
+    // Log failed login attempts as security events
+    if (error) {
+      try {
+        await supabase.functions.invoke('log-security-event', {
+          body: {
+            eventType: 'failed_login',
+            userEmail: email,
+            details: {
+              error_message: error.message,
+              attempted_at: new Date().toISOString(),
+            },
+            severity: 'medium',
+          },
+        });
+      } catch (logError) {
+        console.error('Failed to log security event:', logError);
+      }
+    }
 
     return { error };
   };
