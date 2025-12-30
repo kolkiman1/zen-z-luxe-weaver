@@ -566,11 +566,15 @@ export type Database = {
       }
       security_events: {
         Row: {
+          blocked: boolean | null
+          city: string | null
+          country: string | null
           created_at: string
           details: Json | null
           event_type: string
           id: string
           ip_address: string | null
+          request_path: string | null
           resolved: boolean | null
           resolved_at: string | null
           resolved_by: string | null
@@ -580,11 +584,15 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          blocked?: boolean | null
+          city?: string | null
+          country?: string | null
           created_at?: string
           details?: Json | null
           event_type: string
           id?: string
           ip_address?: string | null
+          request_path?: string | null
           resolved?: boolean | null
           resolved_at?: string | null
           resolved_by?: string | null
@@ -594,11 +602,15 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          blocked?: boolean | null
+          city?: string | null
+          country?: string | null
           created_at?: string
           details?: Json | null
           event_type?: string
           id?: string
           ip_address?: string | null
+          request_path?: string | null
           resolved?: boolean | null
           resolved_at?: string | null
           resolved_by?: string | null

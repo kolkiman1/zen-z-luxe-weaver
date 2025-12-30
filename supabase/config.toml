@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.log-security-event]
 verify_jwt = false
+
+[functions.weekly-security-report]
+verify_jwt = false
