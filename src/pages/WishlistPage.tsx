@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Heart, Trash2, ShoppingBag } from 'lucide-react';
 import Header from '@/components/layout/Header';
@@ -7,7 +6,7 @@ import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useCart } from '@/contexts/CartContext';
-import { useSeoSettings } from '@/hooks/useSiteSettings';
+import { SEOHead } from '@/components/SEOHead';
 import { formatPrice } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -15,9 +14,6 @@ import { toast } from 'sonner';
 const WishlistPage = () => {
   const { items, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
-  const { data: seoSettings } = useSeoSettings();
-
-  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
 
   const handleAddToCart = (product: typeof items[0]) => {
     addToCart(product, 1, product.sizes?.[0], product.colors?.[0]);
@@ -28,13 +24,11 @@ const WishlistPage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Wishlist | {siteName}</title>
-        <meta name="description" content={`Your saved items at ${siteName}. Review and shop your favorite products.`} />
-        {seoSettings?.canonicalUrl && (
-          <link rel="canonical" href={`${seoSettings.canonicalUrl}/wishlist`} />
-        )}
-      </Helmet>
+      <SEOHead
+        title="Wishlist"
+        description="Your saved items. Review and shop your favorite products."
+        url="/wishlist"
+      />
 
       <Header />
       <CartSidebar />

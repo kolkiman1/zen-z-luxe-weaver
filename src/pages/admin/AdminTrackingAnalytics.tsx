@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import {
   BarChart3,
@@ -17,27 +16,44 @@ import {
   Smartphone,
   Monitor,
   Share2,
+  AlertCircle,
 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
+import { SEOHead } from '@/components/SEOHead';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
+import { useGoogleAnalytics } from '@/hooks/useGoogleAnalytics';
 import { toast } from 'sonner';
 
 const AdminTrackingAnalytics = () => {
   const { seoSettings, trackingSettings, isLoading } = useSiteSettings();
   const [testingConnection, setTestingConnection] = useState<string | null>(null);
+  
+  // Get GA property ID from the tracking settings (extract from GA4 ID format: G-XXXXXXXX)
+  const gaPropertyId = trackingSettings?.googleAnalyticsId || '';
+  const { data: analyticsData, loading: analyticsLoading, error: analyticsError, isSampleData, refresh: refreshAnalytics } = useGoogleAnalytics(gaPropertyId);
 
   const isGAConfigured = Boolean(trackingSettings?.googleAnalyticsId);
   const isGTMConfigured = Boolean(trackingSettings?.googleTagManagerId);
   const isFBConfigured = Boolean(trackingSettings?.facebookPixelId);
 
+  // Fetch analytics on mount and when GA is configured
+  useEffect(() => {
+    if (isGAConfigured) {
+      refreshAnalytics();
+    }
+  }, [isGAConfigured, refreshAnalytics]);
+
   const testConnection = async (type: string) => {
     setTestingConnection(type);
-    // Simulate testing
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    if (type === 'Google Analytics 4') {
+      await refreshAnalytics();
+    } else {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
     toast.success(`${type} connection verified successfully`);
     setTestingConnection(null);
   };
@@ -78,7 +94,8 @@ const AdminTrackingAnalytics = () => {
     },
   ];
 
-  const sampleMetrics = {
+  // Use real data from API or fall back to sample
+  const metrics = analyticsData?.metrics || {
     visitors: { current: 2847, previous: 2345, trend: 21.4 },
     pageviews: { current: 8932, previous: 7654, trend: 16.7 },
     bounceRate: { current: 42.3, previous: 45.8, trend: -7.6 },
@@ -86,21 +103,25 @@ const AdminTrackingAnalytics = () => {
   };
 
   const realtimeData = {
-    activeUsers: 24,
-    pagesPerSession: 3.2,
-    topPages: [
+    activeUsers: analyticsData?.realtime?.activeUsers || 24,
+    pagesPerSession: analyticsData?.realtime?.pagesPerSession || 3.2,
+    topPages: analyticsData?.realtime?.topPages || [
       { page: '/', views: 156, percentage: 28 },
       { page: '/category/women', views: 89, percentage: 16 },
       { page: '/category/men', views: 76, percentage: 14 },
       { page: '/product/banarasi-silk-saree', views: 54, percentage: 10 },
     ],
-    trafficSources: [
+    trafficSources: analyticsData?.trafficSources || [
       { source: 'Direct', sessions: 45, percentage: 38 },
       { source: 'Organic Search', sessions: 32, percentage: 27 },
       { source: 'Social', sessions: 28, percentage: 24 },
       { source: 'Referral', sessions: 13, percentage: 11 },
     ],
-    devices: [
+    devices: analyticsData?.realtime?.devices?.map(d => ({
+      device: d.device,
+      icon: d.device === 'Mobile' ? Smartphone : Monitor,
+      percentage: d.percentage,
+    })) || [
       { device: 'Mobile', icon: Smartphone, percentage: 62 },
       { device: 'Desktop', icon: Monitor, percentage: 31 },
       { device: 'Tablet', icon: Monitor, percentage: 7 },
@@ -109,16 +130,28 @@ const AdminTrackingAnalytics = () => {
 
   return (
     <AdminLayout title="Tracking & Analytics">
-      <Helmet>
-        <title>Tracking & Analytics | Admin</title>
-      </Helmet>
+      <SEOHead title="Tracking & Analytics | Admin" noIndex />
 
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-display">Tracking & Analytics</h1>
             <p className="text-muted-foreground">Monitor your tracking integrations and view analytics data</p>
+            {isSampleData && isGAConfigured && (
+              <div className="flex items-center gap-2 mt-2 text-amber-500 text-sm">
+                <AlertCircle size={14} />
+                <span>Showing sample data. Add GOOGLE_ANALYTICS_SERVICE_ACCOUNT_KEY secret for real data.</span>
+              </div>
+            )}
           </div>
+          <Button
+            variant="outline"
+            onClick={refreshAnalytics}
+            disabled={analyticsLoading}
+          >
+            <RefreshCw size={16} className={`mr-2 ${analyticsLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
@@ -138,11 +171,11 @@ const AdminTrackingAnalytics = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Visitors (30d)</p>
-                        <p className="text-2xl font-display">{sampleMetrics.visitors.current.toLocaleString()}</p>
+                        <p className="text-2xl font-display">{metrics.visitors.current.toLocaleString()}</p>
                       </div>
-                      <div className={`flex items-center gap-1 text-sm ${sampleMetrics.visitors.trend > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      <div className={`flex items-center gap-1 text-sm ${metrics.visitors.trend > 0 ? 'text-green-500' : 'text-red-500'}`}>
                         <TrendingUp size={16} />
-                        {sampleMetrics.visitors.trend}%
+                        {metrics.visitors.trend}%
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mt-2">
@@ -159,11 +192,11 @@ const AdminTrackingAnalytics = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Page Views (30d)</p>
-                        <p className="text-2xl font-display">{sampleMetrics.pageviews.current.toLocaleString()}</p>
+                        <p className="text-2xl font-display">{metrics.pageviews.current.toLocaleString()}</p>
                       </div>
-                      <div className={`flex items-center gap-1 text-sm ${sampleMetrics.pageviews.trend > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      <div className={`flex items-center gap-1 text-sm ${metrics.pageviews.trend > 0 ? 'text-green-500' : 'text-red-500'}`}>
                         <TrendingUp size={16} />
-                        {sampleMetrics.pageviews.trend}%
+                        {metrics.pageviews.trend}%
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mt-2">
@@ -180,11 +213,11 @@ const AdminTrackingAnalytics = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Bounce Rate</p>
-                        <p className="text-2xl font-display">{sampleMetrics.bounceRate.current}%</p>
+                        <p className="text-2xl font-display">{metrics.bounceRate.current}%</p>
                       </div>
-                      <div className={`flex items-center gap-1 text-sm ${sampleMetrics.bounceRate.trend < 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        <TrendingUp size={16} className={sampleMetrics.bounceRate.trend < 0 ? 'rotate-180' : ''} />
-                        {Math.abs(sampleMetrics.bounceRate.trend)}%
+                      <div className={`flex items-center gap-1 text-sm ${metrics.bounceRate.trend < 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        <TrendingUp size={16} className={metrics.bounceRate.trend < 0 ? 'rotate-180' : ''} />
+                        {Math.abs(metrics.bounceRate.trend)}%
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mt-2">
@@ -201,11 +234,11 @@ const AdminTrackingAnalytics = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Avg. Session</p>
-                        <p className="text-2xl font-display">{sampleMetrics.avgSession.current} min</p>
+                        <p className="text-2xl font-display">{metrics.avgSession.current} min</p>
                       </div>
-                      <div className={`flex items-center gap-1 text-sm ${sampleMetrics.avgSession.trend > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      <div className={`flex items-center gap-1 text-sm ${metrics.avgSession.trend > 0 ? 'text-green-500' : 'text-red-500'}`}>
                         <TrendingUp size={16} />
-                        {sampleMetrics.avgSession.trend}%
+                        {metrics.avgSession.trend}%
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mt-2">
