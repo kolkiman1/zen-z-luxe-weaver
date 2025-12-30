@@ -93,11 +93,20 @@ interface EmailCampaign {
   id: string;
   name: string;
   subject: string;
-  status: 'draft' | 'scheduled' | 'sent';
+  template: string;
+  status: 'draft' | 'scheduled' | 'sent' | 'cancelled';
   recipients: number;
   openRate: number;
   clickRate: number;
-  scheduledAt?: string;
+  scheduledAt: string | null;
+  sentAt: string | null;
+  createdAt: string;
+}
+
+interface NewCampaign {
+  name: string;
+  subject: string;
+  template: string;
 }
 
 const siteUrls: UrlItem[] = [
@@ -135,12 +144,6 @@ interface NewDiscountCode {
   expiresAt: string;
 }
 
-const mockCampaigns: EmailCampaign[] = [
-  { id: '1', name: 'New Arrivals Alert', subject: '🔥 Fresh Styles Just Dropped!', status: 'sent', recipients: 1250, openRate: 32.5, clickRate: 8.2 },
-  { id: '2', name: 'Weekend Sale', subject: 'Weekend Flash Sale - Up to 40% Off', status: 'scheduled', recipients: 1180, openRate: 0, clickRate: 0, scheduledAt: '2024-01-20T10:00:00' },
-  { id: '3', name: 'Cart Abandonment', subject: 'You left something behind...', status: 'draft', recipients: 0, openRate: 0, clickRate: 0 },
-];
-
 const AdminMarketing = () => {
   const [productCount, setProductCount] = useState(0);
   const [orderCount, setOrderCount] = useState(0);
@@ -148,7 +151,14 @@ const AdminMarketing = () => {
   const [copied, setCopied] = useState<string | null>(null);
   const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>([]);
   const [loadingCodes, setLoadingCodes] = useState(true);
-  const [campaigns, setCampaigns] = useState<EmailCampaign[]>(mockCampaigns);
+  const [campaigns, setCampaigns] = useState<EmailCampaign[]>([]);
+  const [loadingCampaigns, setLoadingCampaigns] = useState(true);
+  const [newCampaign, setNewCampaign] = useState<NewCampaign>({
+    name: '',
+    subject: '',
+    template: 'promotional',
+  });
+  const [savingCampaign, setSavingCampaign] = useState(false);
   const defaultExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   const [newCode, setNewCode] = useState<NewDiscountCode>({ 
     code: '', 
@@ -173,7 +183,35 @@ const AdminMarketing = () => {
   useEffect(() => {
     fetchStats();
     fetchDiscountCodes();
+    fetchCampaigns();
   }, []);
+
+  const fetchCampaigns = async () => {
+    setLoadingCampaigns(true);
+    const { data, error } = await supabase
+      .from('email_campaigns')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching campaigns:', error);
+    } else if (data) {
+      setCampaigns(data.map(c => ({
+        id: c.id,
+        name: c.name,
+        subject: c.subject,
+        template: c.template,
+        status: c.status as EmailCampaign['status'],
+        recipients: c.recipients,
+        openRate: Number(c.open_rate),
+        clickRate: Number(c.click_rate),
+        scheduledAt: c.scheduled_at,
+        sentAt: c.sent_at,
+        createdAt: c.created_at,
+      })));
+    }
+    setLoadingCampaigns(false);
+  };
 
   const fetchDiscountCodes = async () => {
     setLoadingCodes(true);
@@ -365,6 +403,91 @@ ${siteUrls
 
     setDiscountCodes(codes => codes.filter(c => c.id !== id));
     toast.success('Discount code deleted');
+  };
+
+  const addCampaign = async () => {
+    if (!newCampaign.name.trim()) {
+      toast.error('Please enter a campaign name');
+      return;
+    }
+    if (!newCampaign.subject.trim()) {
+      toast.error('Please enter a subject line');
+      return;
+    }
+
+    setSavingCampaign(true);
+    const { data, error } = await supabase
+      .from('email_campaigns')
+      .insert({
+        name: newCampaign.name.trim(),
+        subject: newCampaign.subject.trim(),
+        template: newCampaign.template,
+        status: 'draft',
+        recipients: customerCount,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      toast.error('Failed to create campaign');
+      console.error(error);
+    } else if (data) {
+      setCampaigns(prev => [{
+        id: data.id,
+        name: data.name,
+        subject: data.subject,
+        template: data.template,
+        status: data.status as EmailCampaign['status'],
+        recipients: data.recipients,
+        openRate: Number(data.open_rate),
+        clickRate: Number(data.click_rate),
+        scheduledAt: data.scheduled_at,
+        sentAt: data.sent_at,
+        createdAt: data.created_at,
+      }, ...prev]);
+      setNewCampaign({ name: '', subject: '', template: 'promotional' });
+      toast.success('Campaign created as draft');
+    }
+    setSavingCampaign(false);
+  };
+
+  const deleteCampaign = async (id: string) => {
+    const { error } = await supabase
+      .from('email_campaigns')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast.error('Failed to delete campaign');
+      console.error(error);
+      return;
+    }
+
+    setCampaigns(prev => prev.filter(c => c.id !== id));
+    toast.success('Campaign deleted');
+  };
+
+  const updateCampaignStatus = async (id: string, status: EmailCampaign['status']) => {
+    const updates: Record<string, any> = { status };
+    if (status === 'sent') {
+      updates.sent_at = new Date().toISOString();
+    }
+
+    const { error } = await supabase
+      .from('email_campaigns')
+      .update(updates)
+      .eq('id', id);
+
+    if (error) {
+      toast.error('Failed to update campaign');
+      console.error(error);
+      return;
+    }
+
+    setCampaigns(prev => prev.map(c => 
+      c.id === id ? { ...c, status, sentAt: status === 'sent' ? new Date().toISOString() : c.sentAt } : c
+    ));
+    toast.success(`Campaign ${status === 'sent' ? 'sent' : 'updated'}`);
   };
 
   const seoScore = Math.round(
@@ -828,62 +951,95 @@ ${siteUrls
                       <CardDescription>Create and manage email marketing campaigns</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-3">
-                        {campaigns.map(campaign => (
-                          <div
-                            key={campaign.id}
-                            className="flex items-center justify-between p-4 rounded-lg border bg-secondary/30"
-                          >
-                            <div className="flex items-center gap-4">
-                              <div className={`p-2 rounded-lg ${
-                                campaign.status === 'sent' ? 'bg-green-500/10' :
-                                campaign.status === 'scheduled' ? 'bg-blue-500/10' :
-                                'bg-muted'
-                              }`}>
-                                <Mail className={
-                                  campaign.status === 'sent' ? 'text-green-500' :
-                                  campaign.status === 'scheduled' ? 'text-blue-500' :
-                                  'text-muted-foreground'
-                                } size={20} />
-                              </div>
-                              <div>
-                                <p className="font-medium">{campaign.name}</p>
-                                <p className="text-sm text-muted-foreground">{campaign.subject}</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-6">
-                              {campaign.status === 'sent' && (
-                                <>
-                                  <div className="text-center">
-                                    <p className="text-lg font-bold text-green-500">{campaign.openRate}%</p>
-                                    <p className="text-xs text-muted-foreground">Open Rate</p>
-                                  </div>
-                                  <div className="text-center">
-                                    <p className="text-lg font-bold text-blue-500">{campaign.clickRate}%</p>
-                                    <p className="text-xs text-muted-foreground">Click Rate</p>
-                                  </div>
-                                </>
-                              )}
-                              {campaign.status === 'scheduled' && campaign.scheduledAt && (
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                  <Calendar size={14} />
-                                  {new Date(campaign.scheduledAt).toLocaleDateString()}
+                      {loadingCampaigns ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="animate-spin text-muted-foreground" size={24} />
+                        </div>
+                      ) : campaigns.length === 0 ? (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <Mail size={40} className="mx-auto mb-2 opacity-50" />
+                          <p>No campaigns yet</p>
+                          <p className="text-sm">Create your first email campaign</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {campaigns.map(campaign => (
+                            <div
+                              key={campaign.id}
+                              className="flex items-center justify-between p-4 rounded-lg border bg-secondary/30"
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className={`p-2 rounded-lg ${
+                                  campaign.status === 'sent' ? 'bg-green-500/10' :
+                                  campaign.status === 'scheduled' ? 'bg-blue-500/10' :
+                                  campaign.status === 'cancelled' ? 'bg-red-500/10' :
+                                  'bg-muted'
+                                }`}>
+                                  <Mail className={
+                                    campaign.status === 'sent' ? 'text-green-500' :
+                                    campaign.status === 'scheduled' ? 'text-blue-500' :
+                                    campaign.status === 'cancelled' ? 'text-red-500' :
+                                    'text-muted-foreground'
+                                  } size={20} />
                                 </div>
-                              )}
-                              <Badge variant={
-                                campaign.status === 'sent' ? 'default' :
-                                campaign.status === 'scheduled' ? 'secondary' :
-                                'outline'
-                              }>
-                                {campaign.status}
-                              </Badge>
-                              <Button variant="ghost" size="sm">
-                                <Settings size={16} />
-                              </Button>
+                                <div>
+                                  <p className="font-medium">{campaign.name}</p>
+                                  <p className="text-sm text-muted-foreground">{campaign.subject}</p>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {campaign.recipients} recipients • {campaign.template}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-4">
+                                {campaign.status === 'sent' && (
+                                  <>
+                                    <div className="text-center hidden sm:block">
+                                      <p className="text-lg font-bold text-green-500">{campaign.openRate}%</p>
+                                      <p className="text-xs text-muted-foreground">Open Rate</p>
+                                    </div>
+                                    <div className="text-center hidden sm:block">
+                                      <p className="text-lg font-bold text-blue-500">{campaign.clickRate}%</p>
+                                      <p className="text-xs text-muted-foreground">Click Rate</p>
+                                    </div>
+                                  </>
+                                )}
+                                {campaign.status === 'scheduled' && campaign.scheduledAt && (
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Calendar size={14} />
+                                    {new Date(campaign.scheduledAt).toLocaleDateString()}
+                                  </div>
+                                )}
+                                <Badge variant={
+                                  campaign.status === 'sent' ? 'default' :
+                                  campaign.status === 'scheduled' ? 'secondary' :
+                                  campaign.status === 'cancelled' ? 'destructive' :
+                                  'outline'
+                                }>
+                                  {campaign.status}
+                                </Badge>
+                                {campaign.status === 'draft' && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => updateCampaignStatus(campaign.id, 'sent')}
+                                  >
+                                    <Send size={14} className="mr-1" />
+                                    Send
+                                  </Button>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  onClick={() => deleteCampaign(campaign.id)}
+                                >
+                                  <Trash2 size={16} />
+                                </Button>
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </div>
@@ -900,12 +1056,34 @@ ${siteUrls
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="p-3 bg-green-500/10 rounded-lg text-center">
-                          <p className="text-xl font-bold text-green-500">32.5%</p>
+                          <p className="text-xl font-bold text-green-500">
+                            {campaigns.filter(c => c.status === 'sent').length > 0 
+                              ? (campaigns.filter(c => c.status === 'sent').reduce((acc, c) => acc + c.openRate, 0) / campaigns.filter(c => c.status === 'sent').length).toFixed(1)
+                              : '0'}%
+                          </p>
                           <p className="text-xs text-muted-foreground">Avg Open Rate</p>
                         </div>
                         <div className="p-3 bg-blue-500/10 rounded-lg text-center">
-                          <p className="text-xl font-bold text-blue-500">8.2%</p>
+                          <p className="text-xl font-bold text-blue-500">
+                            {campaigns.filter(c => c.status === 'sent').length > 0 
+                              ? (campaigns.filter(c => c.status === 'sent').reduce((acc, c) => acc + c.clickRate, 0) / campaigns.filter(c => c.status === 'sent').length).toFixed(1)
+                              : '0'}%
+                          </p>
                           <p className="text-xs text-muted-foreground">Avg Click Rate</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 text-center">
+                        <div className="p-2 bg-muted rounded">
+                          <p className="font-bold">{campaigns.filter(c => c.status === 'draft').length}</p>
+                          <p className="text-xs text-muted-foreground">Drafts</p>
+                        </div>
+                        <div className="p-2 bg-blue-500/10 rounded">
+                          <p className="font-bold text-blue-500">{campaigns.filter(c => c.status === 'scheduled').length}</p>
+                          <p className="text-xs text-muted-foreground">Scheduled</p>
+                        </div>
+                        <div className="p-2 bg-green-500/10 rounded">
+                          <p className="font-bold text-green-500">{campaigns.filter(c => c.status === 'sent').length}</p>
+                          <p className="text-xs text-muted-foreground">Sent</p>
                         </div>
                       </div>
                     </CardContent>
@@ -918,28 +1096,47 @@ ${siteUrls
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
                         <Label>Campaign Name</Label>
-                        <Input placeholder="Flash Sale Alert" />
+                        <Input 
+                          placeholder="Flash Sale Alert" 
+                          value={newCampaign.name}
+                          onChange={e => setNewCampaign({ ...newCampaign, name: e.target.value })}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label>Subject Line</Label>
-                        <Input placeholder="🔥 48-Hour Flash Sale!" />
+                        <Input 
+                          placeholder="🔥 48-Hour Flash Sale!" 
+                          value={newCampaign.subject}
+                          onChange={e => setNewCampaign({ ...newCampaign, subject: e.target.value })}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label>Template</Label>
-                        <Select defaultValue="promo">
+                        <Select 
+                          value={newCampaign.template}
+                          onValueChange={v => setNewCampaign({ ...newCampaign, template: v })}
+                        >
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="promo">Promotional</SelectItem>
+                            <SelectItem value="promotional">Promotional</SelectItem>
                             <SelectItem value="newsletter">Newsletter</SelectItem>
                             <SelectItem value="product">Product Launch</SelectItem>
                             <SelectItem value="abandoned">Cart Recovery</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-                      <Button className="w-full">
-                        <Send size={16} className="mr-2" />
+                      <Button 
+                        className="w-full" 
+                        onClick={addCampaign}
+                        disabled={savingCampaign}
+                      >
+                        {savingCampaign ? (
+                          <Loader2 size={16} className="mr-2 animate-spin" />
+                        ) : (
+                          <Send size={16} className="mr-2" />
+                        )}
                         Create Campaign
                       </Button>
                     </CardContent>

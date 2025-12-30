@@ -140,6 +140,51 @@ export type Database = {
         }
         Relationships: []
       }
+      email_campaigns: {
+        Row: {
+          click_rate: number | null
+          created_at: string
+          id: string
+          name: string
+          open_rate: number | null
+          recipients: number
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          template: string
+          updated_at: string
+        }
+        Insert: {
+          click_rate?: number | null
+          created_at?: string
+          id?: string
+          name: string
+          open_rate?: number | null
+          recipients?: number
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          template?: string
+          updated_at?: string
+        }
+        Update: {
+          click_rate?: number | null
+          created_at?: string
+          id?: string
+          name?: string
+          open_rate?: number | null
+          recipients?: number
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          template?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       inquiries: {
         Row: {
           admin_notes: string | null
