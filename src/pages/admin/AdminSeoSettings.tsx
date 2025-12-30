@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Globe, Image, AtSign, Link, Loader2, RefreshCw } from 'lucide-react';
+import { Save, Globe, Image, AtSign, Link, Loader2, RefreshCw, Upload, FileText, ExternalLink } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -33,6 +33,8 @@ const AdminSeoSettings = () => {
   const [settings, setSettings] = useState<SeoSettings>(defaultSettings);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchSettings();
@@ -87,6 +89,53 @@ const AdminSeoSettings = () => {
     setSettings(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `og-image-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('seo-images')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('seo-images')
+        .getPublicUrl(fileName);
+
+      handleChange('ogImage', publicUrl);
+      toast.success('OG image uploaded successfully');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload image');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const sitemapUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sitemap`;
+
   if (loading) {
     return (
       <AdminLayout title="SEO Settings">
@@ -126,6 +175,7 @@ const AdminSeoSettings = () => {
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="opengraph">Open Graph</TabsTrigger>
             <TabsTrigger value="social">Social Media</TabsTrigger>
+            <TabsTrigger value="sitemap">Sitemap</TabsTrigger>
           </TabsList>
 
           <TabsContent value="general" className="space-y-6">
@@ -232,15 +282,38 @@ const AdminSeoSettings = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="ogImage">Default OG Image URL</Label>
-                  <Input
-                    id="ogImage"
-                    value={settings.ogImage}
-                    onChange={(e) => handleChange('ogImage', e.target.value)}
-                    placeholder="https://yourdomain.com/og-image.jpg"
-                  />
+                  <Label htmlFor="ogImage">Default OG Image</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="ogImage"
+                      value={settings.ogImage}
+                      onChange={(e) => handleChange('ogImage', e.target.value)}
+                      placeholder="https://yourdomain.com/og-image.jpg"
+                      className="flex-1"
+                    />
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleImageUpload}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                    >
+                      {uploading ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
+                        <Upload size={16} />
+                      )}
+                      <span className="ml-2">Upload</span>
+                    </Button>
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    Recommended size: 1200x630 pixels. This image will be used when your pages are shared.
+                    Recommended size: 1200x630 pixels. Upload directly or paste an image URL.
                   </p>
                 </div>
 
@@ -359,6 +432,62 @@ const AdminSeoSettings = () => {
                       {settings.canonicalUrl.replace('https://', '').replace('http://', '')}
                     </p>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="sitemap" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText size={20} />
+                  Dynamic Sitemap
+                </CardTitle>
+                <CardDescription>
+                  Your sitemap is automatically generated with all products and categories
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">Sitemap URL</p>
+                      <p className="text-sm text-muted-foreground break-all">{sitemapUrl}</p>
+                    </div>
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={sitemapUrl} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink size={14} className="mr-2" />
+                        View
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="font-medium">What's included:</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                    <li>Homepage and static pages</li>
+                    <li>All category pages (dynamically generated)</li>
+                    <li>All product pages with last modified dates</li>
+                    <li>Proper priority and changefreq values</li>
+                  </ul>
+                </div>
+
+                <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                  <p className="text-sm">
+                    <strong>Tip:</strong> Submit this sitemap URL to Google Search Console and Bing Webmaster Tools for better indexing.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>robots.txt recommendation</Label>
+                  <pre className="p-3 bg-muted rounded-lg text-sm overflow-x-auto">
+{`User-agent: *
+Allow: /
+
+Sitemap: ${sitemapUrl}`}
+                  </pre>
                 </div>
               </CardContent>
             </Card>
