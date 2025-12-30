@@ -14,6 +14,56 @@ interface AnalyticsRequest {
   dimensions?: string[];
 }
 
+// ========== RATE LIMITING ==========
+// In-memory rate limit store (resets on function cold start)
+// For production, consider using Redis or Supabase table for persistence
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+const RATE_LIMIT = {
+  maxRequests: 30,      // Maximum requests per window
+  windowMs: 60 * 1000,  // 1 minute window
+};
+
+function checkRateLimit(identifier: string): { allowed: boolean; remaining: number; resetIn: number } {
+  const now = Date.now();
+  const record = rateLimitStore.get(identifier);
+
+  // Clean up expired entries
+  if (record && now > record.resetTime) {
+    rateLimitStore.delete(identifier);
+  }
+
+  const currentRecord = rateLimitStore.get(identifier);
+
+  if (!currentRecord) {
+    // First request from this user
+    rateLimitStore.set(identifier, {
+      count: 1,
+      resetTime: now + RATE_LIMIT.windowMs,
+    });
+    return { allowed: true, remaining: RATE_LIMIT.maxRequests - 1, resetIn: RATE_LIMIT.windowMs };
+  }
+
+  if (currentRecord.count >= RATE_LIMIT.maxRequests) {
+    // Rate limit exceeded
+    return { 
+      allowed: false, 
+      remaining: 0, 
+      resetIn: currentRecord.resetTime - now 
+    };
+  }
+
+  // Increment count
+  currentRecord.count++;
+  rateLimitStore.set(identifier, currentRecord);
+  
+  return { 
+    allowed: true, 
+    remaining: RATE_LIMIT.maxRequests - currentRecord.count, 
+    resetIn: currentRecord.resetTime - now 
+  };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -74,6 +124,33 @@ serve(async (req) => {
     }
 
     console.log(`Admin user ${user.id} (${user.email}) authorized for analytics access`);
+
+    // ========== RATE LIMITING CHECK ==========
+    const rateLimit = checkRateLimit(user.id);
+    
+    if (!rateLimit.allowed) {
+      console.warn(`Rate limit exceeded for admin user ${user.id} (${user.email})`);
+      return new Response(
+        JSON.stringify({ 
+          error: "Too Many Requests", 
+          message: `Rate limit exceeded. Try again in ${Math.ceil(rateLimit.resetIn / 1000)} seconds.`,
+          retryAfter: Math.ceil(rateLimit.resetIn / 1000)
+        }),
+        { 
+          status: 429, 
+          headers: { 
+            ...corsHeaders, 
+            "Content-Type": "application/json",
+            "X-RateLimit-Limit": String(RATE_LIMIT.maxRequests),
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": String(Math.ceil(rateLimit.resetIn / 1000)),
+            "Retry-After": String(Math.ceil(rateLimit.resetIn / 1000))
+          } 
+        }
+      );
+    }
+
+    console.log(`Rate limit check passed for user ${user.id}: ${rateLimit.remaining} requests remaining`);
 
     // ========== ANALYTICS LOGIC ==========
     const serviceAccountKey = Deno.env.get("GOOGLE_ANALYTICS_SERVICE_ACCOUNT_KEY");
