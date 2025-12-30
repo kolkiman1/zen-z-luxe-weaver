@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import { SEOHead } from '@/components/SEOHead';
 import { motion } from 'framer-motion';
 import { 
   User, 
@@ -454,15 +454,14 @@ const UserDashboard = () => {
   }
 
   const totalSpent = orders.reduce((sum, order) => sum + Number(order.total_amount), 0);
-  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
 
   return (
     <>
-      <Helmet>
-        <title>My Account | {siteName}</title>
-        <meta name="description" content={`Manage your account, view orders, and update your profile at ${siteName}.`} />
-        <meta name="robots" content="noindex, nofollow" />
-      </Helmet>
+      <SEOHead
+        title="My Account"
+        description="Manage your account, view orders, and update your profile."
+        noIndex={true}
+      />
 
       <Header />
 

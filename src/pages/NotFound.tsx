@@ -1,13 +1,9 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import { Helmet } from "react-helmet-async";
-import { useSeoSettings } from "@/hooks/useSiteSettings";
+import { SEOHead } from "@/components/SEOHead";
 
 const NotFound = () => {
   const location = useLocation();
-  const { data: seoSettings } = useSeoSettings();
-  
-  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
@@ -15,11 +11,11 @@ const NotFound = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Page Not Found | {siteName}</title>
-        <meta name="description" content="The page you're looking for doesn't exist." />
-        <meta name="robots" content="noindex, nofollow" />
-      </Helmet>
+      <SEOHead
+        title="Page Not Found"
+        description="The page you're looking for doesn't exist."
+        noIndex={true}
+      />
       <div className="flex min-h-screen items-center justify-center bg-muted">
         <div className="text-center">
           <h1 className="mb-4 text-4xl font-bold">404</h1>
