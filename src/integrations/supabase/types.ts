@@ -98,6 +98,48 @@ export type Database = {
         }
         Relationships: []
       }
+      discount_codes: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          is_active: boolean
+          min_order: number
+          type: string
+          updated_at: string
+          usage_limit: number
+          used_count: number
+          value: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_active?: boolean
+          min_order?: number
+          type: string
+          updated_at?: string
+          usage_limit?: number
+          used_count?: number
+          value: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean
+          min_order?: number
+          type?: string
+          updated_at?: string
+          usage_limit?: number
+          used_count?: number
+          value?: number
+        }
+        Relationships: []
+      }
       inquiries: {
         Row: {
           admin_notes: string | null
