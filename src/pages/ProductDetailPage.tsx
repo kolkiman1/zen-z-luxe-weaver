@@ -103,6 +103,16 @@ const ProductDetailPage = () => {
           currency: 'BDT',
           availability: product.inStock ? 'in stock' : 'out of stock',
         }}
+        structuredData={{
+          name: product.name,
+          description: product.description || undefined,
+          image: productImage,
+          price: product.price,
+          currency: 'BDT',
+          availability: product.inStock ? 'InStock' : 'OutOfStock',
+          sku: product.id,
+          brand: siteName,
+        }}
       />
 
       <Header />
