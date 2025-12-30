@@ -27,7 +27,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWishlist } from '@/contexts/WishlistContext';
-import { useSeoSettings } from '@/hooks/useSiteSettings';
+
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -95,7 +95,7 @@ interface PaymentMethod {
 const UserDashboard = () => {
   const { user, profile, loading: authLoading, updateProfile } = useAuth();
   const { items: wishlistItems } = useWishlist();
-  const { data: seoSettings } = useSeoSettings();
+  
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
