@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Globe, Image, AtSign, Link, Loader2, RefreshCw, Upload, FileText, ExternalLink } from 'lucide-react';
+import { Save, Globe, Image, AtSign, Link, Loader2, RefreshCw, Upload, FileText, ExternalLink, Search } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { SeoAnalyzer } from '@/components/admin/SeoAnalyzer';
 
 interface SeoSettings {
   siteTitle: string;
@@ -135,6 +136,7 @@ const AdminSeoSettings = () => {
   };
 
   const sitemapUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sitemap`;
+  const robotsUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/robots`;
 
   if (loading) {
     return (
@@ -175,7 +177,8 @@ const AdminSeoSettings = () => {
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="opengraph">Open Graph</TabsTrigger>
             <TabsTrigger value="social">Social Media</TabsTrigger>
-            <TabsTrigger value="sitemap">Sitemap</TabsTrigger>
+            <TabsTrigger value="sitemap">Sitemap & Robots</TabsTrigger>
+            <TabsTrigger value="analyzer">Analyzer</TabsTrigger>
           </TabsList>
 
           <TabsContent value="general" className="space-y-6">
@@ -479,18 +482,57 @@ const AdminSeoSettings = () => {
                     <strong>Tip:</strong> Submit this sitemap URL to Google Search Console and Bing Webmaster Tools for better indexing.
                   </p>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText size={20} />
+                  Dynamic robots.txt
+                </CardTitle>
+                <CardDescription>
+                  Your robots.txt is dynamically generated with sitemap URL and crawl rules
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">robots.txt URL</p>
+                      <p className="text-sm text-muted-foreground break-all">{robotsUrl}</p>
+                    </div>
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={robotsUrl} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink size={14} className="mr-2" />
+                        View
+                      </a>
+                    </Button>
+                  </div>
+                </div>
 
                 <div className="space-y-2">
-                  <Label>robots.txt recommendation</Label>
-                  <pre className="p-3 bg-muted rounded-lg text-sm overflow-x-auto">
-{`User-agent: *
-Allow: /
+                  <h4 className="font-medium">What's configured:</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                    <li>Allow all major crawlers (Googlebot, Bingbot, etc.)</li>
+                    <li>Appropriate crawl delays</li>
+                    <li>Disallow admin, auth, and checkout pages</li>
+                    <li>Dynamic sitemap URL included</li>
+                    <li>Host directive with canonical URL</li>
+                  </ul>
+                </div>
 
-Sitemap: ${sitemapUrl}`}
-                  </pre>
+                <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                  <p className="text-sm">
+                    <strong>Note:</strong> For production, you may want to configure your server to serve this at /robots.txt or use a redirect.
+                  </p>
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="analyzer" className="space-y-6">
+            <SeoAnalyzer />
           </TabsContent>
         </Tabs>
       </motion.div>
