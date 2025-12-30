@@ -16,6 +16,7 @@ interface Announcement {
   message: string;
   background_color: string | null;
   button_text: string | null;
+  image_url: string | null;
 }
 
 const AnnouncementPopup = () => {
@@ -29,7 +30,7 @@ const AnnouncementPopup = () => {
 
       const { data, error } = await supabase
         .from('announcements')
-        .select('id, title, message, background_color, button_text')
+        .select('id, title, message, background_color, button_text, image_url')
         .eq('is_active', true)
         .or('end_date.is.null,end_date.gt.now()')
         .order('created_at', { ascending: false })
@@ -78,12 +79,21 @@ const AnnouncementPopup = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent 
-        className="sm:max-w-md border-0"
+        className={`border-0 ${announcement.image_url ? 'sm:max-w-lg' : 'sm:max-w-md'}`}
         style={{ 
           backgroundColor: bgColor,
           color: isLightBg() ? '#1a1a1a' : '#ffffff'
         }}
       >
+        {announcement.image_url && (
+          <div className="-mx-6 -mt-6 mb-4">
+            <img
+              src={announcement.image_url}
+              alt={announcement.title}
+              className="w-full h-48 object-cover rounded-t-lg"
+            />
+          </div>
+        )}
         <DialogHeader>
           <DialogTitle 
             className="flex items-center gap-2"
