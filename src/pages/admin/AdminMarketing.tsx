@@ -41,6 +41,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
+import DiscountAnalytics from '@/components/admin/DiscountAnalytics';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -482,6 +483,10 @@ ${siteUrls
                 <Percent size={16} />
                 Discounts
               </TabsTrigger>
+              <TabsTrigger value="discount-analytics" className="gap-2">
+                <BarChart3 size={16} />
+                Code Analytics
+              </TabsTrigger>
               <TabsTrigger value="campaigns" className="gap-2">
                 <Mail size={16} />
                 Campaigns
@@ -495,7 +500,7 @@ ${siteUrls
                 Social
               </TabsTrigger>
               <TabsTrigger value="tracking" className="gap-2">
-                <BarChart3 size={16} />
+                <TrendingUp size={16} />
                 Tracking
               </TabsTrigger>
               <TabsTrigger value="schema" className="gap-2">
@@ -806,6 +811,11 @@ ${siteUrls
                   </CardContent>
                 </Card>
               </div>
+            </TabsContent>
+
+            {/* Discount Code Analytics */}
+            <TabsContent value="discount-analytics">
+              <DiscountAnalytics />
             </TabsContent>
 
             {/* Email Campaigns */}
