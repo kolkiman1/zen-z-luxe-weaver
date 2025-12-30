@@ -155,6 +155,7 @@ const AdminMarketing = () => {
   const [loadingCodes, setLoadingCodes] = useState(true);
   const [campaigns, setCampaigns] = useState<EmailCampaign[]>([]);
   const [loadingCampaigns, setLoadingCampaigns] = useState(true);
+  const [savingSettings, setSavingSettings] = useState(false);
   const [newCampaign, setNewCampaign] = useState<NewCampaign>({
     name: '',
     subject: '',
@@ -186,16 +187,96 @@ const AdminMarketing = () => {
     fetchStats();
     fetchDiscountCodes();
     fetchCampaigns();
-    // Load saved SEO settings from localStorage
-    const savedSeoSettings = localStorage.getItem('seoSettings');
-    if (savedSeoSettings) {
-      try {
-        setSeoSettings(JSON.parse(savedSeoSettings));
-      } catch (e) {
-        console.error('Failed to load SEO settings:', e);
-      }
-    }
+    fetchSiteSettings();
   }, []);
+
+  const fetchSiteSettings = async () => {
+    const { data, error } = await supabase
+      .from('site_settings')
+      .select('key, value')
+      .in('key', ['seo', 'tracking']);
+
+    if (error) {
+      console.error('Failed to fetch site settings:', error);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      const seoData = data.find(d => d.key === 'seo');
+      const trackingData = data.find(d => d.key === 'tracking');
+      
+      const seoValue = seoData?.value as Record<string, string> | undefined;
+      const trackingValue = trackingData?.value as Record<string, string> | undefined;
+
+      setSeoSettings(prev => ({
+        ...prev,
+        siteName: seoValue?.siteName || prev.siteName,
+        siteDescription: seoValue?.siteDescription || prev.siteDescription,
+        siteKeywords: seoValue?.siteKeywords || prev.siteKeywords,
+        ogImage: seoValue?.ogImage || prev.ogImage,
+        twitterHandle: seoValue?.twitterHandle || prev.twitterHandle,
+        googleAnalyticsId: trackingValue?.googleAnalyticsId || prev.googleAnalyticsId,
+        facebookPixelId: trackingValue?.facebookPixelId || prev.facebookPixelId,
+        googleTagManagerId: trackingValue?.googleTagManagerId || prev.googleTagManagerId,
+        hotjarId: trackingValue?.hotjarId || prev.hotjarId,
+      }));
+    }
+  };
+
+  const saveSeoSettings = async () => {
+    setSavingSettings(true);
+    
+    const seoData = {
+      siteName: seoSettings.siteName,
+      siteDescription: seoSettings.siteDescription,
+      siteKeywords: seoSettings.siteKeywords,
+      ogImage: seoSettings.ogImage,
+      twitterHandle: seoSettings.twitterHandle,
+    };
+
+    const { error } = await supabase
+      .from('site_settings')
+      .upsert({ 
+        key: 'seo', 
+        value: seoData,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'key' });
+
+    if (error) {
+      console.error('Failed to save SEO settings:', error);
+      toast.error('Failed to save SEO settings');
+    } else {
+      toast.success('SEO settings saved to database!');
+    }
+    setSavingSettings(false);
+  };
+
+  const saveTrackingSettings = async () => {
+    setSavingSettings(true);
+    
+    const trackingData = {
+      googleAnalyticsId: seoSettings.googleAnalyticsId,
+      facebookPixelId: seoSettings.facebookPixelId,
+      googleTagManagerId: seoSettings.googleTagManagerId,
+      hotjarId: seoSettings.hotjarId,
+    };
+
+    const { error } = await supabase
+      .from('site_settings')
+      .upsert({ 
+        key: 'tracking', 
+        value: trackingData,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'key' });
+
+    if (error) {
+      console.error('Failed to save tracking settings:', error);
+      toast.error('Failed to save tracking settings');
+    } else {
+      toast.success('Tracking settings saved to database!');
+    }
+    setSavingSettings(false);
+  };
 
   const fetchCampaigns = async () => {
     setLoadingCampaigns(true);
@@ -707,10 +788,8 @@ ${siteUrls
                           {seoSettings.siteKeywords.split(',').filter(k => k.trim()).length} keywords
                         </p>
                       </div>
-                      <Button onClick={() => {
-                        localStorage.setItem('seoSettings', JSON.stringify(seoSettings));
-                        toast.success('SEO settings saved to local storage!');
-                      }}>
+                      <Button onClick={saveSeoSettings} disabled={savingSettings}>
+                        {savingSettings ? <Loader2 size={14} className="mr-2 animate-spin" /> : null}
                         Save Changes
                       </Button>
                     </CardContent>
@@ -1281,10 +1360,8 @@ Crawl-delay: 1`}
                         placeholder="@yourhandle"
                       />
                     </div>
-                    <Button onClick={() => {
-                      localStorage.setItem('seoSettings', JSON.stringify(seoSettings));
-                      toast.success('Social settings saved!');
-                    }}>
+                    <Button onClick={saveSeoSettings} disabled={savingSettings}>
+                      {savingSettings ? <Loader2 size={14} className="mr-2 animate-spin" /> : null}
                       Save Changes
                     </Button>
                   </CardContent>
@@ -1360,10 +1437,8 @@ Crawl-delay: 1`}
                         <Switch defaultChecked />
                       </div>
                     </div>
-                    <Button onClick={() => {
-                      localStorage.setItem('seoSettings', JSON.stringify(seoSettings));
-                      toast.success('Analytics settings saved!');
-                    }}>
+                    <Button onClick={saveTrackingSettings} disabled={savingSettings}>
+                      {savingSettings ? <Loader2 size={14} className="mr-2 animate-spin" /> : null}
                       Save Changes
                     </Button>
                   </CardContent>
@@ -1410,7 +1485,8 @@ Crawl-delay: 1`}
                         <Switch defaultChecked />
                       </div>
                     </div>
-                    <Button onClick={() => toast.success('Pixel settings saved!')}>
+                    <Button onClick={saveTrackingSettings} disabled={savingSettings}>
+                      {savingSettings ? <Loader2 size={14} className="mr-2 animate-spin" /> : null}
                       Save Changes
                     </Button>
                   </CardContent>
@@ -1434,7 +1510,8 @@ Crawl-delay: 1`}
                         placeholder="GTM-XXXXXXX"
                       />
                     </div>
-                    <Button onClick={() => toast.success('GTM settings saved!')}>
+                    <Button onClick={saveTrackingSettings} disabled={savingSettings}>
+                      {savingSettings ? <Loader2 size={14} className="mr-2 animate-spin" /> : null}
                       Save Changes
                     </Button>
                   </CardContent>
@@ -1468,7 +1545,8 @@ Crawl-delay: 1`}
                         <Switch />
                       </div>
                     </div>
-                    <Button onClick={() => toast.success('Hotjar settings saved!')}>
+                    <Button onClick={saveTrackingSettings} disabled={savingSettings}>
+                      {savingSettings ? <Loader2 size={14} className="mr-2 animate-spin" /> : null}
                       Save Changes
                     </Button>
                   </CardContent>
