@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { ChevronLeft, CreditCard, Truck, Shield, Loader2, Smartphone, Wallet, AlertCircle } from 'lucide-react';
+import { ChevronLeft, CreditCard, Truck, Shield, Loader2, Smartphone, Wallet, AlertCircle, Tag, X, CheckCircle } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
@@ -16,6 +16,14 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
+interface DiscountCode {
+  id: string;
+  code: string;
+  type: string;
+  value: number;
+  min_order: number;
+}
+
 const CheckoutPage = () => {
   const { items, totalPrice, clearCart } = useCart();
   const { user, profile } = useAuth();
@@ -26,6 +34,12 @@ const CheckoutPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mobilePaymentNumber, setMobilePaymentNumber] = useState('');
   const [transactionId, setTransactionId] = useState('');
+  
+  // Discount code state
+  const [discountCode, setDiscountCode] = useState('');
+  const [appliedDiscount, setAppliedDiscount] = useState<DiscountCode | null>(null);
+  const [isValidatingDiscount, setIsValidatingDiscount] = useState(false);
+  const [discountError, setDiscountError] = useState('');
   
   // Form state
   const [formData, setFormData] = useState({
@@ -39,11 +53,64 @@ const CheckoutPage = () => {
   });
 
   const shippingCost = shippingMethod === 'express' ? 200 : totalPrice >= 5000 ? 0 : 100;
-  const grandTotal = totalPrice + shippingCost;
+  
+  // Calculate discount amount
+  const discountAmount = appliedDiscount
+    ? appliedDiscount.type === 'percentage'
+      ? Math.round((totalPrice * appliedDiscount.value) / 100)
+      : appliedDiscount.value
+    : 0;
+  
+  const grandTotal = totalPrice + shippingCost - discountAmount;
   
   // COD requires 20% advance payment
   const codAdvancePayment = Math.ceil(grandTotal * 0.2);
   const codRemainingPayment = grandTotal - codAdvancePayment;
+
+  const applyDiscountCode = async () => {
+    if (!discountCode.trim()) {
+      setDiscountError('Please enter a discount code');
+      return;
+    }
+
+    setIsValidatingDiscount(true);
+    setDiscountError('');
+
+    try {
+      const { data, error } = await supabase
+        .from('discount_codes')
+        .select('id, code, type, value, min_order')
+        .eq('code', discountCode.toUpperCase().trim())
+        .eq('is_active', true)
+        .gt('expires_at', new Date().toISOString())
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (!data) {
+        setDiscountError('Invalid or expired discount code');
+        return;
+      }
+
+      if (totalPrice < data.min_order) {
+        setDiscountError(`Minimum order of ${formatPrice(data.min_order)} required`);
+        return;
+      }
+
+      setAppliedDiscount(data);
+      setDiscountCode('');
+      toast.success('Discount code applied!');
+    } catch (error: any) {
+      setDiscountError('Failed to validate discount code');
+    } finally {
+      setIsValidatingDiscount(false);
+    }
+  };
+
+  const removeDiscount = () => {
+    setAppliedDiscount(null);
+    setDiscountError('');
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -92,6 +159,8 @@ const CheckoutPage = () => {
         .insert({
           user_id: user.id,
           total_amount: grandTotal,
+          discount_code_id: appliedDiscount?.id || null,
+          discount_amount: discountAmount,
           shipping_address: formData.address,
           shipping_city: formData.city,
           shipping_postal_code: formData.postalCode,
@@ -618,6 +687,68 @@ const CheckoutPage = () => {
                   ))}
                 </div>
 
+                {/* Discount Code Input */}
+                <div className="pt-4 border-t border-border">
+                  {appliedDiscount ? (
+                    <div className="flex items-center justify-between p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle size={16} className="text-primary" />
+                        <div>
+                          <p className="text-sm font-medium text-primary">{appliedDiscount.code}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {appliedDiscount.type === 'percentage' 
+                              ? `${appliedDiscount.value}% off` 
+                              : `${formatPrice(appliedDiscount.value)} off`}
+                          </p>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={removeDiscount}
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      >
+                        <X size={16} />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Tag size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                          <Input
+                            value={discountCode}
+                            onChange={(e) => {
+                              setDiscountCode(e.target.value.toUpperCase());
+                              setDiscountError('');
+                            }}
+                            placeholder="Discount code"
+                            className="pl-9 uppercase"
+                          />
+                        </div>
+                        <Button 
+                          onClick={applyDiscountCode}
+                          disabled={isValidatingDiscount}
+                          variant="outline"
+                          className="shrink-0"
+                        >
+                          {isValidatingDiscount ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            'Apply'
+                          )}
+                        </Button>
+                      </div>
+                      {discountError && (
+                        <p className="text-xs text-destructive flex items-center gap-1">
+                          <AlertCircle size={12} />
+                          {discountError}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <div className="space-y-3 pt-4 border-t border-border">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
@@ -627,6 +758,12 @@ const CheckoutPage = () => {
                     <span className="text-muted-foreground">Shipping</span>
                     <span>{shippingCost === 0 ? 'Free' : formatPrice(shippingCost)}</span>
                   </div>
+                  {appliedDiscount && (
+                    <div className="flex justify-between text-sm text-primary">
+                      <span>Discount ({appliedDiscount.code})</span>
+                      <span>-{formatPrice(discountAmount)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-display text-lg pt-3 border-t border-border">
                     <span>Total</span>
                     <span className="text-primary">{formatPrice(grandTotal)}</span>
