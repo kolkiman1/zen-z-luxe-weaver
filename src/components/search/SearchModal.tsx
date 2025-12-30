@@ -32,10 +32,14 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
 
       setLoading(true);
       try {
+        // Sanitize query: escape special characters for ILIKE pattern matching
+        // This prevents pattern injection attacks where attackers could use %, _, [, ] to manipulate search
+        const sanitizedQuery = query.replace(/[%_\\[\]]/g, '\\$&');
+        
         const { data, error } = await supabase
           .from('products')
           .select('*')
-          .or(`name.ilike.%${query}%,category.ilike.%${query}%,subcategory.ilike.%${query}%`)
+          .or(`name.ilike.%${sanitizedQuery}%,category.ilike.%${sanitizedQuery}%,subcategory.ilike.%${sanitizedQuery}%`)
           .limit(6);
 
         if (error) throw error;
