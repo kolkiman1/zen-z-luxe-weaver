@@ -37,6 +37,8 @@ import {
   Star,
   Heart,
   ShoppingBag,
+  Trash2,
+  Loader2,
 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -72,10 +74,12 @@ interface UrlItem {
   lastModified: string;
 }
 
+type DiscountType = 'percentage' | 'fixed';
+
 interface DiscountCode {
   id: string;
   code: string;
-  type: 'percentage' | 'fixed';
+  type: DiscountType;
   value: number;
   minOrder: number;
   usageLimit: number;
@@ -121,11 +125,14 @@ const seoChecklist = [
   { id: 'og-tags', label: 'Open Graph tags configured', status: 'pass', impact: 'medium' },
 ];
 
-const mockDiscountCodes: DiscountCode[] = [
-  { id: '1', code: 'WELCOME10', type: 'percentage', value: 10, minOrder: 500, usageLimit: 100, usedCount: 45, expiresAt: '2024-12-31', isActive: true },
-  { id: '2', code: 'FLAT200', type: 'fixed', value: 200, minOrder: 1000, usageLimit: 50, usedCount: 12, expiresAt: '2024-06-30', isActive: true },
-  { id: '3', code: 'SUMMER25', type: 'percentage', value: 25, minOrder: 1500, usageLimit: 200, usedCount: 180, expiresAt: '2024-08-31', isActive: false },
-];
+interface NewDiscountCode {
+  code: string;
+  type: DiscountType;
+  value: number;
+  minOrder: number;
+  usageLimit: number;
+  expiresAt: string;
+}
 
 const mockCampaigns: EmailCampaign[] = [
   { id: '1', name: 'New Arrivals Alert', subject: '🔥 Fresh Styles Just Dropped!', status: 'sent', recipients: 1250, openRate: 32.5, clickRate: 8.2 },
@@ -138,9 +145,18 @@ const AdminMarketing = () => {
   const [orderCount, setOrderCount] = useState(0);
   const [customerCount, setCustomerCount] = useState(0);
   const [copied, setCopied] = useState<string | null>(null);
-  const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>(mockDiscountCodes);
+  const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>([]);
+  const [loadingCodes, setLoadingCodes] = useState(true);
   const [campaigns, setCampaigns] = useState<EmailCampaign[]>(mockCampaigns);
-  const [newCode, setNewCode] = useState({ code: '', type: 'percentage' as const, value: 10, minOrder: 500, usageLimit: 100 });
+  const defaultExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const [newCode, setNewCode] = useState<NewDiscountCode>({ 
+    code: '', 
+    type: 'percentage', 
+    value: 10, 
+    minOrder: 500, 
+    usageLimit: 100,
+    expiresAt: defaultExpiry
+  });
   const [seoSettings, setSeoSettings] = useState<SeoSettings>({
     siteName: 'zen-z.store',
     siteDescription: 'Premium fashion and lifestyle products for the modern generation. Shop trendy clothing, accessories, and more.',
@@ -155,7 +171,33 @@ const AdminMarketing = () => {
 
   useEffect(() => {
     fetchStats();
+    fetchDiscountCodes();
   }, []);
+
+  const fetchDiscountCodes = async () => {
+    setLoadingCodes(true);
+    const { data, error } = await supabase
+      .from('discount_codes')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching discount codes:', error);
+    } else if (data) {
+      setDiscountCodes(data.map(d => ({
+        id: d.id,
+        code: d.code,
+        type: d.type as DiscountType,
+        value: Number(d.value),
+        minOrder: Number(d.min_order),
+        usageLimit: d.usage_limit,
+        usedCount: d.used_count,
+        expiresAt: new Date(d.expires_at).toISOString().split('T')[0],
+        isActive: d.is_active,
+      })));
+    }
+    setLoadingCodes(false);
+  };
 
   const fetchStats = async () => {
     const [products, orders, profiles] = await Promise.all([
@@ -232,25 +274,96 @@ ${siteUrls
     toast.success('Schema markup downloaded');
   };
 
-  const addDiscountCode = () => {
-    if (!newCode.code) {
+  const addDiscountCode = async () => {
+    if (!newCode.code.trim()) {
       toast.error('Please enter a discount code');
       return;
     }
-    const code: DiscountCode = {
-      id: Date.now().toString(),
-      ...newCode,
-      usedCount: 0,
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      isActive: true,
-    };
-    setDiscountCodes([...discountCodes, code]);
-    setNewCode({ code: '', type: 'percentage', value: 10, minOrder: 500, usageLimit: 100 });
+    if (newCode.code.length > 20) {
+      toast.error('Code must be 20 characters or less');
+      return;
+    }
+    if (newCode.value <= 0) {
+      toast.error('Value must be greater than 0');
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('discount_codes')
+      .insert({
+        code: newCode.code.toUpperCase().trim(),
+        type: newCode.type,
+        value: newCode.value,
+        min_order: newCode.minOrder,
+        usage_limit: newCode.usageLimit,
+        expires_at: new Date(newCode.expiresAt).toISOString(),
+        is_active: true,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === '23505') {
+        toast.error('This discount code already exists');
+      } else {
+        toast.error('Failed to create discount code');
+        console.error(error);
+      }
+      return;
+    }
+
+    if (data) {
+      setDiscountCodes(prev => [{
+        id: data.id,
+        code: data.code,
+        type: data.type as DiscountType,
+        value: Number(data.value),
+        minOrder: Number(data.min_order),
+        usageLimit: data.usage_limit,
+        usedCount: data.used_count,
+        expiresAt: new Date(data.expires_at).toISOString().split('T')[0],
+        isActive: data.is_active,
+      }, ...prev]);
+    }
+    
+    const nextExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    setNewCode({ code: '', type: 'percentage', value: 10, minOrder: 500, usageLimit: 100, expiresAt: nextExpiry });
     toast.success('Discount code created');
   };
 
-  const toggleDiscountCode = (id: string) => {
+  const toggleDiscountCode = async (id: string) => {
+    const code = discountCodes.find(c => c.id === id);
+    if (!code) return;
+
+    const { error } = await supabase
+      .from('discount_codes')
+      .update({ is_active: !code.isActive })
+      .eq('id', id);
+
+    if (error) {
+      toast.error('Failed to update discount code');
+      console.error(error);
+      return;
+    }
+
     setDiscountCodes(codes => codes.map(c => c.id === id ? { ...c, isActive: !c.isActive } : c));
+    toast.success(code.isActive ? 'Discount code deactivated' : 'Discount code activated');
+  };
+
+  const deleteDiscountCode = async (id: string) => {
+    const { error } = await supabase
+      .from('discount_codes')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast.error('Failed to delete discount code');
+      console.error(error);
+      return;
+    }
+
+    setDiscountCodes(codes => codes.filter(c => c.id !== id));
+    toast.success('Discount code deleted');
   };
 
   const seoScore = Math.round(
@@ -548,53 +661,73 @@ ${siteUrls
                       <CardDescription>Manage promotional codes and offers</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-3">
-                        {discountCodes.map(code => (
-                          <div
-                            key={code.id}
-                            className={`flex items-center justify-between p-4 rounded-lg border ${
-                              code.isActive ? 'bg-secondary/30' : 'bg-muted/50 opacity-60'
-                            }`}
-                          >
-                            <div className="flex items-center gap-4">
-                              <div className="p-2 bg-primary/10 rounded-lg">
-                                <Tag className="text-primary" size={20} />
-                              </div>
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <p className="font-mono font-bold">{code.code}</p>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-6 w-6"
-                                    onClick={() => copyToClipboard(code.code, code.id)}
-                                  >
-                                    {copied === code.id ? <Check size={12} /> : <Copy size={12} />}
-                                  </Button>
+                      {loadingCodes ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="animate-spin text-muted-foreground" size={24} />
+                        </div>
+                      ) : discountCodes.length === 0 ? (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <Tag size={40} className="mx-auto mb-2 opacity-50" />
+                          <p>No discount codes yet</p>
+                          <p className="text-sm">Create your first promotional code</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {discountCodes.map(code => (
+                            <div
+                              key={code.id}
+                              className={`flex items-center justify-between p-4 rounded-lg border ${
+                                code.isActive ? 'bg-secondary/30' : 'bg-muted/50 opacity-60'
+                              }`}
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className="p-2 bg-primary/10 rounded-lg">
+                                  <Tag className="text-primary" size={20} />
                                 </div>
-                                <p className="text-sm text-muted-foreground">
-                                  {code.type === 'percentage' ? `${code.value}% off` : `৳${code.value} off`}
-                                  {code.minOrder > 0 && ` on orders over ৳${code.minOrder}`}
-                                </p>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-mono font-bold">{code.code}</p>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-6 w-6"
+                                      onClick={() => copyToClipboard(code.code, code.id)}
+                                    >
+                                      {copied === code.id ? <Check size={12} /> : <Copy size={12} />}
+                                    </Button>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">
+                                    {code.type === 'percentage' ? `${code.value}% off` : `৳${code.value} off`}
+                                    {code.minOrder > 0 && ` on orders over ৳${code.minOrder}`}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-4">
+                                <div className="text-right hidden sm:block">
+                                  <p className="text-sm font-medium">{code.usedCount}/{code.usageLimit} used</p>
+                                  <Progress value={(code.usedCount / code.usageLimit) * 100} className="w-24 h-1.5 mt-1" />
+                                </div>
+                                <div className="text-right hidden md:block">
+                                  <p className="text-xs text-muted-foreground">Expires</p>
+                                  <p className="text-sm">{code.expiresAt}</p>
+                                </div>
+                                <Switch
+                                  checked={code.isActive}
+                                  onCheckedChange={() => toggleDiscountCode(code.id)}
+                                />
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  onClick={() => deleteDiscountCode(code.id)}
+                                >
+                                  <Trash2 size={16} />
+                                </Button>
                               </div>
                             </div>
-                            <div className="flex items-center gap-4">
-                              <div className="text-right">
-                                <p className="text-sm font-medium">{code.usedCount}/{code.usageLimit} used</p>
-                                <Progress value={(code.usedCount / code.usageLimit) * 100} className="w-24 h-1.5 mt-1" />
-                              </div>
-                              <div className="text-right">
-                                <p className="text-xs text-muted-foreground">Expires</p>
-                                <p className="text-sm">{code.expiresAt}</p>
-                              </div>
-                              <Switch
-                                checked={code.isActive}
-                                onCheckedChange={() => toggleDiscountCode(code.id)}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </div>
@@ -656,6 +789,15 @@ ${siteUrls
                           onChange={e => setNewCode({ ...newCode, usageLimit: parseInt(e.target.value) || 0 })}
                         />
                       </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Expires On</Label>
+                      <Input
+                        type="date"
+                        value={newCode.expiresAt}
+                        onChange={e => setNewCode({ ...newCode, expiresAt: e.target.value })}
+                        min={new Date().toISOString().split('T')[0]}
+                      />
                     </div>
                     <Button className="w-full" onClick={addDiscountCode}>
                       <Gift size={16} className="mr-2" />
