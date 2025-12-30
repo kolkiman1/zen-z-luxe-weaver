@@ -25,6 +25,7 @@ import AdminCustomers from "./pages/admin/AdminCustomers";
 import AdminAnnouncements from "./pages/admin/AdminAnnouncements";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminMarketing from "./pages/admin/AdminMarketing";
+import AdminActivityLogs from "./pages/admin/AdminActivityLogs";
 import UserDashboard from "./pages/UserDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -61,6 +62,7 @@ const App = () => (
                     <Route path="/admin/inquiries" element={<AdminInquiries />} />
                     <Route path="/admin/users" element={<AdminUsers />} />
                     <Route path="/admin/announcements" element={<AdminAnnouncements />} />
+                    <Route path="/admin/activity-logs" element={<AdminActivityLogs />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>

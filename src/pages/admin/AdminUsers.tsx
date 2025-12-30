@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useActivityLog } from '@/hooks/useActivityLog';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { UserPlus, Shield, Trash2, Loader2, Mail, Clock, Users, Crown } from 'lucide-react';
+import { UserPlus, Shield, Trash2, Loader2, Mail, Clock, Users, Crown, AlertTriangle } from 'lucide-react';
+
+// Super admin email - only this user can add/remove other admins
+const SUPER_ADMIN_EMAIL = 'zamanemon111@gmail.com';
 import {
   Dialog,
   DialogContent,
@@ -44,12 +48,16 @@ interface PendingInvite {
 
 const AdminUsers = () => {
   const { user } = useAuth();
+  const { logActivity } = useActivityLog();
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([]);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [addingAdmin, setAddingAdmin] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  // Check if current user is the super admin
+  const isSuperAdmin = user?.email?.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
 
   const fetchAdmins = async () => {
     try {
@@ -108,6 +116,11 @@ const AdminUsers = () => {
   }, []);
 
   const addAdmin = async () => {
+    if (!isSuperAdmin) {
+      toast.error('Only the super admin can add new admins');
+      return;
+    }
+
     const trimmedEmail = email.trim().toLowerCase();
     
     if (!trimmedEmail) {
@@ -162,6 +175,7 @@ const AdminUsers = () => {
             throw error;
           }
         } else {
+          await logActivity('admin_added', 'user', existingProfile.user_id, { target_email: trimmedEmail });
           toast.success(`${existingProfile.full_name || trimmedEmail} is now an admin!`);
         }
       } else {
@@ -180,6 +194,7 @@ const AdminUsers = () => {
             throw error;
           }
         } else {
+          await logActivity('admin_invite_created', 'user', undefined, { target_email: trimmedEmail });
           toast.success(`Admin invite created! ${trimmedEmail} will become an admin when they sign up.`);
         }
       }
@@ -196,9 +211,20 @@ const AdminUsers = () => {
   };
 
   const removeAdmin = async (userId: string, userEmail: string) => {
+    if (!isSuperAdmin) {
+      toast.error('Only the super admin can remove admins');
+      return;
+    }
+
     // Prevent removing yourself
     if (userId === user?.id) {
       toast.error("You cannot remove your own admin role");
+      return;
+    }
+
+    // Prevent removing the super admin
+    if (userEmail.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
+      toast.error("Cannot remove the super admin");
       return;
     }
 
@@ -211,6 +237,7 @@ const AdminUsers = () => {
 
       if (error) throw error;
 
+      await logActivity('admin_removed', 'user', userId, { target_email: userEmail });
       toast.success(`Admin role removed from ${userEmail}`);
       fetchAdmins();
     } catch (error) {
@@ -220,6 +247,11 @@ const AdminUsers = () => {
   };
 
   const cancelInvite = async (inviteId: string, inviteEmail: string) => {
+    if (!isSuperAdmin) {
+      toast.error('Only the super admin can cancel invites');
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('pending_admin_invites')
@@ -228,6 +260,7 @@ const AdminUsers = () => {
 
       if (error) throw error;
 
+      await logActivity('admin_invite_cancelled', 'user', inviteId, { target_email: inviteEmail });
       toast.success(`Invite cancelled for ${inviteEmail}`);
       fetchAdmins();
     } catch (error) {
@@ -247,6 +280,23 @@ const AdminUsers = () => {
   return (
     <AdminLayout title="User Management">
       <div className="space-y-6">
+        {/* Super Admin Notice */}
+        {!isSuperAdmin && (
+          <Card className="border-amber-500/50 bg-amber-500/5">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="w-5 h-5 text-amber-500" />
+                <div>
+                  <p className="font-medium">Moderator Access</p>
+                  <p className="text-sm text-muted-foreground">
+                    Only the super admin ({SUPER_ADMIN_EMAIL}) can add or remove admins. You have view-only access to this page.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
@@ -294,45 +344,50 @@ const AdminUsers = () => {
           <div>
             <h2 className="text-lg font-semibold">Admin Access Control</h2>
             <p className="text-sm text-muted-foreground">
-              Add admins by email - they'll get admin access immediately or when they sign up
+              {isSuperAdmin 
+                ? "Add admins by email - they'll get admin access immediately or when they sign up"
+                : "View-only access - only the super admin can manage admin users"
+              }
             </p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <UserPlus className="w-4 h-4 mr-2" />
-                Add Admin
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Admin</DialogTitle>
-                <DialogDescription>
-                  Enter the email address. If they already have an account, they'll become an admin immediately. Otherwise, they'll get admin access when they sign up.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Email Address</label>
-                  <Input
-                    type="email"
-                    placeholder="admin@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && addAdmin()}
-                  />
-                </div>
-                <Button onClick={addAdmin} disabled={addingAdmin} className="w-full">
-                  {addingAdmin ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : (
-                    <Shield className="w-4 h-4 mr-2" />
-                  )}
+          {isSuperAdmin && (
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <UserPlus className="w-4 h-4 mr-2" />
                   Add Admin
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Admin</DialogTitle>
+                  <DialogDescription>
+                    Enter the email address. If they already have an account, they'll become an admin immediately. Otherwise, they'll get admin access when they sign up.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Email Address</label>
+                    <Input
+                      type="email"
+                      placeholder="admin@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && addAdmin()}
+                    />
+                  </div>
+                  <Button onClick={addAdmin} disabled={addingAdmin} className="w-full">
+                    {addingAdmin ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <Shield className="w-4 h-4 mr-2" />
+                    )}
+                    Add Admin
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
 
         <Tabs defaultValue="active" className="w-full">
@@ -382,7 +437,10 @@ const AdminUsers = () => {
                           <div>
                             <div className="flex items-center gap-2">
                               <p className="font-medium">{adminUser.full_name || 'No name'}</p>
-                              {adminUser.user_id === user?.id && (
+                              {adminUser.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase() && (
+                                <Badge variant="default" className="text-xs bg-amber-500 hover:bg-amber-600">Super Admin</Badge>
+                              )}
+                              {adminUser.user_id === user?.id && adminUser.email.toLowerCase() !== SUPER_ADMIN_EMAIL.toLowerCase() && (
                                 <Badge variant="outline" className="text-xs">You</Badge>
                               )}
                             </div>
@@ -390,8 +448,12 @@ const AdminUsers = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Badge>Admin</Badge>
-                          {adminUser.user_id !== user?.id && (
+                          {adminUser.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase() ? (
+                            <Badge className="bg-amber-500 hover:bg-amber-600">Super Admin</Badge>
+                          ) : (
+                            <Badge variant="secondary">Moderator</Badge>
+                          )}
+                          {isSuperAdmin && adminUser.user_id !== user?.id && adminUser.email.toLowerCase() !== SUPER_ADMIN_EMAIL.toLowerCase() && (
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
@@ -446,9 +508,11 @@ const AdminUsers = () => {
                   <div className="text-center py-8">
                     <Mail className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
                     <p className="text-muted-foreground">No pending invites</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Add an email to invite someone as admin
-                    </p>
+                    {isSuperAdmin && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Add an email to invite someone as admin
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -470,30 +534,32 @@ const AdminUsers = () => {
                         </div>
                         <div className="flex items-center gap-3">
                           <Badge variant="secondary">Pending</Badge>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Cancel Invite?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This will cancel the admin invite for {invite.email}. They will not get admin access when they sign up.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Keep Invite</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => cancelInvite(invite.id, invite.email)}
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                >
-                                  Cancel Invite
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                          {isSuperAdmin && (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Cancel Invite?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This will cancel the admin invite for {invite.email}. They will not get admin access when they sign up.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Keep Invite</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => cancelInvite(invite.id, invite.email)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Cancel Invite
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
                         </div>
                       </div>
                     ))}
