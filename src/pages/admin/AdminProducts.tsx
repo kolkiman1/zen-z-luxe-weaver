@@ -6,6 +6,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUpload from '@/components/admin/ImageUpload';
 import ProductPreview from '@/components/admin/ProductPreview';
 import { supabase } from '@/integrations/supabase/client';
+import { useActivityLog } from '@/hooks/useActivityLog';
 import { formatPrice } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,6 +48,7 @@ interface Product {
 const categories = ['men', 'women', 'jewelry', 'accessories'];
 
 const AdminProducts = () => {
+  const { logActivity } = useActivityLog();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -153,13 +155,17 @@ const AdminProducts = () => {
           .eq('id', editingProduct.id);
 
         if (error) throw error;
+        await logActivity('product_updated', 'product', editingProduct.id, { product_name: formData.name });
         toast.success('Product updated successfully');
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('products')
-          .insert(productData);
+          .insert(productData)
+          .select()
+          .single();
 
         if (error) throw error;
+        await logActivity('product_created', 'product', data?.id, { product_name: formData.name });
         toast.success('Product created successfully');
       }
 
@@ -173,6 +179,7 @@ const AdminProducts = () => {
   };
 
   const handleDelete = async (id: string) => {
+    const productToDelete = products.find(p => p.id === id);
     if (!confirm('Are you sure you want to delete this product?')) return;
 
     const { error } = await supabase
@@ -183,6 +190,7 @@ const AdminProducts = () => {
     if (error) {
       toast.error('Error deleting product');
     } else {
+      await logActivity('product_deleted', 'product', id, { product_name: productToDelete?.name });
       toast.success('Product deleted');
       fetchProducts();
     }

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Search, Eye, Package, MapPin, Filter, Copy, Check, Printer, FileText } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
+import { useActivityLog } from '@/hooks/useActivityLog';
 import { formatPrice } from '@/lib/data';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -61,6 +62,7 @@ const statusColors: Record<string, string> = {
 };
 
 const AdminOrders = () => {
+  const { logActivity } = useActivityLog();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -128,6 +130,9 @@ const AdminOrders = () => {
   }, []);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
+    const order = orders.find(o => o.id === orderId);
+    const oldStatus = order?.status;
+    
     setIsUpdating(true);
     const { error } = await supabase
       .from('orders')
@@ -137,6 +142,11 @@ const AdminOrders = () => {
     if (error) {
       toast.error('Failed to update status');
     } else {
+      await logActivity('order_status_updated', 'order', orderId, { 
+        order_number: order?.order_number,
+        old_status: oldStatus, 
+        new_status: newStatus 
+      });
       toast.success('Order status updated');
       fetchOrders();
       if (selectedOrder?.id === orderId) {

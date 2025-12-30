@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Search, Eye, MessageCircle } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
+import { useActivityLog } from '@/hooks/useActivityLog';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -45,6 +46,7 @@ const statusColors: Record<string, string> = {
 };
 
 const AdminInquiries = () => {
+  const { logActivity } = useActivityLog();
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -69,6 +71,9 @@ const AdminInquiries = () => {
   }, []);
 
   const handleStatusChange = async (inquiryId: string, newStatus: string) => {
+    const inquiry = inquiries.find(i => i.id === inquiryId);
+    const oldStatus = inquiry?.status;
+    
     setIsUpdating(true);
     const { error } = await supabase
       .from('inquiries')
@@ -78,6 +83,11 @@ const AdminInquiries = () => {
     if (error) {
       toast.error('Failed to update status');
     } else {
+      await logActivity('inquiry_updated', 'inquiry', inquiryId, { 
+        subject: inquiry?.subject,
+        old_status: oldStatus, 
+        new_status: newStatus 
+      });
       toast.success('Status updated');
       fetchInquiries();
       if (selectedInquiry?.id === inquiryId) {
@@ -99,6 +109,10 @@ const AdminInquiries = () => {
     if (error) {
       toast.error('Failed to save notes');
     } else {
+      await logActivity('inquiry_updated', 'inquiry', selectedInquiry.id, { 
+        subject: selectedInquiry.subject,
+        notes_updated: true 
+      });
       toast.success('Notes saved');
       fetchInquiries();
       setSelectedInquiry({ ...selectedInquiry, admin_notes: adminNotes });
