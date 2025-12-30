@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 import Header from '@/components/layout/Header';
@@ -10,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSeoSettings } from '@/hooks/useSiteSettings';
+import { SEOHead } from '@/components/SEOHead';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -32,10 +31,7 @@ const AuthPage = () => {
   const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});
   
   const { user, signIn, signUp } = useAuth();
-  const { data: seoSettings } = useSeoSettings();
   const navigate = useNavigate();
-  
-  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
 
   // Redirect if already logged in
   useEffect(() => {
@@ -115,13 +111,11 @@ const AuthPage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{isLogin ? 'Login' : 'Sign Up'} | {siteName}</title>
-        <meta name="description" content={`Sign in to your ${siteName} account or create a new one to enjoy premium fashion shopping.`} />
-        {seoSettings?.canonicalUrl && (
-          <link rel="canonical" href={`${seoSettings.canonicalUrl}/auth`} />
-        )}
-      </Helmet>
+      <SEOHead
+        title={isLogin ? 'Login' : 'Sign Up'}
+        description="Sign in to your account or create a new one to enjoy premium fashion shopping."
+        url="/auth"
+      />
 
       <Header />
 

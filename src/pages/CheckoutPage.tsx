@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { ChevronLeft, CreditCard, Truck, Shield, Loader2, Smartphone, Wallet, AlertCircle, Tag, X, CheckCircle } from 'lucide-react';
 import Header from '@/components/layout/Header';
@@ -8,7 +7,7 @@ import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSeoSettings } from '@/hooks/useSiteSettings';
+import { SEOHead } from '@/components/SEOHead';
 import { formatPrice } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +27,6 @@ interface DiscountCode {
 const CheckoutPage = () => {
   const { items, totalPrice, clearCart } = useCart();
   const { user, profile } = useAuth();
-  const { data: seoSettings } = useSeoSettings();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [shippingMethod, setShippingMethod] = useState('standard');

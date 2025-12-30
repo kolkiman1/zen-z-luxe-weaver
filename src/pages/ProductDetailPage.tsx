@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, ShoppingBag, Minus, Plus, ChevronLeft, ChevronRight, Check, Truck, RefreshCw, Shield, Loader2 } from 'lucide-react';
 import Header from '@/components/layout/Header';
@@ -9,6 +8,7 @@ import CartSidebar from '@/components/cart/CartSidebar';
 import ProductCard from '@/components/products/ProductCard';
 import { formatPrice } from '@/lib/data';
 import { useProduct, useRelatedProducts } from '@/hooks/useProducts';
+import { SEOHead } from '@/components/SEOHead';
 import { useSeoSettings } from '@/hooks/useSiteSettings';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
@@ -91,40 +91,19 @@ const ProductDetailPage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{product.name} | {siteName}</title>
-        <meta name="description" content={product.description || `Shop ${product.name} at ${siteName}`} />
-        <meta name="keywords" content={`${product.name}, ${product.category}, ${seoSettings?.keywords || 'premium fashion'}`} />
-        {seoSettings?.canonicalUrl && (
-          <link rel="canonical" href={`${seoSettings.canonicalUrl}/product/${id}`} />
-        )}
-        <meta property="og:title" content={`${product.name} | ${siteName}`} />
-        <meta property="og:description" content={product.description || `Shop ${product.name}`} />
-        <meta property="og:image" content={productImage} />
-        <meta property="og:type" content="product" />
-        {seoSettings?.twitterHandle && <meta name="twitter:site" content={seoSettings.twitterHandle} />}
-        <meta name="twitter:card" content="summary_large_image" />
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Product",
-            "name": product.name,
-            "description": product.description,
-            "image": productImage,
-            "brand": {
-              "@type": "Brand",
-              "name": siteName
-            },
-            "offers": {
-              "@type": "Offer",
-              "price": product.price,
-              "priceCurrency": "BDT",
-              "availability": product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-              "url": `${seoSettings?.canonicalUrl || 'https://zen-z.store'}/product/${id}`
-            }
-          })}
-        </script>
-      </Helmet>
+      <SEOHead
+        title={product.name}
+        description={product.description || `Shop ${product.name} at ${siteName}`}
+        keywords={`${product.name}, ${product.category}`}
+        image={productImage}
+        url={`/product/${id}`}
+        type="product"
+        product={{
+          price: product.price,
+          currency: 'BDT',
+          availability: product.inStock ? 'in stock' : 'out of stock',
+        }}
+      />
 
       <Header />
       <CartSidebar />

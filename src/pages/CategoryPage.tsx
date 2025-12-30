@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SlidersHorizontal, Grid3X3, Grid2X2, X, Loader2, ChevronDown, ArrowUpDown } from 'lucide-react';
 import Header from '@/components/layout/Header';
@@ -9,7 +8,7 @@ import CartSidebar from '@/components/cart/CartSidebar';
 import ProductCard from '@/components/products/ProductCard';
 import { categories } from '@/lib/data';
 import { useProducts } from '@/hooks/useProducts';
-import { useSeoSettings } from '@/hooks/useSiteSettings';
+import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
@@ -43,7 +42,6 @@ const CategoryPage = () => {
   const [sortBy, setSortBy] = useState('featured');
 
   const { products, loading, error } = useProducts(slug);
-  const { data: seoSettings } = useSeoSettings();
 
   const category = categories.find((c) => c.slug === slug);
   const categoryName = category?.name || (slug === 'new-arrivals' ? 'New Arrivals' : 'All Products');
@@ -106,7 +104,6 @@ const CategoryPage = () => {
   ];
 
   const currentSortLabel = sortOptions.find(opt => opt.value === sortBy)?.label || 'Sort';
-
   const FilterContent = () => (
     <div className="space-y-6">
       {/* Clear Filters */}
@@ -157,21 +154,14 @@ const CategoryPage = () => {
     </div>
   );
 
-  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
-
   return (
     <>
-      <Helmet>
-        <title>{categoryName} | {siteName} - Premium Fashion</title>
-        <meta
-          name="description"
-          content={`Shop premium ${categoryName.toLowerCase()} at ${siteName}. Discover luxury fashion and accessories with free shipping in Bangladesh.`}
-        />
-        <meta name="keywords" content={`${categoryName}, ${seoSettings?.keywords || 'premium fashion, luxury clothing'}`} />
-        {seoSettings?.canonicalUrl && (
-          <link rel="canonical" href={`${seoSettings.canonicalUrl}/category/${slug}`} />
-        )}
-      </Helmet>
+      <SEOHead
+        title={categoryName}
+        description={`Shop premium ${categoryName.toLowerCase()}. Discover luxury fashion and accessories with free shipping in Bangladesh.`}
+        keywords={categoryName}
+        url={`/category/${slug}`}
+      />
 
       <Header />
       <CartSidebar />

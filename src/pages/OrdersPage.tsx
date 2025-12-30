@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Package, ChevronRight, Loader2 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSeoSettings } from '@/hooks/useSiteSettings';
+import { SEOHead } from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
@@ -40,12 +39,9 @@ const statusColors: Record<string, string> = {
 
 const OrdersPage = () => {
   const { user, loading: authLoading } = useAuth();
-  const { data: seoSettings } = useSeoSettings();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -91,11 +87,11 @@ const OrdersPage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>My Orders | {siteName}</title>
-        <meta name="description" content={`View your order history at ${siteName}.`} />
-        <meta name="robots" content="noindex, nofollow" />
-      </Helmet>
+      <SEOHead
+        title="My Orders"
+        description="View your order history."
+        noIndex
+      />
 
       <Header />
 
