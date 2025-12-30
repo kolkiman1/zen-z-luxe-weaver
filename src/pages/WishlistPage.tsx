@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useCart } from '@/contexts/CartContext';
+import { useSeoSettings } from '@/hooks/useSiteSettings';
 import { formatPrice } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -14,6 +15,9 @@ import { toast } from 'sonner';
 const WishlistPage = () => {
   const { items, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
+  const { data: seoSettings } = useSeoSettings();
+
+  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
 
   const handleAddToCart = (product: typeof items[0]) => {
     addToCart(product, 1, product.sizes?.[0], product.colors?.[0]);
@@ -25,8 +29,11 @@ const WishlistPage = () => {
   return (
     <>
       <Helmet>
-        <title>Wishlist | zen-z.store</title>
-        <meta name="description" content="Your saved items at zen-z.store. Review and shop your favorite products." />
+        <title>Wishlist | {siteName}</title>
+        <meta name="description" content={`Your saved items at ${siteName}. Review and shop your favorite products.`} />
+        {seoSettings?.canonicalUrl && (
+          <link rel="canonical" href={`${seoSettings.canonicalUrl}/wishlist`} />
+        )}
       </Helmet>
 
       <Header />

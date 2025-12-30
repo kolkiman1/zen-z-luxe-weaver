@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSeoSettings } from '@/hooks/useSiteSettings';
 import { formatPrice } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +28,7 @@ interface DiscountCode {
 const CheckoutPage = () => {
   const { items, totalPrice, clearCart } = useCart();
   const { user, profile } = useAuth();
+  const { data: seoSettings } = useSeoSettings();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [shippingMethod, setShippingMethod] = useState('standard');
@@ -260,11 +262,14 @@ const CheckoutPage = () => {
     );
   }
 
+  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
+
   return (
     <>
       <Helmet>
-        <title>Checkout | zen-z.store</title>
-        <meta name="description" content="Complete your purchase at zen-z.store. Secure checkout with multiple payment options." />
+        <title>Checkout | {siteName}</title>
+        <meta name="description" content={`Complete your purchase at ${siteName}. Secure checkout with multiple payment options.`} />
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       <Header />
