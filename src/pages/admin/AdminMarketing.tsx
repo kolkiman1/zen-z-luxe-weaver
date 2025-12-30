@@ -186,6 +186,15 @@ const AdminMarketing = () => {
     fetchStats();
     fetchDiscountCodes();
     fetchCampaigns();
+    // Load saved SEO settings from localStorage
+    const savedSeoSettings = localStorage.getItem('seoSettings');
+    if (savedSeoSettings) {
+      try {
+        setSeoSettings(JSON.parse(savedSeoSettings));
+      } catch (e) {
+        console.error('Failed to load SEO settings:', e);
+      }
+    }
   }, []);
 
   const fetchCampaigns = async () => {
@@ -698,7 +707,10 @@ ${siteUrls
                           {seoSettings.siteKeywords.split(',').filter(k => k.trim()).length} keywords
                         </p>
                       </div>
-                      <Button onClick={() => toast.success('SEO settings saved!')}>
+                      <Button onClick={() => {
+                        localStorage.setItem('seoSettings', JSON.stringify(seoSettings));
+                        toast.success('SEO settings saved to local storage!');
+                      }}>
                         Save Changes
                       </Button>
                     </CardContent>
@@ -1269,7 +1281,10 @@ Crawl-delay: 1`}
                         placeholder="@yourhandle"
                       />
                     </div>
-                    <Button onClick={() => toast.success('Social settings saved!')}>
+                    <Button onClick={() => {
+                      localStorage.setItem('seoSettings', JSON.stringify(seoSettings));
+                      toast.success('Social settings saved!');
+                    }}>
                       Save Changes
                     </Button>
                   </CardContent>
@@ -1345,7 +1360,10 @@ Crawl-delay: 1`}
                         <Switch defaultChecked />
                       </div>
                     </div>
-                    <Button onClick={() => toast.success('Analytics settings saved!')}>
+                    <Button onClick={() => {
+                      localStorage.setItem('seoSettings', JSON.stringify(seoSettings));
+                      toast.success('Analytics settings saved!');
+                    }}>
                       Save Changes
                     </Button>
                   </CardContent>
