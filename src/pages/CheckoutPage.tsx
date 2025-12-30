@@ -260,15 +260,13 @@ const CheckoutPage = () => {
     );
   }
 
-  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
-
   return (
     <>
-      <Helmet>
-        <title>Checkout | {siteName}</title>
-        <meta name="description" content={`Complete your purchase at ${siteName}. Secure checkout with multiple payment options.`} />
-        <meta name="robots" content="noindex, nofollow" />
-      </Helmet>
+      <SEOHead
+        title="Checkout"
+        description="Complete your purchase. Secure checkout with multiple payment options."
+        noIndex={true}
+      />
 
       <Header />
       <CartSidebar />
