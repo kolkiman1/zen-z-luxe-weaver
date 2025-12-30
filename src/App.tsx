@@ -27,6 +27,7 @@ import AdminAnnouncements from "./pages/admin/AdminAnnouncements";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminMarketing from "./pages/admin/AdminMarketing";
 import AdminActivityLogs from "./pages/admin/AdminActivityLogs";
+import AdminTrackingAnalytics from "./pages/admin/AdminTrackingAnalytics";
 import UserDashboard from "./pages/UserDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -60,6 +61,7 @@ const App = () => (
                     <Route path="/admin/orders" element={<AdminOrders />} />
                     <Route path="/admin/customers" element={<AdminCustomers />} />
                     <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                    <Route path="/admin/tracking" element={<AdminTrackingAnalytics />} />
                     <Route path="/admin/marketing" element={<AdminMarketing />} />
                     <Route path="/admin/inquiries" element={<AdminInquiries />} />
                     <Route path="/admin/users" element={<AdminUsers />} />
