@@ -51,7 +51,6 @@ const WHATSAPP_SETTINGS_KEY = 'admin_whatsapp_settings';
 interface WhatsAppSettings {
   enabled: boolean;
   phoneNumber: string;
-  autoSend: boolean;
 }
 
 const getWhatsAppSettings = (): WhatsAppSettings => {
@@ -63,7 +62,7 @@ const getWhatsAppSettings = (): WhatsAppSettings => {
   } catch (e) {
     console.error('Error loading WhatsApp settings:', e);
   }
-  return { enabled: false, phoneNumber: '', autoSend: false };
+  return { enabled: false, phoneNumber: '' };
 };
 
 const saveWhatsAppSettings = (settings: WhatsAppSettings) => {
@@ -204,15 +203,16 @@ const AdminOrderNotifications = () => {
             audioRef.current.play().catch(() => {});
           }
 
-          // Auto-send WhatsApp if enabled
+          // Auto-open WhatsApp Web with order details
           const settings = getWhatsAppSettings();
-          if (settings.enabled && settings.autoSend && settings.phoneNumber) {
-            setTimeout(() => {
-              sendWhatsAppMessage(newOrder, settings.phoneNumber, true);
-              toast.info('WhatsApp notification sent!', {
-                description: 'Order details sent to your WhatsApp',
+          if (settings.enabled && settings.phoneNumber) {
+            // Small delay to ensure order items are saved
+            setTimeout(async () => {
+              await sendWhatsAppMessage(newOrder, settings.phoneNumber, true);
+              toast.info('WhatsApp opened with order details!', {
+                description: 'Send the message to receive notification',
               });
-            }, 1500);
+            }, 2000);
           }
         }
       )
@@ -330,19 +330,6 @@ const AdminOrderNotifications = () => {
                           </p>
                         </div>
 
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-0.5">
-                            <Label>Auto-send on New Order</Label>
-                            <p className="text-xs text-muted-foreground">
-                              Automatically open WhatsApp when a new order comes in
-                            </p>
-                          </div>
-                          <Switch
-                            checked={whatsappSettings.autoSend}
-                            onCheckedChange={(checked) => updateSettings({ autoSend: checked })}
-                            disabled={!whatsappSettings.enabled}
-                          />
-                        </div>
 
                         {whatsappSettings.enabled && whatsappSettings.phoneNumber && (
                           <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
@@ -367,12 +354,11 @@ const AdminOrderNotifications = () => {
                 </div>
               </div>
 
-              {/* WhatsApp Status Banner */}
               {whatsappSettings.enabled && whatsappSettings.phoneNumber && (
                 <div className="px-4 py-2 bg-green-500/10 border-b border-green-500/20 flex items-center gap-2">
                   <MessageCircle className="text-green-500" size={14} />
                   <span className="text-xs text-green-600 dark:text-green-400">
-                    WhatsApp alerts {whatsappSettings.autoSend ? 'auto-sending' : 'enabled'}
+                    WhatsApp alerts active - auto-opens on new orders
                   </span>
                 </div>
               )}
