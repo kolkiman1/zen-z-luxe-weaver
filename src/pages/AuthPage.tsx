@@ -244,7 +244,7 @@ const AuthPage = () => {
                   <div className="flex items-center justify-between mb-1">
                     <Label htmlFor="password" className="text-sm">Password</Label>
                     {isLogin && (
-                      <Link to="#" className="text-xs text-primary hover:underline">
+                      <Link to="/forgot-password" className="text-xs text-primary hover:underline">
                         Forgot Password?
                       </Link>
                     )}

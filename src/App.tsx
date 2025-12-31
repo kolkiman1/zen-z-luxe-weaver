@@ -30,6 +30,7 @@ const TermsPage = lazy(() => import("./pages/TermsPage"));
 const SizeGuidePage = lazy(() => import("./pages/SizeGuidePage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Admin pages
@@ -69,6 +70,7 @@ const App = () => (
                       <Route path="/wishlist" element={<WishlistPage />} />
                       <Route path="/checkout" element={<CheckoutPage />} />
                       <Route path="/auth" element={<AuthPage />} />
+                      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                       <Route path="/orders" element={<OrdersPage />} />
                       <Route path="/orders/:orderId" element={<OrderTrackingPage />} />
                       <Route path="/dashboard" element={<UserDashboard />} />
