@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Heart, ShoppingBag, Menu, X, User, LogOut, Settings } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
-import genZeeLogo from '@/assets/gen-zee-logo.png';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -80,15 +79,27 @@ const Header = () => {
             <Link to="/" className="flex-shrink-0 group">
               <motion.div
                 className="relative"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <img 
-                  src={genZeeLogo} 
-                  alt="Gen-zee.store" 
-                  className="h-10 md:h-12 w-auto object-contain"
-                />
+                <span className="font-display text-2xl md:text-3xl tracking-tight">
+                  <motion.span
+                    className="inline-block text-primary"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    Gen
+                  </motion.span>
+                  <motion.span
+                    className="inline-block text-foreground"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                  >
+                    -zee
+                  </motion.span>
+                </span>
               </motion.div>
             </Link>
 
