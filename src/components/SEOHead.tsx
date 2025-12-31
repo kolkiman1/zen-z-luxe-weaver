@@ -49,10 +49,10 @@ export const SEOHead = ({
 }: SEOHeadProps) => {
   const { data: seoSettings } = useSeoSettings();
 
-  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
+  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'Gen-zee.store';
   const siteDescription = seoSettings?.siteDescription || 'Premium Fashion for the Next Generation';
   const siteKeywords = seoSettings?.keywords || 'premium fashion, luxury clothing';
-  const canonicalBase = seoSettings?.canonicalUrl || 'https://zen-z.store';
+  const canonicalBase = seoSettings?.canonicalUrl || 'https://gen-zee.store';
   const defaultImage = seoSettings?.ogImage || `${canonicalBase}/og-image.jpg`;
   const twitterHandle = seoSettings?.twitterHandle || '';
 

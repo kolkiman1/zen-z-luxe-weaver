@@ -84,10 +84,10 @@ const ProductDetailPage = () => {
     setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length);
   };
 
-  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'zen-z.store';
+  const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'Gen-zee.store';
   const productImage = product.images[0]?.startsWith('http') 
     ? product.images[0] 
-    : `${seoSettings?.canonicalUrl || 'https://zen-z.store'}${product.images[0]}`;
+    : `${seoSettings?.canonicalUrl || 'https://gen-zee.store'}${product.images[0]}`;
 
   return (
     <>

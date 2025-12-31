@@ -368,7 +368,7 @@ const AdminAnalytics = () => {
   return (
     <>
       <Helmet>
-        <title>Analytics Dashboard | Admin - zen-z.store</title>
+        <title>Analytics Dashboard | Admin - Gen-zee.store</title>
         <meta name="description" content="Comprehensive analytics dashboard with revenue, customers, products, and performance metrics" />
       </Helmet>
 

@@ -95,7 +95,7 @@ const AuthPage = () => {
           }
         } else {
           toast.success('Account created!', {
-            description: 'Welcome to zen-z.store!',
+            description: 'Welcome to Gen-zee.store!',
           });
           navigate('/');
         }
@@ -131,7 +131,7 @@ const AuthPage = () => {
               <div className="text-center mb-8">
                 <Link to="/" className="inline-block mb-6">
                   <h1 className="font-display text-2xl">
-                    zen-z<span className="text-primary">.</span>store
+                    Gen-zee<span className="text-primary">.</span>store
                   </h1>
                 </Link>
                 <h2 className="font-display text-2xl mb-2">

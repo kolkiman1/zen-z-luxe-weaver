@@ -175,7 +175,7 @@ serve(async (req) => {
     });
 
     if (type === 'admin_action') {
-      subject = `[Admin Alert] ${getActionLabel(action || '')} - zen-z.store`;
+      subject = `[Admin Alert] ${getActionLabel(action || '')} - Gen-zee.store`;
       
       const detailsHtml = details ? Object.entries(details)
         .map(([key, value]) => `<li><strong>${key}:</strong> ${value}</li>`)
@@ -210,7 +210,7 @@ serve(async (req) => {
                 ${detailsHtml ? `<h3>Details</h3><ul>${detailsHtml}</ul>` : ''}
               </div>
               <div class="footer">
-                <p>You received this email because you're an admin at zen-z.store</p>
+                <p>You received this email because you're an admin at Gen-zee.store</p>
                 <p>To manage notification settings, visit the Admin Dashboard.</p>
               </div>
             </div>
@@ -221,7 +221,7 @@ serve(async (req) => {
     } else {
       // Security event
       const severityColor = getSeverityColor(severity || 'low');
-      subject = `[Security Alert] ${getSecurityEventLabel(eventType || '')} - zen-z.store`;
+      subject = `[Security Alert] ${getSecurityEventLabel(eventType || '')} - Gen-zee.store`;
       
       const detailsHtml = details ? Object.entries(details)
         .map(([key, value]) => `<li><strong>${key}:</strong> ${value}</li>`)
@@ -259,7 +259,7 @@ serve(async (req) => {
                 ${detailsHtml ? `<h3>Details</h3><ul>${detailsHtml}</ul>` : ''}
               </div>
               <div class="footer">
-                <p>You received this email because you're an admin at zen-z.store</p>
+                <p>You received this email because you're an admin at Gen-zee.store</p>
                 <p>To manage notification settings, visit the Security Dashboard.</p>
               </div>
             </div>
@@ -284,7 +284,7 @@ serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: "Zen-Z Store <onboarding@resend.dev>",
+            from: "Gen-Zee Store <onboarding@resend.dev>",
             to: [admin.email],
             subject,
             html: htmlContent,

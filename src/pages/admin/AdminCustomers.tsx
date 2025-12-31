@@ -228,7 +228,7 @@ const AdminCustomers = () => {
   return (
     <>
       <Helmet>
-        <title>Customer Management | zen-z.store Admin</title>
+        <title>Customer Management | Gen-zee.store Admin</title>
       </Helmet>
 
       <AdminLayout title="Customer Management">

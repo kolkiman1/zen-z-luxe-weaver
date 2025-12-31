@@ -1,4 +1,4 @@
-// Mock data for zen-z.store
+// Mock data for Gen-zee.store
 
 export interface Product {
   id: string;

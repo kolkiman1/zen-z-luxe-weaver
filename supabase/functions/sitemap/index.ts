@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
       console.error('Error fetching SEO settings:', seoError);
     }
 
-    const baseUrl = (seoData?.value as { canonicalUrl?: string })?.canonicalUrl || 'https://zen-z.store';
+    const baseUrl = (seoData?.value as { canonicalUrl?: string })?.canonicalUrl || 'https://gen-zee.store';
 
     // Fetch all products with proper error handling
     const { data: products, error: productsError } = await supabase
@@ -119,7 +119,7 @@ Deno.serve(async (req) => {
       `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://zen-z.store</loc>
+    <loc>https://gen-zee.store</loc>
     <priority>1.0</priority>
   </url>
 </urlset>`,

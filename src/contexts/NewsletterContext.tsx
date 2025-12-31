@@ -11,7 +11,7 @@ export const NewsletterProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
-    const subscribed = localStorage.getItem('zen-z-newsletter-subscribed');
+    const subscribed = localStorage.getItem('gen-zee-newsletter-subscribed');
     if (subscribed === 'true') {
       setIsSubscribed(true);
     }
@@ -19,7 +19,7 @@ export const NewsletterProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const subscribe = (email: string) => {
     if (email) {
-      localStorage.setItem('zen-z-newsletter-subscribed', 'true');
+      localStorage.setItem('gen-zee-newsletter-subscribed', 'true');
       setIsSubscribed(true);
     }
   };

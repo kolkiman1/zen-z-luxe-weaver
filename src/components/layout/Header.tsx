@@ -134,9 +134,9 @@ const Header = () => {
                   className="relative font-display text-xl md:text-2xl font-black tracking-wider"
                   style={{ transformStyle: 'preserve-3d' }}
                 >
-                  {/* zen-z with 3D letter animation */}
+                {/* Gen-zee with 3D letter animation */}
                   <span className="relative inline-flex">
-                    {'zen-z'.split('').map((char, index) => (
+                    {'Gen-zee'.split('').map((char, index) => (
                       <motion.span
                         key={index}
                         className="inline-block relative"

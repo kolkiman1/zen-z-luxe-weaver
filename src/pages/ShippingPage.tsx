@@ -48,7 +48,7 @@ const ShippingPage = () => {
     <>
       <SEOHead
         title="Shipping & Delivery"
-        description="Learn about zen-z.store shipping options, delivery times, and costs. Free shipping on orders over ৳5,000. Fast and reliable delivery across Bangladesh."
+        description="Learn about Gen-zee.store shipping options, delivery times, and costs. Free shipping on orders over ৳5,000. Fast and reliable delivery across Bangladesh."
         keywords="shipping, delivery, bangladesh shipping, free delivery, express delivery"
         url="/shipping"
       />

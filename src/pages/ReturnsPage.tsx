@@ -27,7 +27,7 @@ const ReturnsPage = () => {
     {
       step: 1,
       title: 'Contact Support',
-      description: 'Email us at returns@zen-z.store or call our support line with your order number and reason for return.',
+      description: 'Email us at returns@gen-zee.store or call our support line with your order number and reason for return.',
     },
     {
       step: 2,
@@ -50,7 +50,7 @@ const ReturnsPage = () => {
     <>
       <SEOHead
         title="Returns & Refund Policy"
-        description="Easy returns within 7 days. Learn about zen-z.store return policy, refund process, and exchange options. Hassle-free returns for unworn items."
+        description="Easy returns within 7 days. Learn about Gen-zee.store return policy, refund process, and exchange options. Hassle-free returns for unworn items."
         keywords="returns policy, refund, exchange, return process, hassle-free returns"
         url="/returns"
       />

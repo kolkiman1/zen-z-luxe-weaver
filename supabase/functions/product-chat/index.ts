@@ -225,7 +225,7 @@ serve(async (req) => {
       `- ${p.name} (${p.category}${p.subcategory ? '/' + p.subcategory : ''}): ৳${p.price} - ${p.description || 'No description'}. Colors: ${JSON.stringify(p.colors) || 'N/A'}. Sizes: ${p.sizes?.join(', ') || 'N/A'}. Slug: ${p.slug}`
     ).join('\n') || 'No products available';
 
-    const systemPrompt = `You are a friendly and helpful shopping assistant for zen-z.store, a fashion e-commerce store. Your role is to help customers find the perfect products based on their preferences, style, and needs.
+    const systemPrompt = `You are a friendly and helpful shopping assistant for Gen-zee.store, a fashion e-commerce store. Your role is to help customers find the perfect products based on their preferences, style, and needs.
 
 Available Products:
 ${productContext}
