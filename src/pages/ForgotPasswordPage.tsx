@@ -20,9 +20,23 @@ const ForgotPasswordPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
+  const isRecoveryFromUrl = () => {
+    const search = new URLSearchParams(window.location.search);
+    const type = search.get('type');
+    const accessToken = search.get('access_token');
+
+    const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
+    const hashType = hashParams.get('type');
+    const hashAccessToken = hashParams.get('access_token');
+
+    return type === 'recovery' || !!accessToken || hashType === 'recovery' || !!hashAccessToken;
+  };
+
   // Determine mode based on URL params (reset token present = update password mode)
-  const [mode, setMode] = useState<'request' | 'reset' | 'success'>('request');
+  const [mode, setMode] = useState<'request' | 'reset' | 'success'>(() =>
+    isRecoveryFromUrl() ? 'reset' : 'request'
+  );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -30,29 +44,19 @@ const ForgotPasswordPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
 
-  // Check for recovery token in URL (both query params and hash fragment)
+  // Ensure we enter reset mode when arriving from an email recovery link
   useEffect(() => {
-    const accessToken = searchParams.get('access_token');
-    const type = searchParams.get('type');
-    
-    // Also check hash fragment (Supabase often returns tokens here)
-    const hash = window.location.hash;
-    const hashParams = new URLSearchParams(hash.replace('#', ''));
-    const hashAccessToken = hashParams.get('access_token');
-    const hashType = hashParams.get('type');
-    
-    if (type === 'recovery' || accessToken || hashType === 'recovery' || hashAccessToken) {
+    if (isRecoveryFromUrl()) {
       setMode('reset');
     }
   }, [searchParams]);
 
-  // Redirect if already logged in (except in reset mode)
+  // Redirect if already logged in (but NEVER during password recovery flow)
   useEffect(() => {
-    // Don't redirect during password reset - user needs to set new password first
-    if (user && mode !== 'reset') {
+    if (user && !isRecoveryFromUrl()) {
       navigate('/');
     }
-  }, [user, navigate, mode]);
+  }, [user, navigate]);
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,9 +125,9 @@ const ForgotPasswordPage = () => {
       }
 
       toast.success('Password updated!', {
-        description: 'You can now sign in with your new password.',
+        description: 'You are now signed in with your new password.',
       });
-      navigate('/auth');
+      navigate('/dashboard');
     } catch (error: any) {
       console.error('Password update error:', error);
       toast.error('Failed to update password', {

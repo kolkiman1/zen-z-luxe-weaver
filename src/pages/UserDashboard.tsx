@@ -20,7 +20,8 @@ import {
   Building,
   Star,
   Camera,
-  Upload
+  Upload,
+  Lock,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Header from '@/components/layout/Header';
@@ -62,6 +63,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import ChangePasswordCard from '@/components/account/ChangePasswordCard';
 
 interface Order {
   id: string;
@@ -543,7 +545,7 @@ const UserDashboard = () => {
 
           {/* Main Content Tabs */}
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid grid-cols-4 w-full max-w-lg">
+            <TabsList className="grid grid-cols-5 w-full max-w-xl">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
                 <span className="hidden sm:inline">Profile</span>
@@ -555,6 +557,10 @@ const UserDashboard = () => {
               <TabsTrigger value="cards" className="flex items-center gap-2">
                 <CreditCard className="w-4 h-4" />
                 <span className="hidden sm:inline">Cards</span>
+              </TabsTrigger>
+              <TabsTrigger value="security" className="flex items-center gap-2">
+                <Lock className="w-4 h-4" />
+                <span className="hidden sm:inline">Security</span>
               </TabsTrigger>
               <TabsTrigger value="orders" className="flex items-center gap-2">
                 <Package className="w-4 h-4" />
@@ -1099,6 +1105,16 @@ const UserDashboard = () => {
                     )}
                   </CardContent>
                 </Card>
+              </motion.div>
+            </TabsContent>
+
+            {/* Security Tab */}
+            <TabsContent value="security">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <ChangePasswordCard />
               </motion.div>
             </TabsContent>
 
