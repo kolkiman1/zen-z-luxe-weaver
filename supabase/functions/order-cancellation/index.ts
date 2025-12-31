@@ -182,15 +182,26 @@ const handler = async (req: Request): Promise<Response> => {
     `;
 
     const emailResponse = await resend.emails.send({
-      from: "Gen-zee.store <onboarding@resend.dev>",
+      from: "Gen-zee Store <noreply@gen-zee.store>",
       to: [data.email],
       subject: `Order Cancelled - ${data.orderNumber}`,
       html: emailHtml,
     });
 
+    if (emailResponse?.error) {
+      console.error("Resend error (order-cancellation):", emailResponse.error);
+      return new Response(
+        JSON.stringify({ success: false, error: emailResponse.error.message }),
+        {
+          status: 502,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     console.log("Order cancellation email sent:", emailResponse);
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, data: emailResponse.data }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
