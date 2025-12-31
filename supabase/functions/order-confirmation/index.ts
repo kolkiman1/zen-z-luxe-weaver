@@ -162,6 +162,9 @@ const handler = async (req: Request): Promise<Response> => {
 </html>
     `;
 
+    console.log("Attempting to send order confirmation email to:", data.email);
+    console.log("Order details:", { orderNumber: data.orderNumber, items: data.items?.length });
+
     const emailResponse = await resend.emails.send({
       from: "Gen-zee.store <onboarding@resend.dev>",
       to: [data.email],
@@ -169,7 +172,7 @@ const handler = async (req: Request): Promise<Response> => {
       html: emailHtml,
     });
 
-    console.log("Order confirmation email sent:", emailResponse);
+    console.log("Order confirmation email sent successfully:", emailResponse);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
@@ -177,8 +180,9 @@ const handler = async (req: Request): Promise<Response> => {
     });
   } catch (error: any) {
     console.error("Error sending order confirmation:", error);
+    console.error("Error details:", JSON.stringify(error, null, 2));
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message, details: error }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
