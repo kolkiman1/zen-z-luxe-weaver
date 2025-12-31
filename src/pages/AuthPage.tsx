@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2, AlertTriangle } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/SEOHead';
+import { useRateLimiter } from '@/hooks/useRateLimiter';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -29,9 +30,25 @@ const AuthPage = () => {
   const [name, setName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});
+  const [rateLimitWarning, setRateLimitWarning] = useState('');
   
   const { user, signIn, signUp } = useAuth();
   const navigate = useNavigate();
+  
+  // Rate limiting for login attempts (5 attempts per 15 minutes, 30 min lockout)
+  const loginRateLimiter = useRateLimiter('login_attempts', {
+    maxAttempts: 5,
+    windowMs: 15 * 60 * 1000,
+    lockoutMs: 30 * 60 * 1000,
+  });
+
+  // Check lockout status on mount
+  useEffect(() => {
+    const status = loginRateLimiter.getLockoutStatus();
+    if (status.isLocked) {
+      setRateLimitWarning(`Too many failed attempts. Please try again in ${status.remainingMinutes} minutes.`);
+    }
+  }, []);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -43,6 +60,17 @@ const AuthPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    setRateLimitWarning('');
+
+    // Check rate limit before attempting login
+    if (isLogin) {
+      const { allowed, lockoutRemaining } = loginRateLimiter.checkRateLimit();
+      if (!allowed) {
+        setRateLimitWarning(`Too many failed attempts. Please try again in ${lockoutRemaining} minutes.`);
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -66,6 +94,15 @@ const AuthPage = () => {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
+          // Record failed attempt
+          const result = loginRateLimiter.recordAttempt(false);
+          
+          if (!result.allowed) {
+            setRateLimitWarning(result.message);
+          } else if (result.message) {
+            setRateLimitWarning(result.message);
+          }
+
           if (error.message.includes('Invalid login credentials')) {
             toast.error('Invalid credentials', {
               description: 'Please check your email and password.',
@@ -76,6 +113,8 @@ const AuthPage = () => {
             });
           }
         } else {
+          // Reset rate limiter on successful login
+          loginRateLimiter.recordAttempt(true);
           toast.success('Welcome back!', {
             description: 'You have successfully logged in.',
           });
@@ -109,6 +148,8 @@ const AuthPage = () => {
     }
   };
 
+  const lockoutStatus = loginRateLimiter.getLockoutStatus();
+
   return (
     <>
       <SEOHead
@@ -125,13 +166,13 @@ const AuthPage = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-card rounded-2xl border border-border p-8 md:p-10"
+              className="bg-card rounded-2xl border border-border p-8 md:p-10 shadow-xl"
             >
               {/* Header */}
               <div className="text-center mb-8">
                 <Link to="/" className="inline-block mb-6">
                   <h1 className="font-display text-2xl">
-                    Gen-zee<span className="text-primary">.</span>store
+                    <span className="text-primary">Gen</span>-zee
                   </h1>
                 </Link>
                 <h2 className="font-display text-2xl mb-2">
@@ -143,6 +184,23 @@ const AuthPage = () => {
                     : 'Join us for exclusive access to premium fashion'}
                 </p>
               </div>
+
+              {/* Rate Limit Warning */}
+              {(rateLimitWarning || lockoutStatus.isLocked) && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 p-4 rounded-lg bg-destructive/10 border border-destructive/20 flex items-start gap-3"
+                >
+                  <AlertTriangle size={20} className="text-destructive flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-destructive">Account Protected</p>
+                    <p className="text-xs text-destructive/80 mt-1">
+                      {rateLimitWarning || `Too many failed attempts. Please try again in ${lockoutStatus.remainingMinutes} minutes.`}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
 
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-5">
@@ -176,7 +234,7 @@ const AuthPage = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email"
                       className="pl-10"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || lockoutStatus.isLocked}
                     />
                   </div>
                   {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
@@ -200,7 +258,7 @@ const AuthPage = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
                       className="pl-10 pr-10"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || lockoutStatus.isLocked}
                     />
                     <button
                       type="button"
@@ -213,9 +271,18 @@ const AuthPage = () => {
                   {errors.password && <p className="text-sm text-destructive mt-1">{errors.password}</p>}
                 </div>
 
-                <Button type="submit" className="w-full btn-primary py-6 gap-2" disabled={isSubmitting}>
+                <Button 
+                  type="submit" 
+                  className="w-full btn-primary py-6 gap-2" 
+                  disabled={isSubmitting || lockoutStatus.isLocked}
+                >
                   {isSubmitting ? (
                     <Loader2 size={18} className="animate-spin" />
+                  ) : lockoutStatus.isLocked ? (
+                    <>
+                      <AlertTriangle size={18} />
+                      Account Locked
+                    </>
                   ) : (
                     <>
                       {isLogin ? 'Sign In' : 'Create Account'}
@@ -243,8 +310,9 @@ const AuthPage = () => {
                   onClick={() => {
                     setIsLogin(!isLogin);
                     setErrors({});
+                    setRateLimitWarning('');
                   }}
-                  className="text-primary hover:underline ml-1"
+                  className="text-primary hover:underline ml-1 font-medium"
                   disabled={isSubmitting}
                 >
                   {isLogin ? 'Sign Up' : 'Sign In'}
