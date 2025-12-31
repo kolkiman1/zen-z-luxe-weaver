@@ -78,9 +78,8 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Reset link generated successfully");
 
     // Send email using Resend
-    // NOTE: Update the 'from' address to your verified domain email
     const emailResponse = await resend.emails.send({
-      from: "Gen-zee Store <onboarding@resend.dev>", // Change to your domain: noreply@yourdomain.com
+      from: "Gen-zee Store <noreply@gen-zee.store>",
       to: [email],
       subject: "Reset Your Password - Gen-zee Store",
       html: `
