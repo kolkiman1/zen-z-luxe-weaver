@@ -204,7 +204,7 @@ const AdminProducts = () => {
   return (
     <>
       <Helmet>
-        <title>Products | Admin - zen-z.store</title>
+        <title>Products | Admin - Gen-zee.store</title>
       </Helmet>
 
       <AdminLayout title="Products">

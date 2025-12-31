@@ -59,7 +59,7 @@ While we strive to protect your data, no method of transmission over the interne
 • **Opt-out:** Unsubscribe from marketing communications at any time
 • **Withdraw Consent:** Withdraw consent for data processing
 
-To exercise these rights, contact us at privacy@zen-z.store`,
+To exercise these rights, contact us at privacy@gen-zee.store`,
     },
     {
       title: '6. Cookies',
@@ -88,7 +88,7 @@ You can control cookie settings through your browser preferences.`,
       title: '10. Contact Us',
       content: `If you have questions about this Privacy Policy or our data practices, contact us at:
 
-**Email:** privacy@zen-z.store
+**Email:** privacy@gen-zee.store
 **Phone:** +880 1XXX-XXXXXX
 **Address:** Gulshan-2, Dhaka 1212, Bangladesh`,
     },

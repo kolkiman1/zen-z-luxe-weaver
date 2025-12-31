@@ -134,7 +134,7 @@ const AdminInquiries = () => {
   return (
     <>
       <Helmet>
-        <title>Inquiries | Admin - zen-z.store</title>
+        <title>Inquiries | Admin - Gen-zee.store</title>
       </Helmet>
 
       <AdminLayout title="Customer Inquiries">

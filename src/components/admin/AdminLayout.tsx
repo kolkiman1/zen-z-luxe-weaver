@@ -87,7 +87,7 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
         <div className="h-16 flex items-center justify-between px-4 border-b border-border">
           {sidebarOpen && (
             <Link to="/" className="font-display text-lg">
-              zen-z<span className="text-primary">.</span>store
+              Gen-zee<span className="text-primary">.</span>store
             </Link>
           )}
           <Button

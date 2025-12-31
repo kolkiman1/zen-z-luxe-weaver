@@ -29,10 +29,10 @@ Deno.serve(async (req) => {
 
     // Safely access the value with type guard
     const seoValue = seoSettings?.value as { canonicalUrl?: string } | null;
-    const canonicalUrl = seoValue?.canonicalUrl || 'https://zen-z.store';
+    const canonicalUrl = seoValue?.canonicalUrl || 'https://gen-zee.store';
     const sitemapUrl = `${supabaseUrl}/functions/v1/sitemap`;
 
-    const robotsTxt = `# robots.txt for zen-z.store
+    const robotsTxt = `# robots.txt for Gen-zee.store
 # Generated dynamically
 
 User-agent: Googlebot

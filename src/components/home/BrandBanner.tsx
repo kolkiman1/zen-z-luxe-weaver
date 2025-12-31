@@ -40,7 +40,7 @@ const BrandBanner = () => {
             viewport={{ once: true }}
             className="text-primary tracking-[0.2em] sm:tracking-[0.3em] uppercase text-xs sm:text-sm mb-3 sm:mb-4"
           >
-            The Zen-Z Promise
+            The Gen-Zee Promise
           </motion.p>
 
           <motion.h2

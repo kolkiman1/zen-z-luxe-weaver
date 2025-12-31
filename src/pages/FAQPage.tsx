@@ -131,8 +131,8 @@ const FAQPage = () => {
     <>
       <SEOHead
         title="Frequently Asked Questions"
-        description="Find answers to common questions about shopping at zen-z.store. Learn about ordering, shipping, returns, sizing, and more."
-        keywords="FAQ, help, support, shipping, returns, sizing guide, zen-z store"
+        description="Find answers to common questions about shopping at Gen-zee.store. Learn about ordering, shipping, returns, sizing, and more."
+        keywords="FAQ, help, support, shipping, returns, sizing guide, Gen-zee store"
         url="/faq"
       />
 

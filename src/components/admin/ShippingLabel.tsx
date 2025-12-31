@@ -29,7 +29,7 @@ const ShippingLabel = forwardRef<HTMLDivElement, ShippingLabelProps>(
       >
         {/* Header */}
         <div className="text-center border-b-2 border-black pb-4 mb-4">
-          <h1 className="text-2xl font-bold tracking-tight">zen-z.store</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Gen-zee.store</h1>
           <p className="text-xs text-gray-600 mt-1">SHIPPING LABEL</p>
         </div>
 
@@ -52,7 +52,7 @@ const ShippingLabel = forwardRef<HTMLDivElement, ShippingLabelProps>(
         {/* From Address */}
         <div className="mb-4 pb-4 border-b border-dashed border-gray-300">
           <p className="text-xs font-semibold text-gray-500 uppercase mb-2">From</p>
-          <p className="font-bold">zen-z.store Warehouse</p>
+          <p className="font-bold">Gen-zee.store Warehouse</p>
           <p className="text-sm text-gray-600">Dhaka, Bangladesh</p>
         </div>
 

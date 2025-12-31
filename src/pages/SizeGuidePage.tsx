@@ -50,7 +50,7 @@ const SizeGuidePage = () => {
     <>
       <SEOHead
         title="Size Guide"
-        description="Find your perfect fit with our comprehensive size guide. Detailed measurements for men's and women's clothing at zen-z.store."
+        description="Find your perfect fit with our comprehensive size guide. Detailed measurements for men's and women's clothing at Gen-zee.store."
         keywords="size guide, size chart, measurements, how to measure, clothing sizes"
         url="/size-guide"
       />

@@ -54,7 +54,7 @@ const OrderInvoice = forwardRef<HTMLDivElement, OrderInvoiceProps>(
         {/* Header */}
         <div className="flex justify-between items-start mb-8 border-b border-gray-200 pb-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">zen-z.store</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Gen-zee.store</h1>
             <p className="text-gray-500 text-sm mt-1">Premium Fashion & Lifestyle</p>
           </div>
           <div className="text-right">
@@ -179,8 +179,8 @@ const OrderInvoice = forwardRef<HTMLDivElement, OrderInvoiceProps>(
 
         {/* Footer */}
         <div className="text-center text-xs text-gray-500 border-t border-gray-200 pt-6">
-          <p className="font-medium mb-1">Thank you for shopping with zen-z.store!</p>
-          <p>For any queries, contact us at support@zen-z.store</p>
+          <p className="font-medium mb-1">Thank you for shopping with Gen-zee.store!</p>
+          <p>For any queries, contact us at support@gen-zee.store</p>
           <p className="mt-2">This is a computer-generated invoice.</p>
         </div>
       </div>
