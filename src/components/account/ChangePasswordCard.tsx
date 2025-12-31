@@ -52,17 +52,19 @@ export default function ChangePasswordCard() {
 
     setSaving(true);
     try {
-      // Re-authenticate to confirm current password
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      // Verify current password by attempting a re-authentication
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
         email: user.email,
         password: currentPassword,
       });
 
-      if (signInError) {
+      if (verifyError) {
         setErrors({ currentPassword: 'Current password is incorrect' });
+        setSaving(false);
         return;
       }
 
+      // Now update the password
       const { error: updateError } = await supabase.auth.updateUser({
         password: newPassword,
       });
@@ -71,6 +73,7 @@ export default function ChangePasswordCard() {
         toast.error('Failed to update password', {
           description: updateError.message,
         });
+        setSaving(false);
         return;
       }
 
@@ -93,6 +96,11 @@ export default function ChangePasswordCard() {
 
       toast.success('Password updated', {
         description: 'Your new password is now active.',
+      });
+    } catch (error: any) {
+      console.error('Password update error:', error);
+      toast.error('Failed to update password', {
+        description: error?.message || 'Please try again',
       });
     } finally {
       setSaving(false);

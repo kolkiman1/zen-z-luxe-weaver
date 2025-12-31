@@ -111,11 +111,16 @@ export default function SessionsCard() {
   const handleSignOutCurrent = async () => {
     setSigningOut('current');
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
+      if (error) throw error;
       toast.success('Signed out successfully');
-    } catch (error) {
-      toast.error('Failed to sign out');
-    } finally {
+      // Force redirect after signout
+      window.location.href = '/auth';
+    } catch (error: any) {
+      console.error('Signout error:', error);
+      toast.error('Failed to sign out', {
+        description: error?.message || 'Please try again',
+      });
       setSigningOut(null);
     }
   };
@@ -124,11 +129,16 @@ export default function SessionsCard() {
     setSigningOutAll(true);
     try {
       // Sign out from all sessions using scope: 'global'
-      await supabase.auth.signOut({ scope: 'global' });
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      if (error) throw error;
       toast.success('Signed out from all devices');
-    } catch (error) {
-      toast.error('Failed to sign out from all devices');
-    } finally {
+      // Force redirect after signout
+      window.location.href = '/auth';
+    } catch (error: any) {
+      console.error('Signout all error:', error);
+      toast.error('Failed to sign out from all devices', {
+        description: error?.message || 'Please try again',
+      });
       setSigningOutAll(false);
     }
   };

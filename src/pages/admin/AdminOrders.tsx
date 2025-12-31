@@ -152,6 +152,53 @@ const AdminOrders = () => {
       if (selectedOrder?.id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatus });
       }
+
+      // Send cancellation email if status changed to cancelled
+      if (newStatus === 'cancelled' && order) {
+        try {
+          // Fetch customer info
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, email, phone')
+            .eq('user_id', order.user_id)
+            .single();
+
+          if (profile?.email) {
+            const subtotal = order.order_items.reduce(
+              (sum, item) => sum + item.price * item.quantity,
+              0
+            );
+
+            await supabase.functions.invoke('order-cancellation', {
+              body: {
+                email: profile.email,
+                customerName: profile.full_name,
+                orderNumber: order.order_number || order.id,
+                orderDate: order.created_at,
+                cancellationDate: new Date().toISOString(),
+                items: order.order_items.map(item => ({
+                  product_name: item.product_name,
+                  quantity: item.quantity,
+                  size: item.size,
+                  color: item.color,
+                  price: item.price,
+                })),
+                subtotal: subtotal,
+                shipping: 0,
+                discount: 0,
+                total: Number(order.total_amount),
+                shippingAddress: order.shipping_address,
+                shippingCity: order.shipping_city,
+                shippingPostalCode: order.shipping_postal_code,
+                paymentMethod: order.payment_method,
+              },
+            });
+            toast.info('Cancellation email sent to customer');
+          }
+        } catch (emailError) {
+          console.error('Failed to send cancellation email:', emailError);
+        }
+      }
     }
     setIsUpdating(false);
   };
