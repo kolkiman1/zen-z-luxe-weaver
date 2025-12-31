@@ -166,15 +166,26 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Order details:", { orderNumber: data.orderNumber, items: data.items?.length });
 
     const emailResponse = await resend.emails.send({
-      from: "Gen-zee.store <onboarding@resend.dev>",
+      from: "Gen-zee Store <noreply@gen-zee.store>",
       to: [data.email],
       subject: `Order Confirmed - ${data.orderNumber}`,
       html: emailHtml,
     });
 
+    if (emailResponse?.error) {
+      console.error("Resend error (order-confirmation):", emailResponse.error);
+      return new Response(
+        JSON.stringify({ success: false, error: emailResponse.error.message }),
+        {
+          status: 502,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     console.log("Order confirmation email sent successfully:", emailResponse);
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, data: emailResponse.data }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
