@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { Search, Eye, Package, MapPin, Filter, Copy, Check, Printer, FileText } from 'lucide-react';
+import { Search, Eye, Package, MapPin, Filter, Copy, Check, Printer, FileText, Mail } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { useActivityLog } from '@/hooks/useActivityLog';
@@ -25,6 +25,7 @@ import {
 import { toast } from 'sonner';
 import OrderInvoice from '@/components/admin/OrderInvoice';
 import ShippingLabel from '@/components/admin/ShippingLabel';
+import EmailStatusWidget from '@/components/admin/EmailStatusWidget';
 
 interface OrderItem {
   id: string;
@@ -174,6 +175,7 @@ const AdminOrders = () => {
                 email: profile.email,
                 customerName: profile.full_name,
                 orderNumber: order.order_number || order.id,
+                orderId: order.id,
                 orderDate: order.created_at,
                 cancellationDate: new Date().toISOString(),
                 items: order.order_items.map(item => ({
@@ -606,6 +608,9 @@ const AdminOrders = () => {
                     ))}
                   </div>
                 </div>
+
+                {/* Email Status */}
+                <EmailStatusWidget orderId={selectedOrder.id} limit={5} />
               </div>
             )}
           </DialogContent>

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -21,6 +22,7 @@ interface OrderCancellationRequest {
   email: string;
   customerName?: string;
   orderNumber: string;
+  orderId?: string;
   orderDate: string;
   cancellationDate: string;
   items: OrderItem[];
@@ -36,6 +38,37 @@ interface OrderCancellationRequest {
 }
 
 const formatPrice = (price: number) => `৳${price.toLocaleString()}`;
+
+// Initialize Supabase client for logging
+const getSupabaseClient = () => {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  return createClient(supabaseUrl, supabaseServiceKey);
+};
+
+const logEmailStatus = async (
+  orderId: string | null,
+  orderNumber: string,
+  recipientEmail: string,
+  status: 'sent' | 'failed',
+  providerResponse: any,
+  errorMessage: string | null
+) => {
+  try {
+    const supabase = getSupabaseClient();
+    await supabase.from('email_logs').insert({
+      order_id: orderId,
+      order_number: orderNumber,
+      email_type: 'order_cancellation',
+      recipient_email: recipientEmail,
+      status,
+      provider_response: providerResponse,
+      error_message: errorMessage,
+    });
+  } catch (err) {
+    console.error("Failed to log email status:", err);
+  }
+};
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
@@ -190,6 +223,17 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (emailResponse?.error) {
       console.error("Resend error (order-cancellation):", emailResponse.error);
+      
+      // Log failed email
+      await logEmailStatus(
+        data.orderId || null,
+        data.orderNumber,
+        data.email,
+        'failed',
+        emailResponse,
+        emailResponse.error.message
+      );
+
       return new Response(
         JSON.stringify({ success: false, error: emailResponse.error.message }),
         {
@@ -200,6 +244,16 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log("Order cancellation email sent:", emailResponse);
+
+    // Log successful email
+    await logEmailStatus(
+      data.orderId || null,
+      data.orderNumber,
+      data.email,
+      'sent',
+      emailResponse,
+      null
+    );
 
     return new Response(JSON.stringify({ success: true, data: emailResponse.data }), {
       status: 200,

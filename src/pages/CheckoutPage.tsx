@@ -220,6 +220,7 @@ const CheckoutPage = () => {
           email: formData.email,
           customerName: `${formData.firstName} ${formData.lastName}`.trim() || profile?.full_name || 'Valued Customer',
           orderNumber: order.order_number || order.id,
+          orderId: order.id,
           orderDate: order.created_at,
           items: items.map(item => ({
             product_name: item.product.name,
