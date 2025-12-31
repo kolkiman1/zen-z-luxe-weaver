@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PasswordStrength } from '@/components/ui/password-strength';
 import { toast } from 'sonner';
 
 const passwordSchema = z
@@ -15,7 +16,7 @@ const passwordSchema = z
   .max(72, { message: 'Password must be 72 characters or less' });
 
 export default function ChangePasswordCard() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -73,6 +74,19 @@ export default function ChangePasswordCard() {
         return;
       }
 
+      // Send password change alert email
+      try {
+        await supabase.functions.invoke('password-changed-alert', {
+          body: {
+            email: user.email,
+            userName: profile?.full_name || undefined,
+            changeMethod: 'account',
+          },
+        });
+      } catch (alertError) {
+        console.error('Failed to send password change alert:', alertError);
+      }
+
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -123,6 +137,7 @@ export default function ChangePasswordCard() {
               disabled={saving}
             />
             {errors.newPassword && <p className="text-sm text-destructive">{errors.newPassword}</p>}
+            <PasswordStrength password={newPassword} className="mt-3" />
           </div>
 
           <div className="space-y-2">
