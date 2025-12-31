@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Heart, ShoppingBag, Menu, X, User, LogOut, Settings } from 'lucide-react';
+import { Search, Heart, ShoppingBag, Menu, X, User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import SearchModal from '@/components/search/SearchModal';
 import WishlistSidebar from '@/components/wishlist/WishlistSidebar';
+import MegaMenu from './MegaMenu';
 import { toast } from 'sonner';
 
 const navLinks = [
@@ -117,22 +118,8 @@ const Header = () => {
               </motion.div>
             </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className={`luxury-underline text-sm font-body tracking-wide transition-colors ${
-                    location.pathname === link.href
-                      ? 'text-primary'
-                      : 'text-foreground/80 hover:text-foreground'
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              ))}
-            </nav>
+            {/* Desktop Navigation with Mega Menu */}
+            <MegaMenu isScrolled={isScrolled} currentPath={location.pathname} />
 
             {/* Actions */}
             <div className="flex items-center gap-2 md:gap-4">
