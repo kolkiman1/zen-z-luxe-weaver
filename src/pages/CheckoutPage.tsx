@@ -213,6 +213,35 @@ const CheckoutPage = () => {
 
       if (itemsError) throw itemsError;
 
+      // Send order confirmation email
+      try {
+        await supabase.functions.invoke('order-confirmation', {
+          body: {
+            email: formData.email,
+            customerName: `${formData.firstName} ${formData.lastName}`.trim() || profile?.full_name,
+            orderNumber: order.order_number || order.id,
+            orderDate: order.created_at,
+            items: items.map(item => ({
+              product_name: item.product.name,
+              quantity: item.quantity,
+              size: item.selectedSize,
+              color: item.selectedColor?.name,
+              price: item.product.price,
+            })),
+            subtotal: totalPrice,
+            shipping: shippingCost,
+            discount: discountAmount,
+            total: grandTotal,
+            shippingAddress: formData.address,
+            shippingCity: formData.city,
+            shippingPostalCode: formData.postalCode,
+            paymentMethod: paymentMethod,
+          },
+        });
+      } catch (emailError) {
+        console.error('Failed to send confirmation email:', emailError);
+      }
+
       toast.success('Order placed successfully!', {
         description: 'You will receive a confirmation email shortly.',
       });
