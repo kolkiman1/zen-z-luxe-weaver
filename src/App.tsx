@@ -11,37 +11,41 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { NewsletterProvider } from "@/contexts/NewsletterContext";
 import { TrackingScripts } from "@/components/TrackingScripts";
 import LoadingScreen from "@/components/ui/LoadingScreen";
-import Index from "./pages/Index";
-import CategoryPage from "./pages/CategoryPage";
-import ProductDetailPage from "./pages/ProductDetailPage";
-import WishlistPage from "./pages/WishlistPage";
-import CheckoutPage from "./pages/CheckoutPage";
-import AuthPage from "./pages/AuthPage";
-import OrdersPage from "./pages/OrdersPage";
-import OrderTrackingPage from "./pages/OrderTrackingPage";
-import ContactPage from "./pages/ContactPage";
-import FAQPage from "./pages/FAQPage";
-import ShippingPage from "./pages/ShippingPage";
-import ReturnsPage from "./pages/ReturnsPage";
-import PrivacyPage from "./pages/PrivacyPage";
-import TermsPage from "./pages/TermsPage";
-import SizeGuidePage from "./pages/SizeGuidePage";
-import AboutPage from "./pages/AboutPage";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminProducts from "./pages/admin/AdminProducts";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminInquiries from "./pages/admin/AdminInquiries";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminCustomers from "./pages/admin/AdminCustomers";
-import AdminAnnouncements from "./pages/admin/AdminAnnouncements";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminMarketing from "./pages/admin/AdminMarketing";
-import AdminActivityLogs from "./pages/admin/AdminActivityLogs";
-import AdminTrackingAnalytics from "./pages/admin/AdminTrackingAnalytics";
-import AdminSeoSettings from "./pages/admin/AdminSeoSettings";
-import AdminSecurityDashboard from "./pages/admin/AdminSecurityDashboard";
-import UserDashboard from "./pages/UserDashboard";
-import NotFound from "./pages/NotFound";
+
+// Lazy load pages for better performance
+const Index = lazy(() => import("./pages/Index"));
+const CategoryPage = lazy(() => import("./pages/CategoryPage"));
+const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage"));
+const WishlistPage = lazy(() => import("./pages/WishlistPage"));
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const OrdersPage = lazy(() => import("./pages/OrdersPage"));
+const OrderTrackingPage = lazy(() => import("./pages/OrderTrackingPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const FAQPage = lazy(() => import("./pages/FAQPage"));
+const ShippingPage = lazy(() => import("./pages/ShippingPage"));
+const ReturnsPage = lazy(() => import("./pages/ReturnsPage"));
+const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
+const TermsPage = lazy(() => import("./pages/TermsPage"));
+const SizeGuidePage = lazy(() => import("./pages/SizeGuidePage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const UserDashboard = lazy(() => import("./pages/UserDashboard"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Admin pages
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
+const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+const AdminInquiries = lazy(() => import("./pages/admin/AdminInquiries"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminCustomers = lazy(() => import("./pages/admin/AdminCustomers"));
+const AdminAnnouncements = lazy(() => import("./pages/admin/AdminAnnouncements"));
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
+const AdminMarketing = lazy(() => import("./pages/admin/AdminMarketing"));
+const AdminActivityLogs = lazy(() => import("./pages/admin/AdminActivityLogs"));
+const AdminTrackingAnalytics = lazy(() => import("./pages/admin/AdminTrackingAnalytics"));
+const AdminSeoSettings = lazy(() => import("./pages/admin/AdminSeoSettings"));
+const AdminSecurityDashboard = lazy(() => import("./pages/admin/AdminSecurityDashboard"));
 
 const queryClient = new QueryClient();
 
@@ -59,40 +63,40 @@ const App = () => (
                 <BrowserRouter>
                   <Suspense fallback={<LoadingScreen />}>
                     <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/category/:slug" element={<CategoryPage />} />
-                    <Route path="/product/:id" element={<ProductDetailPage />} />
-                    <Route path="/wishlist" element={<WishlistPage />} />
-                    <Route path="/checkout" element={<CheckoutPage />} />
-                    <Route path="/auth" element={<AuthPage />} />
-                    <Route path="/orders" element={<OrdersPage />} />
-                    <Route path="/orders/:orderId" element={<OrderTrackingPage />} />
-                    <Route path="/dashboard" element={<UserDashboard />} />
-                    {/* Info Pages */}
-                    <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/faq" element={<FAQPage />} />
-                    <Route path="/shipping" element={<ShippingPage />} />
-                    <Route path="/returns" element={<ReturnsPage />} />
-                    <Route path="/privacy" element={<PrivacyPage />} />
-                    <Route path="/terms" element={<TermsPage />} />
-                    <Route path="/size-guide" element={<SizeGuidePage />} />
-                    <Route path="/about" element={<AboutPage />} />
-                    {/* Admin Routes */}
-                    <Route path="/admin" element={<AdminDashboard />} />
-                    <Route path="/admin/products" element={<AdminProducts />} />
-                    <Route path="/admin/orders" element={<AdminOrders />} />
-                    <Route path="/admin/customers" element={<AdminCustomers />} />
-                    <Route path="/admin/analytics" element={<AdminAnalytics />} />
-                    <Route path="/admin/tracking" element={<AdminTrackingAnalytics />} />
-                    <Route path="/admin/marketing" element={<AdminMarketing />} />
-                    <Route path="/admin/inquiries" element={<AdminInquiries />} />
-                    <Route path="/admin/users" element={<AdminUsers />} />
-                    <Route path="/admin/announcements" element={<AdminAnnouncements />} />
-                    <Route path="/admin/activity-logs" element={<AdminActivityLogs />} />
-                    <Route path="/admin/seo" element={<AdminSeoSettings />} />
-                    <Route path="/admin/security" element={<AdminSecurityDashboard />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/category/:slug" element={<CategoryPage />} />
+                      <Route path="/product/:id" element={<ProductDetailPage />} />
+                      <Route path="/wishlist" element={<WishlistPage />} />
+                      <Route path="/checkout" element={<CheckoutPage />} />
+                      <Route path="/auth" element={<AuthPage />} />
+                      <Route path="/orders" element={<OrdersPage />} />
+                      <Route path="/orders/:orderId" element={<OrderTrackingPage />} />
+                      <Route path="/dashboard" element={<UserDashboard />} />
+                      {/* Info Pages */}
+                      <Route path="/contact" element={<ContactPage />} />
+                      <Route path="/faq" element={<FAQPage />} />
+                      <Route path="/shipping" element={<ShippingPage />} />
+                      <Route path="/returns" element={<ReturnsPage />} />
+                      <Route path="/privacy" element={<PrivacyPage />} />
+                      <Route path="/terms" element={<TermsPage />} />
+                      <Route path="/size-guide" element={<SizeGuidePage />} />
+                      <Route path="/about" element={<AboutPage />} />
+                      {/* Admin Routes */}
+                      <Route path="/admin" element={<AdminDashboard />} />
+                      <Route path="/admin/products" element={<AdminProducts />} />
+                      <Route path="/admin/orders" element={<AdminOrders />} />
+                      <Route path="/admin/customers" element={<AdminCustomers />} />
+                      <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                      <Route path="/admin/tracking" element={<AdminTrackingAnalytics />} />
+                      <Route path="/admin/marketing" element={<AdminMarketing />} />
+                      <Route path="/admin/inquiries" element={<AdminInquiries />} />
+                      <Route path="/admin/users" element={<AdminUsers />} />
+                      <Route path="/admin/announcements" element={<AdminAnnouncements />} />
+                      <Route path="/admin/activity-logs" element={<AdminActivityLogs />} />
+                      <Route path="/admin/seo" element={<AdminSeoSettings />} />
+                      <Route path="/admin/security" element={<AdminSecurityDashboard />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
                   </Suspense>
                 </BrowserRouter>
               </TooltipProvider>
