@@ -61,10 +61,12 @@ const ForgotPasswordPage = () => {
     setIsSubmitting(true);
 
     try {
+      // Use production domain for password reset redirect
+      const productionDomain = 'https://gen-zee.store';
       const response = await supabase.functions.invoke('password-reset', {
         body: {
           email: email.trim().toLowerCase(),
-          redirectUrl: `${window.location.origin}/forgot-password`,
+          redirectUrl: `${productionDomain}/forgot-password`,
         },
       });
 
