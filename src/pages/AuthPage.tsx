@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2, AlertTriangle } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,7 @@ const AuthPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});
   const [rateLimitWarning, setRateLimitWarning] = useState('');
+  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
   
   const { user, signIn, signUp } = useAuth();
   const navigate = useNavigate();
@@ -133,10 +134,11 @@ const AuthPage = () => {
             });
           }
         } else {
-          toast.success('Account created!', {
-            description: 'Welcome to Gen-zee.store!',
+          // Show verification message instead of redirecting
+          setShowVerificationMessage(true);
+          toast.success('Check your email!', {
+            description: 'We sent you a verification link to activate your account.',
           });
-          navigate('/');
         }
       }
     } catch (error) {
@@ -168,22 +170,57 @@ const AuthPage = () => {
               animate={{ opacity: 1, y: 0 }}
               className="bg-card rounded-2xl border border-border p-8 md:p-10 shadow-xl"
             >
-              {/* Header */}
-              <div className="text-center mb-8">
-                <Link to="/" className="inline-block mb-6">
-                  <h1 className="font-display text-2xl">
-                    <span className="text-primary">Gen</span>-zee
-                  </h1>
-                </Link>
-                <h2 className="font-display text-2xl mb-2">
-                  {isLogin ? 'Welcome Back' : 'Create Account'}
-                </h2>
-                <p className="text-muted-foreground text-sm">
-                  {isLogin
-                    ? 'Sign in to access your account'
-                    : 'Join us for exclusive access to premium fashion'}
-                </p>
-              </div>
+              {/* Email Verification Success Message */}
+              {showVerificationMessage ? (
+                <div className="text-center py-8">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-500/10 flex items-center justify-center"
+                  >
+                    <Mail size={40} className="text-green-500" />
+                  </motion.div>
+                  <h2 className="font-display text-2xl mb-3">Check Your Email</h2>
+                  <p className="text-muted-foreground mb-4">
+                    We've sent a verification link to <strong className="text-foreground">{email}</strong>
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Click the link in your email to activate your account. Check your spam folder if you don't see it.
+                  </p>
+                  <div className="space-y-3">
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setShowVerificationMessage(false);
+                        setIsLogin(true);
+                        setEmail('');
+                        setPassword('');
+                        setName('');
+                      }}
+                    >
+                      Back to Sign In
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Header */}
+                  <div className="text-center mb-8">
+                    <Link to="/" className="inline-block mb-6">
+                      <h1 className="font-display text-2xl">
+                        <span className="text-primary">Gen</span>-zee
+                      </h1>
+                    </Link>
+                    <h2 className="font-display text-2xl mb-2">
+                      {isLogin ? 'Welcome Back' : 'Create Account'}
+                    </h2>
+                    <p className="text-muted-foreground text-sm">
+                      {isLogin
+                        ? 'Sign in to access your account'
+                        : 'Join us for exclusive access to premium fashion'}
+                    </p>
+                  </div>
 
               {/* Rate Limit Warning */}
               {(rateLimitWarning || lockoutStatus.isLocked) && (
@@ -318,6 +355,8 @@ const AuthPage = () => {
                   {isLogin ? 'Sign Up' : 'Sign In'}
                 </button>
               </p>
+                </>
+              )}
             </motion.div>
           </div>
         </div>

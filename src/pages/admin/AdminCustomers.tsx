@@ -37,7 +37,8 @@ import {
   Eye,
   Package,
   CreditCard,
-  Home
+  Home,
+  Key,
 } from 'lucide-react';
 import { formatPrice } from '@/lib/data';
 import { motion } from 'framer-motion';
@@ -88,6 +89,7 @@ const AdminCustomers = () => {
   const [customerOrders, setCustomerOrders] = useState<CustomerOrder[]>([]);
   const [customerAddresses, setCustomerAddresses] = useState<CustomerAddress[]>([]);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [resettingPassword, setResettingPassword] = useState(false);
 
   useEffect(() => {
     fetchCustomers();
@@ -169,6 +171,36 @@ const AdminCustomers = () => {
       toast.error('Failed to load customer details');
     } finally {
       setLoadingDetails(false);
+    }
+  };
+
+  const handleResetPassword = async (customerEmail: string) => {
+    if (!customerEmail) {
+      toast.error('Customer email not available');
+      return;
+    }
+    
+    setResettingPassword(true);
+    try {
+      const { error } = await supabase.functions.invoke('admin-reset-password', {
+        body: {
+          userEmail: customerEmail,
+          adminEmail: 'admin@gen-zee.store', // or get from current admin session
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success('Password reset email sent', {
+        description: `A reset link has been sent to ${customerEmail}`,
+      });
+    } catch (error: any) {
+      console.error('Password reset error:', error);
+      toast.error('Failed to send reset email', {
+        description: error.message || 'Please try again.',
+      });
+    } finally {
+      setResettingPassword(false);
     }
   };
 
@@ -484,6 +516,30 @@ const AdminCustomers = () => {
                       <p className="font-medium text-primary">{formatPrice(selectedCustomer.total_spent)}</p>
                     </div>
                   </div>
+                </div>
+
+                {/* Admin Actions */}
+                <div className="pt-4 border-t border-border">
+                  <h4 className="font-display text-lg mb-3 flex items-center gap-2">
+                    <Key className="w-5 h-5" />
+                    Account Actions
+                  </h4>
+                  <Button
+                    variant="outline"
+                    onClick={() => selectedCustomer.email && handleResetPassword(selectedCustomer.email)}
+                    disabled={resettingPassword || !selectedCustomer.email}
+                    className="w-full"
+                  >
+                    {resettingPassword ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <Key className="w-4 h-4 mr-2" />
+                    )}
+                    Send Password Reset Email
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    This will send a password reset link to the customer's email address.
+                  </p>
                 </div>
 
                 {selectedCustomer.address && (
