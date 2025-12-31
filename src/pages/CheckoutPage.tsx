@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useRateLimiter } from '@/hooks/useRateLimiter';
 
 interface DiscountCode {
   id: string;
@@ -41,6 +42,12 @@ const CheckoutPage = () => {
   const [isValidatingDiscount, setIsValidatingDiscount] = useState(false);
   const [discountError, setDiscountError] = useState('');
   
+  // Rate limiting for discount code validation (10 attempts per 5 minutes)
+  const discountRateLimiter = useRateLimiter('discount_code_attempts', {
+    maxAttempts: 10,
+    windowMs: 5 * 60 * 1000,
+    lockoutMs: 10 * 60 * 1000,
+  });
   // Form state
   const [formData, setFormData] = useState({
     firstName: profile?.full_name?.split(' ')[0] || '',
@@ -73,6 +80,13 @@ const CheckoutPage = () => {
       return;
     }
 
+    // Check rate limit
+    const { allowed, lockoutRemaining } = discountRateLimiter.checkRateLimit();
+    if (!allowed) {
+      setDiscountError(`Too many attempts. Please try again in ${lockoutRemaining} minutes.`);
+      return;
+    }
+
     setIsValidatingDiscount(true);
     setDiscountError('');
 
@@ -88,7 +102,13 @@ const CheckoutPage = () => {
       if (error) throw error;
 
       if (!data) {
-        setDiscountError('Invalid or expired discount code');
+        // Record failed attempt
+        const result = discountRateLimiter.recordAttempt(false);
+        if (result.message && !result.allowed) {
+          setDiscountError(result.message);
+        } else {
+          setDiscountError('Invalid or expired discount code');
+        }
         return;
       }
 
@@ -97,6 +117,8 @@ const CheckoutPage = () => {
         return;
       }
 
+      // Reset rate limiter on success
+      discountRateLimiter.recordAttempt(true);
       setAppliedDiscount(data);
       setDiscountCode('');
       toast.success('Discount code applied!');
