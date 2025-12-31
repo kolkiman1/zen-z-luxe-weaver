@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PasswordStrength } from '@/components/ui/password-strength';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/SEOHead';
@@ -122,6 +123,21 @@ const ForgotPasswordPage = () => {
 
       if (error) {
         throw error;
+      }
+
+      // Send password change alert email
+      try {
+        const userEmail = user?.email;
+        if (userEmail) {
+          await supabase.functions.invoke('password-changed-alert', {
+            body: {
+              email: userEmail,
+              changeMethod: 'reset',
+            },
+          });
+        }
+      } catch (alertError) {
+        console.error('Failed to send password change alert:', alertError);
       }
 
       toast.success('Password updated!', {
@@ -259,6 +275,7 @@ const ForgotPasswordPage = () => {
                       </button>
                     </div>
                     {errors.password && <p className="text-sm text-destructive mt-1">{errors.password}</p>}
+                    <PasswordStrength password={password} className="mt-3" />
                   </div>
 
                   <div>

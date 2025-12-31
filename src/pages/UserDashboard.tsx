@@ -64,6 +64,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import ChangePasswordCard from '@/components/account/ChangePasswordCard';
+import SessionsCard from '@/components/account/SessionsCard';
 
 interface Order {
   id: string;
@@ -1113,8 +1114,10 @@ const UserDashboard = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
               >
                 <ChangePasswordCard />
+                <SessionsCard />
               </motion.div>
             </TabsContent>
 
