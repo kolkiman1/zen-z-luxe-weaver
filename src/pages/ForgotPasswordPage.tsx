@@ -30,18 +30,25 @@ const ForgotPasswordPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
 
-  // Check for recovery token in URL
+  // Check for recovery token in URL (both query params and hash fragment)
   useEffect(() => {
     const accessToken = searchParams.get('access_token');
     const type = searchParams.get('type');
     
-    if (type === 'recovery' || accessToken) {
+    // Also check hash fragment (Supabase often returns tokens here)
+    const hash = window.location.hash;
+    const hashParams = new URLSearchParams(hash.replace('#', ''));
+    const hashAccessToken = hashParams.get('access_token');
+    const hashType = hashParams.get('type');
+    
+    if (type === 'recovery' || accessToken || hashType === 'recovery' || hashAccessToken) {
       setMode('reset');
     }
   }, [searchParams]);
 
   // Redirect if already logged in (except in reset mode)
   useEffect(() => {
+    // Don't redirect during password reset - user needs to set new password first
     if (user && mode !== 'reset') {
       navigate('/');
     }
