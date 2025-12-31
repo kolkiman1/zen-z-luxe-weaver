@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Heart, ShoppingBag, Menu, X, User, LogOut, Settings } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import genZeeLogo from '@/assets/gen-zee-logo.png';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -76,171 +77,18 @@ const Header = () => {
             </button>
 
             {/* Logo */}
-            <Link to="/" className="flex-shrink-0 group perspective-1000">
+            <Link to="/" className="flex-shrink-0 group">
               <motion.div
-                className="relative py-2 px-4"
-                whileHover={{ 
-                  scale: 1.1,
-                  rotateX: 5,
-                  rotateY: -5,
-                }}
+                className="relative"
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                style={{ transformStyle: 'preserve-3d' }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
-                {/* Outer glow - static on hover only */}
-                <motion.div
-                  className="absolute -inset-4 rounded-2xl blur-2xl opacity-0 group-hover:opacity-60 transition-opacity duration-500"
-                  style={{
-                    background: 'radial-gradient(ellipse at center, hsl(var(--primary) / 0.5), hsl(var(--gold) / 0.3), transparent 70%)',
-                  }}
+                <img 
+                  src={genZeeLogo} 
+                  alt="Gen-zee.store" 
+                  className="h-10 md:h-12 w-auto object-contain"
                 />
-
-                {/* Soft glitter particles */}
-                <div className="absolute -inset-2 overflow-hidden pointer-events-none">
-                  {[...Array(8)].map((_, i) => (
-                    <motion.span
-                      key={i}
-                      className="absolute w-1 h-1 rounded-full"
-                      style={{
-                        background: i % 2 === 0 ? 'hsl(var(--gold))' : 'hsl(var(--primary))',
-                        left: `${15 + (i * 10)}%`,
-                        top: `${20 + ((i % 3) * 25)}%`,
-                        boxShadow: `0 0 4px ${i % 2 === 0 ? 'hsl(var(--gold))' : 'hsl(var(--primary))'}`,
-                      }}
-                      animate={{
-                        opacity: [0.2, 0.8, 0.2],
-                        scale: [0.8, 1.2, 0.8],
-                      }}
-                      transition={{
-                        duration: 2 + (i * 0.3),
-                        repeat: Infinity,
-                        delay: i * 0.4,
-                        ease: 'easeInOut',
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {/* Inner gradient background */}
-                <motion.div
-                  className="absolute inset-0 rounded-xl opacity-20 group-hover:opacity-40 transition-opacity"
-                  style={{
-                    background: 'linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(var(--gold) / 0.2), hsl(var(--primary) / 0.3))',
-                  }}
-                />
-                
-                <motion.h1
-                  className="relative font-display text-xl md:text-2xl font-black tracking-wider"
-                  style={{ transformStyle: 'preserve-3d' }}
-                >
-                {/* Gen-zee with 3D letter animation */}
-                  <span className="relative inline-flex">
-                    {'Gen-zee'.split('').map((char, index) => (
-                      <motion.span
-                        key={index}
-                        className="inline-block relative"
-                        style={{
-                          background: 'linear-gradient(180deg, hsl(var(--foreground)) 0%, hsl(var(--gold)) 50%, hsl(var(--foreground)) 100%)',
-                          backgroundSize: '100% 300%',
-                          WebkitBackgroundClip: 'text',
-                          backgroundClip: 'text',
-                          color: 'transparent',
-                          textShadow: '0 2px 10px hsl(var(--gold) / 0.3)',
-                        }}
-                        animate={{
-                          backgroundPosition: ['0% 0%', '0% 100%', '0% 0%'],
-                        }}
-                        transition={{
-                          duration: 3,
-                          repeat: Infinity,
-                          delay: index * 0.15,
-                          ease: 'easeInOut',
-                        }}
-                        whileHover={{
-                          y: -5,
-                          scale: 1.2,
-                          rotateY: 15,
-                          transition: { duration: 0.2 },
-                        }}
-                      >
-                        {char}
-                      </motion.span>
-                    ))}
-                  </span>
-                  
-                  {/* Glowing dot - static */}
-                  <span className="relative inline-block mx-1">
-                    <span 
-                      className="relative text-primary font-black"
-                      style={{
-                        textShadow: '0 0 15px hsl(var(--primary)), 0 0 30px hsl(var(--primary))',
-                        filter: 'drop-shadow(0 0 6px hsl(var(--primary)))',
-                      }}
-                    >
-                      .
-                    </span>
-                  </span>
-                  
-                  {/* store with 3D letter animation */}
-                  <span className="relative inline-flex">
-                    {'store'.split('').map((char, index) => (
-                      <motion.span
-                        key={index}
-                        className="inline-block relative"
-                        style={{
-                          background: 'linear-gradient(180deg, hsl(var(--foreground)) 0%, hsl(var(--gold)) 50%, hsl(var(--foreground)) 100%)',
-                          backgroundSize: '100% 300%',
-                          WebkitBackgroundClip: 'text',
-                          backgroundClip: 'text',
-                          color: 'transparent',
-                          textShadow: '0 2px 10px hsl(var(--gold) / 0.3)',
-                        }}
-                        animate={{
-                          backgroundPosition: ['0% 0%', '0% 100%', '0% 0%'],
-                        }}
-                        transition={{
-                          duration: 3,
-                          repeat: Infinity,
-                          delay: (index + 6) * 0.15,
-                          ease: 'easeInOut',
-                        }}
-                        whileHover={{
-                          y: -5,
-                          scale: 1.2,
-                          rotateY: -15,
-                          transition: { duration: 0.2 },
-                        }}
-                      >
-                        {char}
-                      </motion.span>
-                    ))}
-                  </span>
-                </motion.h1>
-
-                {/* Shine sweep effect */}
-                <motion.div
-                  className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none"
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
-                >
-                  <motion.div
-                    className="absolute inset-0"
-                    style={{
-                      background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)',
-                      transform: 'translateX(-100%)',
-                    }}
-                    animate={{
-                      transform: ['translateX(-100%)', 'translateX(100%)'],
-                    }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      repeatDelay: 2,
-                      ease: 'easeInOut',
-                    }}
-                  />
-                </motion.div>
               </motion.div>
             </Link>
 
