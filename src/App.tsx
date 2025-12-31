@@ -1,3 +1,4 @@
+import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +10,7 @@ import { WishlistProvider } from "@/contexts/WishlistContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NewsletterProvider } from "@/contexts/NewsletterContext";
 import { TrackingScripts } from "@/components/TrackingScripts";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 import Index from "./pages/Index";
 import CategoryPage from "./pages/CategoryPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
@@ -55,7 +57,8 @@ const App = () => (
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
-                  <Routes>
+                  <Suspense fallback={<LoadingScreen />}>
+                    <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/category/:slug" element={<CategoryPage />} />
                     <Route path="/product/:id" element={<ProductDetailPage />} />
@@ -90,6 +93,7 @@ const App = () => (
                     <Route path="/admin/security" element={<AdminSecurityDashboard />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
+                  </Suspense>
                 </BrowserRouter>
               </TooltipProvider>
             </NewsletterProvider>
