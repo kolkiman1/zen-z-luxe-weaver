@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle, Loader2, Package, AlertCircle } from 'lucide-react';
 import Header from '@/components/layout/Header';
@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/button';
 import { SEOHead } from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/contexts/CartContext';
+import { toast } from 'sonner';
 
 const PaymentSuccessPage = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const sessionId = searchParams.get('session_id');
   const orderId = searchParams.get('order_id');
   const [verifying, setVerifying] = useState(true);
@@ -28,9 +30,13 @@ const PaymentSuccessPage = () => {
       }
 
       try {
+        console.log('Verifying payment with sessionId:', sessionId, 'orderId:', orderId);
+        
         const { data, error: invokeError } = await supabase.functions.invoke('verify-payment', {
           body: { sessionId, orderId },
         });
+
+        console.log('Verify payment response:', data, invokeError);
 
         if (invokeError) {
           throw new Error(invokeError.message);
@@ -52,10 +58,20 @@ const PaymentSuccessPage = () => {
               setOrderNumber(order.order_number);
             }
           }
+
+          // Show success toast and redirect to orders page after a delay
+          toast.success('Payment successful! Order confirmed.', {
+            description: 'Redirecting to your orders...',
+          });
+
+          setTimeout(() => {
+            navigate('/orders');
+          }, 3000);
         } else {
           setError('Payment was not completed');
         }
       } catch (err: any) {
+        console.error('Payment verification error:', err);
         setError(err.message || 'Failed to verify payment');
       } finally {
         setVerifying(false);
@@ -63,7 +79,7 @@ const PaymentSuccessPage = () => {
     };
 
     verifyPayment();
-  }, [sessionId, orderId, clearCart]);
+  }, [sessionId, orderId, clearCart, navigate]);
 
   return (
     <>
