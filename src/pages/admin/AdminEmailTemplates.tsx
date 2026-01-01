@@ -231,16 +231,40 @@ const AdminEmailTemplates = () => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const { error } = await supabase
+      // First check if the record exists
+      const { data: existing } = await supabase
         .from('site_settings')
-        .upsert({
-          key: currentTemplate.key,
-          value: {
-            subject: currentTemplate.subject,
-            template: currentTemplate.template,
-          },
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'key' });
+        .select('id')
+        .eq('key', currentTemplate.key)
+        .single();
+
+      let error;
+      if (existing) {
+        // Update existing record
+        const result = await supabase
+          .from('site_settings')
+          .update({
+            value: {
+              subject: currentTemplate.subject,
+              template: currentTemplate.template,
+            },
+            updated_at: new Date().toISOString(),
+          })
+          .eq('key', currentTemplate.key);
+        error = result.error;
+      } else {
+        // Insert new record
+        const result = await supabase
+          .from('site_settings')
+          .insert({
+            key: currentTemplate.key,
+            value: {
+              subject: currentTemplate.subject,
+              template: currentTemplate.template,
+            },
+          });
+        error = result.error;
+      }
 
       if (error) throw error;
 
@@ -252,7 +276,7 @@ const AdminEmailTemplates = () => {
       loadTemplates();
     } catch (error: any) {
       console.error('Error saving template:', error);
-      toast.error('Failed to save template');
+      toast.error('Failed to save template: ' + (error.message || 'Unknown error'));
     }
     setIsSaving(false);
   };

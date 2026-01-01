@@ -64,7 +64,7 @@ const ContactPage = () => {
 
       // Send email notification to support
       try {
-        await supabase.functions.invoke('support-notification', {
+        const { data: emailResult, error: emailError } = await supabase.functions.invoke('support-notification', {
           body: {
             name: validatedData.name,
             email: validatedData.email,
@@ -73,6 +73,12 @@ const ContactPage = () => {
             message: validatedData.message,
           },
         });
+        
+        if (emailError) {
+          console.error('Failed to send email notification:', emailError);
+        } else {
+          console.log('Email notification sent successfully:', emailResult);
+        }
       } catch (emailError) {
         console.error('Failed to send email notification:', emailError);
         // Don't fail the form submission if email fails
