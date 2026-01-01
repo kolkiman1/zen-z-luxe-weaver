@@ -49,15 +49,19 @@ const ContactPage = () => {
       const validatedData = contactSchema.parse(formData);
       setIsSubmitting(true);
 
-      // Save to database
+      // Get current user if logged in
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // Save to inquiries table (visible in admin panel)
       const { error } = await supabase
-        .from('contact_messages')
+        .from('inquiries')
         .insert({
           name: validatedData.name,
           email: validatedData.email,
-          phone: validatedData.phone || null,
           subject: validatedData.subject,
           message: validatedData.message,
+          user_id: user?.id || null,
+          status: 'pending',
         });
 
       if (error) throw error;
