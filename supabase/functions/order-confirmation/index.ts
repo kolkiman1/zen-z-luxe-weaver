@@ -198,8 +198,8 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Attempting to send order confirmation email to:", data.email);
     console.log("Order details:", { orderNumber: data.orderNumber, items: data.items?.length });
 
-    const emailResponse = await resend.emails.send({
-      from: "Gen-zee Store <noreply@gen-zee.store>",
+      const emailResponse = await resend.emails.send({
+        from: "Gen-zee Store <order-confirmation@gen-zee.store>",
       to: [data.email],
       subject: `Order Confirmed - ${data.orderNumber}`,
       html: emailHtml,
