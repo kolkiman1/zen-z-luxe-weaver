@@ -13,7 +13,8 @@ import {
   Megaphone,
   Activity,
   Search,
-  Shield
+  Shield,
+  Mail
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -32,6 +33,7 @@ const navItems = [
   { name: 'Security', href: '/admin/security', icon: Shield },
   { name: 'Marketing', href: '/admin/marketing', icon: Megaphone },
   { name: 'Inquiries', href: '/admin/inquiries', icon: MessageSquare },
+  { name: 'Email Templates', href: '/admin/email-templates', icon: Mail },
   { name: 'Admins', href: '/admin/users', icon: Users },
   { name: 'Announcements', href: '/admin/announcements', icon: Megaphone },
   { name: 'Activity Logs', href: '/admin/activity-logs', icon: Activity },

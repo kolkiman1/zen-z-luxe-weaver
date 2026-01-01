@@ -19,7 +19,9 @@ export type ActivityAction =
   | 'announcement_deleted'
   | 'campaign_created'
   | 'campaign_deleted'
-  | 'inquiry_updated';
+  | 'inquiry_updated'
+  | 'inquiry_replied'
+  | 'email_template_updated';
 
 export type TargetType = 
   | 'user'
@@ -28,7 +30,8 @@ export type TargetType =
   | 'discount'
   | 'announcement'
   | 'campaign'
-  | 'inquiry';
+  | 'inquiry'
+  | 'site_settings';
 
 // Actions that trigger email notifications
 const NOTIFY_ACTIONS: ActivityAction[] = [

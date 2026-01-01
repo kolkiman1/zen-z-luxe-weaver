@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { Search, Eye, MessageCircle } from 'lucide-react';
+import { Search, Eye, MessageCircle, Send, Loader2 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { useActivityLog } from '@/hooks/useActivityLog';
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 
 interface Inquiry {
@@ -53,6 +55,9 @@ const AdminInquiries = () => {
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [replyMessage, setReplyMessage] = useState('');
+  const [isSendingReply, setIsSendingReply] = useState(false);
+  const [activeTab, setActiveTab] = useState('details');
 
   const fetchInquiries = async () => {
     const { data, error } = await supabase
@@ -120,9 +125,51 @@ const AdminInquiries = () => {
     setIsUpdating(false);
   };
 
+  const handleSendReply = async () => {
+    if (!selectedInquiry || !replyMessage.trim()) {
+      toast.error('Please enter a reply message');
+      return;
+    }
+
+    setIsSendingReply(true);
+    try {
+      const { error } = await supabase.functions.invoke('inquiry-reply', {
+        body: {
+          inquiryId: selectedInquiry.id,
+          customerName: selectedInquiry.name,
+          customerEmail: selectedInquiry.email,
+          originalSubject: selectedInquiry.subject,
+          replyMessage: replyMessage.trim(),
+        },
+      });
+
+      if (error) throw error;
+
+      await logActivity('inquiry_replied', 'inquiry', selectedInquiry.id, {
+        subject: selectedInquiry.subject,
+        customer_email: selectedInquiry.email,
+      });
+
+      // Auto-update status to in_progress if pending
+      if (selectedInquiry.status === 'pending') {
+        await handleStatusChange(selectedInquiry.id, 'in_progress');
+      }
+
+      toast.success('Reply sent successfully!');
+      setReplyMessage('');
+      setActiveTab('details');
+    } catch (error: any) {
+      console.error('Error sending reply:', error);
+      toast.error('Failed to send reply: ' + (error.message || 'Unknown error'));
+    }
+    setIsSendingReply(false);
+  };
+
   const openInquiry = (inquiry: Inquiry) => {
     setSelectedInquiry(inquiry);
     setAdminNotes(inquiry.admin_notes || '');
+    setReplyMessage('');
+    setActiveTab('details');
   };
 
   const filteredInquiries = inquiries.filter(i =>
@@ -236,71 +283,137 @@ const AdminInquiries = () => {
 
         {/* Inquiry Details Dialog */}
         <Dialog open={!!selectedInquiry} onOpenChange={() => setSelectedInquiry(null)}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Inquiry Details</DialogTitle>
             </DialogHeader>
 
             {selectedInquiry && (
-              <div className="space-y-6">
-                {/* Customer Info */}
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Name</p>
-                    <p className="font-medium">{selectedInquiry.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Email</p>
-                    <a href={`mailto:${selectedInquiry.email}`} className="text-primary hover:underline">
-                      {selectedInquiry.email}
-                    </a>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Date</p>
-                    <p>{new Date(selectedInquiry.created_at).toLocaleString()}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Status</p>
-                    <Badge className={statusColors[selectedInquiry.status]}>
-                      {selectedInquiry.status.replace('_', ' ')}
-                    </Badge>
-                  </div>
-                </div>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="details">Details & Notes</TabsTrigger>
+                  <TabsTrigger value="reply" className="gap-2">
+                    <Send size={14} />
+                    Reply to Customer
+                  </TabsTrigger>
+                </TabsList>
 
-                {/* Subject & Message */}
-                <div>
-                  <p className="text-muted-foreground text-sm mb-1">Subject</p>
-                  <p className="font-medium">{selectedInquiry.subject}</p>
-                </div>
-
-                <div>
-                  <p className="text-muted-foreground text-sm mb-1">Message</p>
-                  <div className="p-4 bg-secondary/50 rounded-lg">
-                    <p className="whitespace-pre-wrap">{selectedInquiry.message}</p>
+                <TabsContent value="details" className="space-y-6 mt-4">
+                  {/* Customer Info */}
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Name</p>
+                      <p className="font-medium">{selectedInquiry.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Email</p>
+                      <a href={`mailto:${selectedInquiry.email}`} className="text-primary hover:underline">
+                        {selectedInquiry.email}
+                      </a>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Date</p>
+                      <p>{new Date(selectedInquiry.created_at).toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Status</p>
+                      <Badge className={statusColors[selectedInquiry.status]}>
+                        {selectedInquiry.status.replace('_', ' ')}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
 
-                {/* Admin Notes */}
-                <div>
-                  <p className="text-muted-foreground text-sm mb-1">Admin Notes</p>
-                  <Textarea
-                    value={adminNotes}
-                    onChange={(e) => setAdminNotes(e.target.value)}
-                    placeholder="Add internal notes about this inquiry..."
-                    rows={3}
-                  />
-                </div>
-              </div>
+                  {/* Subject & Message */}
+                  <div>
+                    <p className="text-muted-foreground text-sm mb-1">Subject</p>
+                    <p className="font-medium">{selectedInquiry.subject}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-muted-foreground text-sm mb-1">Message</p>
+                    <div className="p-4 bg-secondary/50 rounded-lg">
+                      <p className="whitespace-pre-wrap">{selectedInquiry.message}</p>
+                    </div>
+                  </div>
+
+                  {/* Admin Notes */}
+                  <div>
+                    <Label>Admin Notes (Internal)</Label>
+                    <Textarea
+                      value={adminNotes}
+                      onChange={(e) => setAdminNotes(e.target.value)}
+                      placeholder="Add internal notes about this inquiry..."
+                      rows={3}
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setSelectedInquiry(null)}>
+                      Close
+                    </Button>
+                    <Button onClick={handleSaveNotes} disabled={isUpdating} className="btn-primary">
+                      Save Notes
+                    </Button>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="reply" className="space-y-6 mt-4">
+                  {/* Reply context */}
+                  <div className="p-4 bg-secondary/30 rounded-lg border border-border">
+                    <p className="text-sm text-muted-foreground mb-1">Replying to:</p>
+                    <p className="font-medium">{selectedInquiry.name} ({selectedInquiry.email})</p>
+                    <p className="text-sm text-muted-foreground mt-2">Subject: {selectedInquiry.subject}</p>
+                  </div>
+
+                  {/* Original message reference */}
+                  <div>
+                    <Label className="text-muted-foreground">Original Message</Label>
+                    <div className="p-3 bg-secondary/50 rounded-lg mt-1 max-h-32 overflow-y-auto">
+                      <p className="text-sm whitespace-pre-wrap">{selectedInquiry.message}</p>
+                    </div>
+                  </div>
+
+                  {/* Reply textarea */}
+                  <div>
+                    <Label>Your Reply</Label>
+                    <Textarea
+                      value={replyMessage}
+                      onChange={(e) => setReplyMessage(e.target.value)}
+                      placeholder="Type your reply to the customer..."
+                      rows={6}
+                      className="mt-1"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      This reply will be sent from support@gen-zee.store
+                    </p>
+                  </div>
+
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setActiveTab('details')}>
+                      Back
+                    </Button>
+                    <Button 
+                      onClick={handleSendReply} 
+                      disabled={isSendingReply || !replyMessage.trim()} 
+                      className="btn-primary gap-2"
+                    >
+                      {isSendingReply ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send size={16} />
+                          Send Reply
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </TabsContent>
+              </Tabs>
             )}
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setSelectedInquiry(null)}>
-                Close
-              </Button>
-              <Button onClick={handleSaveNotes} disabled={isUpdating} className="btn-primary">
-                Save Notes
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
       </AdminLayout>
