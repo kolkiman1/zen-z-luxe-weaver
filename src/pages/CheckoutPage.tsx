@@ -177,7 +177,7 @@ const CheckoutPage = () => {
         paymentNotes = 'Card payment - Processing via Stripe';
       }
 
-      // Create the order
+      // Create the order (always start with pending status)
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -190,7 +190,7 @@ const CheckoutPage = () => {
           shipping_postal_code: formData.postalCode,
           payment_method: paymentMethod,
           notes: paymentNotes,
-          status: paymentMethod === 'card' ? 'awaiting_payment' : 'pending',
+          status: 'pending',
         })
         .select()
         .single();
