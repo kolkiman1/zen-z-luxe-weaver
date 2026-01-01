@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.order-cancellation]
 verify_jwt = false
+
+[functions.support-notification]
+verify_jwt = false

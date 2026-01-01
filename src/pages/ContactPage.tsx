@@ -49,6 +49,7 @@ const ContactPage = () => {
       const validatedData = contactSchema.parse(formData);
       setIsSubmitting(true);
 
+      // Save to database
       const { error } = await supabase
         .from('contact_messages')
         .insert({
@@ -60,6 +61,22 @@ const ContactPage = () => {
         });
 
       if (error) throw error;
+
+      // Send email notification to support
+      try {
+        await supabase.functions.invoke('support-notification', {
+          body: {
+            name: validatedData.name,
+            email: validatedData.email,
+            phone: validatedData.phone || null,
+            subject: validatedData.subject,
+            message: validatedData.message,
+          },
+        });
+      } catch (emailError) {
+        console.error('Failed to send email notification:', emailError);
+        // Don't fail the form submission if email fails
+      }
 
       setIsSubmitted(true);
       toast.success('Message sent successfully!', {
