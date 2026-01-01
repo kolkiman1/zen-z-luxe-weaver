@@ -31,6 +31,7 @@ const SizeGuidePage = lazy(() => import("./pages/SizeGuidePage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
+const PaymentSuccessPage = lazy(() => import("./pages/PaymentSuccessPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Admin pages
@@ -70,6 +71,7 @@ const App = () => (
                       <Route path="/product/:id" element={<ProductDetailPage />} />
                       <Route path="/wishlist" element={<WishlistPage />} />
                       <Route path="/checkout" element={<CheckoutPage />} />
+                      <Route path="/payment-success" element={<PaymentSuccessPage />} />
                       <Route path="/auth" element={<AuthPage />} />
                       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                       <Route path="/orders" element={<OrdersPage />} />

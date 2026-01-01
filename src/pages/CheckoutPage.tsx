@@ -173,6 +173,8 @@ const CheckoutPage = () => {
         paymentNotes = `COD - Advance: ${formatPrice(codAdvancePayment)}, Remaining: ${formatPrice(codRemainingPayment)}`;
       } else if (paymentMethod === 'bkash' || paymentMethod === 'nagad') {
         paymentNotes = `${paymentMethod.toUpperCase()} - TxID: ${transactionId}, From: ${mobilePaymentNumber}`;
+      } else if (paymentMethod === 'card') {
+        paymentNotes = 'Card payment - Processing via Stripe';
       }
 
       // Create the order
@@ -188,7 +190,7 @@ const CheckoutPage = () => {
           shipping_postal_code: formData.postalCode,
           payment_method: paymentMethod,
           notes: paymentNotes,
-          status: 'pending',
+          status: paymentMethod === 'card' ? 'awaiting_payment' : 'pending',
         })
         .select()
         .single();
@@ -213,7 +215,54 @@ const CheckoutPage = () => {
 
       if (itemsError) throw itemsError;
 
-      // Send order confirmation email
+      // If card payment, redirect to Stripe Checkout
+      if (paymentMethod === 'card') {
+        toast.loading('Redirecting to secure payment...', { id: 'stripe-redirect' });
+        
+        try {
+          const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('create-checkout-session', {
+            body: {
+              items: items.map(item => ({
+                productId: item.product.id,
+                name: item.product.name,
+                price: item.product.price,
+                quantity: item.quantity,
+                size: item.selectedSize || null,
+                color: item.selectedColor?.name || null,
+                image: item.product.images[0],
+              })),
+              shippingCost,
+              discountAmount,
+              orderId: order.id,
+              customerName: `${formData.firstName} ${formData.lastName}`.trim(),
+              shippingAddress: formData.address,
+              shippingCity: formData.city,
+              shippingPostalCode: formData.postalCode,
+            },
+          });
+
+          if (checkoutError) {
+            throw new Error(checkoutError.message || 'Failed to create checkout session');
+          }
+
+          if (checkoutData?.url) {
+            toast.dismiss('stripe-redirect');
+            // Redirect to Stripe Checkout
+            window.location.href = checkoutData.url;
+            return;
+          } else {
+            throw new Error('No checkout URL received');
+          }
+        } catch (stripeError: any) {
+          toast.dismiss('stripe-redirect');
+          // Delete the order if Stripe checkout fails
+          await supabase.from('order_items').delete().eq('order_id', order.id);
+          await supabase.from('orders').delete().eq('id', order.id);
+          throw new Error(`Payment initialization failed: ${stripeError.message}`);
+        }
+      }
+
+      // For non-card payments, send confirmation email
       try {
         console.log('Sending order confirmation email to:', formData.email);
         const emailPayload = {
