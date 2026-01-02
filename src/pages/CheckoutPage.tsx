@@ -236,6 +236,19 @@ const CheckoutPage = () => {
     setIsSubmitting(true);
 
     try {
+      // Update user profile with checkout info (phone, address, city, postal code)
+      await supabase
+        .from('profiles')
+        .update({
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          postal_code: formData.postalCode,
+          full_name: `${formData.firstName} ${formData.lastName}`.trim() || profile?.full_name,
+          email: formData.email,
+        })
+        .eq('user_id', user.id);
+
       // Build payment notes
       let paymentNotes = `Cash on Delivery - ${isDhakaCustomer ? 'Dhaka' : 'Outside Dhaka'}`;
       if (isDhakaCustomer) {
