@@ -37,6 +37,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 // Admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
+const AdminInventory = lazy(() => import("./pages/admin/AdminInventory"));
 const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
 const AdminInquiries = lazy(() => import("./pages/admin/AdminInquiries"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
@@ -90,6 +91,8 @@ const App = () => (
                       {/* Admin Routes */}
                       <Route path="/admin" element={<AdminDashboard />} />
                       <Route path="/admin/products" element={<AdminProducts />} />
+                      <Route path="/admin/inventory" element={<AdminInventory />} />
+                      <Route path="/admin/orders" element={<AdminOrders />} />
                       <Route path="/admin/orders" element={<AdminOrders />} />
                       <Route path="/admin/customers" element={<AdminCustomers />} />
                       <Route path="/admin/analytics" element={<AdminAnalytics />} />
