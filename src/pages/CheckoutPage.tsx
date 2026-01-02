@@ -157,6 +157,20 @@ const CheckoutPage = () => {
     }));
   };
 
+  // Validate Bangladesh phone number (must be 11 digits starting with 01)
+  const isValidBDPhone = (phone: string) => {
+    const cleaned = phone.replace(/[\s\-\+]/g, '');
+    // Accept formats: 01XXXXXXXXX, +8801XXXXXXXXX, 8801XXXXXXXXX
+    const bdPhoneRegex = /^(?:\+?880)?0?1[3-9]\d{8}$/;
+    return bdPhoneRegex.test(cleaned);
+  };
+
+  // Validate address (minimum 10 characters with at least some detail)
+  const isValidAddress = (address: string) => {
+    const trimmed = address.trim();
+    return trimmed.length >= 10;
+  };
+
   const validateShippingStep = () => {
     if (!formData.firstName.trim()) {
       toast.error('Please enter your first name');
@@ -166,8 +180,16 @@ const CheckoutPage = () => {
       toast.error('Please enter your phone number');
       return false;
     }
+    if (!isValidBDPhone(formData.phone)) {
+      toast.error('Please enter a valid Bangladesh phone number (e.g., 01XXX-XXXXXX)');
+      return false;
+    }
     if (!formData.address.trim()) {
       toast.error('Please enter your address');
+      return false;
+    }
+    if (!isValidAddress(formData.address)) {
+      toast.error('Please enter a complete address (at least 10 characters with house/road details)');
       return false;
     }
     if (!formData.city.trim()) {

@@ -627,7 +627,7 @@ const AdminOrders = () => {
                     <User size={16} className="text-primary" />
                     Customer Details
                   </h4>
-                  {loadingCustomer ? (
+                {loadingCustomer ? (
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-primary"></div>
                       Loading customer info...
@@ -641,23 +641,66 @@ const AdminOrders = () => {
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wider">Email</p>
-                          <p className="font-medium">{customerInfo.email || 'N/A'}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium">{customerInfo.email || 'N/A'}</p>
+                            {customerInfo.email && (
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(customerInfo.email || '');
+                                  toast.success('Email copied!');
+                                }}
+                                className="p-1 hover:bg-secondary rounded transition-colors"
+                                title="Copy email"
+                              >
+                                <Copy size={14} className="text-muted-foreground hover:text-foreground" />
+                              </button>
+                            )}
+                          </div>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wider">Phone</p>
-                          <p className="font-medium">{customerInfo.phone || 'N/A'}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium">{customerInfo.phone || 'N/A'}</p>
+                            {customerInfo.phone && (
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(customerInfo.phone || '');
+                                  toast.success('Phone copied!');
+                                }}
+                                className="p-1 hover:bg-secondary rounded transition-colors"
+                                title="Copy phone"
+                              >
+                                <Copy size={14} className="text-muted-foreground hover:text-foreground" />
+                              </button>
+                            )}
+                          </div>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wider">Profile Address</p>
-                          <p className="text-sm text-muted-foreground">
-                            {customerInfo.address ? (
-                              <>
-                                {customerInfo.address}
-                                {customerInfo.city && `, ${customerInfo.city}`}
-                                {customerInfo.postal_code && ` - ${customerInfo.postal_code}`}
-                              </>
-                            ) : 'Not set in profile'}
-                          </p>
+                          <div className="flex items-start gap-2">
+                            <p className="text-sm text-muted-foreground">
+                              {customerInfo.address ? (
+                                <>
+                                  {customerInfo.address}
+                                  {customerInfo.city && `, ${customerInfo.city}`}
+                                  {customerInfo.postal_code && ` - ${customerInfo.postal_code}`}
+                                </>
+                              ) : 'Not set in profile'}
+                            </p>
+                            {customerInfo.address && (
+                              <button
+                                onClick={() => {
+                                  const fullAddress = `${customerInfo.address}${customerInfo.city ? `, ${customerInfo.city}` : ''}${customerInfo.postal_code ? ` - ${customerInfo.postal_code}` : ''}`;
+                                  navigator.clipboard.writeText(fullAddress);
+                                  toast.success('Address copied!');
+                                }}
+                                className="p-1 hover:bg-secondary rounded transition-colors shrink-0"
+                                title="Copy address"
+                              >
+                                <Copy size={14} className="text-muted-foreground hover:text-foreground" />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                       
