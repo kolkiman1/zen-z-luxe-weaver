@@ -227,7 +227,8 @@ const Footer = () => {
                   </div>
                   <div>
                     <span className="text-xs text-muted-foreground/70 uppercase tracking-wider">Address</span>
-                    <p className="text-sm text-foreground mt-0.5">Gulshan-2, Dhaka 1212, Bangladesh</p>
+                    <p className="text-sm text-foreground mt-0.5">House No 308, North Badda</p>
+                    <p className="text-sm text-foreground">Dhaka 1212, Bangladesh</p>
                   </div>
                 </motion.div>
               </li>
@@ -241,7 +242,7 @@ const Footer = () => {
                   </div>
                   <div>
                     <span className="text-xs text-muted-foreground/70 uppercase tracking-wider">Phone</span>
-                    <p className="text-sm text-foreground mt-0.5">+880 1XXX-XXXXXX</p>
+                    <p className="text-sm text-foreground mt-0.5">+880 9638-079704</p>
                   </div>
                 </motion.div>
               </li>
@@ -255,7 +256,7 @@ const Footer = () => {
                   </div>
                   <div>
                     <span className="text-xs text-muted-foreground/70 uppercase tracking-wider">Email</span>
-                    <p className="text-sm text-foreground mt-0.5">hello@gen-zee.store</p>
+                    <p className="text-sm text-foreground mt-0.5">support@gen-zee.store</p>
                   </div>
                 </motion.div>
               </li>

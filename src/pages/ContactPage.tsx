@@ -115,17 +115,17 @@ const ContactPage = () => {
     {
       icon: MapPin,
       title: 'Visit Us',
-      details: ['Gulshan-2, Dhaka 1212', 'Bangladesh'],
+      details: ['House No 308, North Badda', 'Dhaka 1212, Bangladesh'],
     },
     {
       icon: Phone,
       title: 'Call Us',
-      details: ['+880 1XXX-XXXXXX', '+880 1XXX-XXXXXX'],
+      details: ['+880 9638-079704'],
     },
     {
       icon: Mail,
       title: 'Email Us',
-      details: ['hello@gen-zee.store', 'support@gen-zee.store'],
+      details: ['support@gen-zee.store'],
     },
     {
       icon: Clock,
@@ -311,7 +311,7 @@ const ContactPage = () => {
                 ))}
               </div>
 
-              {/* Map Placeholder */}
+              {/* Map */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -319,14 +319,14 @@ const ContactPage = () => {
                 className="glass rounded-xl p-1 aspect-video overflow-hidden"
               >
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.2503089555854!2d90.41475281543158!3d23.781498993855!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c7a0f70deb73%3A0x30c36498f90fe023!2sGulshan%202%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1640000000000!5m2!1sen!2sbd"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.5247891892513!2d90.4175!3d23.7740!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c7b5c9cb4d6d%3A0x4e76f5c5e7e5e5e5!2sNorth%20Badda%2C%20Dhaka%201212!5e0!3m2!1sen!2sbd!4v1640000000000!5m2!1sen!2sbd"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Store Location"
+                  title="Store Location - North Badda, Dhaka"
                   className="rounded-lg"
                 />
               </motion.div>
