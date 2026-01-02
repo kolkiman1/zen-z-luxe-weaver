@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import AdminOrderNotifications from './AdminOrderNotifications';
+import AdminNotificationSettings from './AdminNotificationSettings';
 
 interface NavItem {
   name: string;
@@ -65,6 +66,7 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [notificationSettingsOpen, setNotificationSettingsOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -243,7 +245,12 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
           <div className="flex items-center gap-4">
             {/* Notification Bell */}
             <div className="relative">
-              <Button variant="ghost" size="icon" className="relative hover:bg-secondary/80">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative hover:bg-secondary/80"
+                onClick={() => setNotificationSettingsOpen(true)}
+              >
                 <Bell size={20} />
                 {totalNotifications > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center animate-pulse">
@@ -281,6 +288,12 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
 
         {/* Order Notifications */}
         <AdminOrderNotifications />
+        
+        {/* Notification Settings Dialog */}
+        <AdminNotificationSettings 
+          open={notificationSettingsOpen} 
+          onOpenChange={setNotificationSettingsOpen} 
+        />
       </div>
     </div>
   );

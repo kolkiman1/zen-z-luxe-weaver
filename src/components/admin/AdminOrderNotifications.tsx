@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdmin } from '@/hooks/useAdmin';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { formatPrice } from '@/lib/data';
 import { toast } from 'sonner';
 import { Bell, Package, X, MessageCircle, Settings, Phone, Send, CheckCircle } from 'lucide-react';
@@ -156,6 +157,7 @@ const sendWhatsAppMessage = async (
 
 const AdminOrderNotifications = () => {
   const { isAdmin, loading } = useAdmin();
+  const { showNotification, isEnabled } = usePushNotifications();
   const [notifications, setNotifications] = useState<OrderNotification[]>([]);
   const [showPanel, setShowPanel] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -197,6 +199,15 @@ const AdminOrderNotifications = () => {
               },
             },
           });
+
+          // Show browser push notification
+          if (isEnabled) {
+            showNotification(
+              '🛒 New Order Received!',
+              `Order from ${newOrder.shipping_city} - ${formatPrice(Number(newOrder.total_amount))}`,
+              { url: '/admin/orders' }
+            );
+          }
 
           // Play notification sound
           if (audioRef.current) {
