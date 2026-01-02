@@ -12,12 +12,13 @@ import {
   ArrowLeft,
   MapPin,
   CreditCard,
-  XCircle
+  XCircle,
+  PackageCheck,
+  ShieldCheck
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
-
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +48,7 @@ interface OrderItem {
 
 interface Order {
   id: string;
+  order_number: string | null;
   status: string;
   total_amount: number;
   created_at: string;
@@ -59,13 +61,28 @@ interface Order {
   order_items: OrderItem[];
 }
 
-const orderStatuses = ['pending', 'processing', 'shipped', 'delivered'];
+interface TimelineEvent {
+  status: string;
+  label: string;
+  description: string;
+  icon: React.ElementType;
+  timestamp: string | null;
+  isCompleted: boolean;
+  isCurrent: boolean;
+}
+
+const orderStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'];
 
 const statusInfo: Record<string, { icon: React.ElementType; label: string; description: string }> = {
   pending: { 
     icon: Clock, 
     label: 'Order Placed', 
     description: 'Your order has been received and is awaiting confirmation' 
+  },
+  confirmed: { 
+    icon: ShieldCheck, 
+    label: 'Order Confirmed', 
+    description: 'Your order has been confirmed by our team' 
   },
   processing: { 
     icon: Package, 
@@ -78,18 +95,19 @@ const statusInfo: Record<string, { icon: React.ElementType; label: string; descr
     description: 'Your order is on its way to you' 
   },
   delivered: { 
-    icon: Home, 
+    icon: PackageCheck, 
     label: 'Delivered', 
     description: 'Your order has been delivered successfully' 
   },
 };
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-yellow-500/20 text-yellow-500',
-  processing: 'bg-blue-500/20 text-blue-500',
-  shipped: 'bg-purple-500/20 text-purple-500',
-  delivered: 'bg-green-500/20 text-green-500',
-  cancelled: 'bg-red-500/20 text-red-500',
+  pending: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30',
+  confirmed: 'bg-emerald-500/20 text-emerald-500 border-emerald-500/30',
+  processing: 'bg-blue-500/20 text-blue-500 border-blue-500/30',
+  shipped: 'bg-purple-500/20 text-purple-500 border-purple-500/30',
+  delivered: 'bg-green-500/20 text-green-500 border-green-500/30',
+  cancelled: 'bg-red-500/20 text-red-500 border-red-500/30',
 };
 
 const OrderTrackingPage = () => {
@@ -134,6 +152,30 @@ const OrderTrackingPage = () => {
     if (user && orderId) {
       fetchOrder();
     }
+
+    // Set up realtime subscription for order updates
+    if (user && orderId) {
+      const channel = supabase
+        .channel(`order-${orderId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'orders',
+            filter: `id=eq.${orderId}`
+          },
+          (payload) => {
+            setOrder(prev => prev ? { ...prev, ...payload.new } : null);
+            toast.success('Order status updated!');
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, [user, orderId]);
 
   const getCurrentStatusIndex = () => {
@@ -148,6 +190,7 @@ const OrderTrackingPage = () => {
       card: 'Card Payment',
       bkash: 'bKash',
       nagad: 'Nagad',
+      rocket: 'Rocket',
     };
     return labels[method] || method;
   };
@@ -169,6 +212,30 @@ const OrderTrackingPage = () => {
       toast.success('Order cancelled successfully');
     }
     setCancelling(false);
+  };
+
+  const getTimelineEvents = (): TimelineEvent[] => {
+    if (!order) return [];
+    const currentIndex = getCurrentStatusIndex();
+    
+    return orderStatuses.map((status, index) => ({
+      status,
+      label: statusInfo[status].label,
+      description: statusInfo[status].description,
+      icon: statusInfo[status].icon,
+      timestamp: index <= currentIndex ? order.updated_at : null,
+      isCompleted: index < currentIndex,
+      isCurrent: index === currentIndex,
+    }));
+  };
+
+  const getEstimatedDelivery = () => {
+    if (!order) return null;
+    const orderDate = new Date(order.created_at);
+    const isDhaka = order.shipping_city.toLowerCase().includes('dhaka');
+    const daysToAdd = isDhaka ? 3 : 5;
+    orderDate.setDate(orderDate.getDate() + daysToAdd);
+    return orderDate;
   };
 
   if (authLoading || loading) {
@@ -203,18 +270,20 @@ const OrderTrackingPage = () => {
   }
 
   const currentStatusIndex = getCurrentStatusIndex();
+  const timelineEvents = getTimelineEvents();
+  const estimatedDelivery = getEstimatedDelivery();
 
   return (
     <>
       <SEOHead
-        title={`Track Order #${order.id.slice(0, 8).toUpperCase()}`}
+        title={`Track Order ${order.order_number || `#${order.id.slice(0, 8).toUpperCase()}`}`}
         description="Track your order status and delivery progress."
         noIndex={true}
       />
 
       <Header />
 
-      <main className="pt-24 pb-16 min-h-screen">
+      <main className="pt-24 pb-16 min-h-screen bg-background">
         <div className="container-luxury">
           {/* Back Button */}
           <Link to="/orders" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors">
@@ -227,120 +296,219 @@ const OrderTrackingPage = () => {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-8"
           >
-            {/* Order Header */}
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <h1 className="font-display text-2xl md:text-3xl mb-1">
-                  Order #{order.id.slice(0, 8).toUpperCase()}
-                </h1>
-                <p className="text-muted-foreground">
-                  Placed on {new Date(order.created_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </p>
+            {/* Order Header with Status Card */}
+            <div className="bg-card rounded-2xl border border-border p-6 md:p-8 shadow-sm">
+              <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
+                <div>
+                  <h1 className="font-display text-2xl md:text-3xl mb-1">
+                    Order {order.order_number || `#${order.id.slice(0, 8).toUpperCase()}`}
+                  </h1>
+                  <p className="text-muted-foreground">
+                    Placed on {new Date(order.created_at).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Badge className={`text-sm px-4 py-2 border ${statusColors[order.status]}`}>
+                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                  </Badge>
+                  {order.status === 'pending' && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm" disabled={cancelling}>
+                          <XCircle size={16} className="mr-1" />
+                          Cancel
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Cancel this order?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. Your order will be cancelled and you will not receive the items.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Keep Order</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleCancelOrder} disabled={cancelling}>
+                            {cancelling ? 'Cancelling...' : 'Yes, Cancel Order'}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <Badge className={`text-sm px-4 py-1.5 ${statusColors[order.status]}`}>
-                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                </Badge>
-                {order.status === 'pending' && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm" disabled={cancelling}>
-                        <XCircle size={16} className="mr-1" />
-                        Cancel Order
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Cancel this order?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. Your order will be cancelled and you will not receive the items.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Keep Order</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleCancelOrder} disabled={cancelling}>
-                          {cancelling ? 'Cancelling...' : 'Yes, Cancel Order'}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
-              </div>
+
+              {/* Estimated Delivery */}
+              {order.status !== 'cancelled' && order.status !== 'delivered' && estimatedDelivery && (
+                <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Truck className="text-primary" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Estimated Delivery</p>
+                    <p className="font-display text-lg text-foreground">
+                      {estimatedDelivery.toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Status Tracker */}
+            {/* Timeline Tracker */}
             {order.status !== 'cancelled' ? (
-              <div className="bg-card rounded-xl border border-border p-6 md:p-8">
-                <h2 className="font-display text-xl mb-6">Order Progress</h2>
+              <div className="bg-card rounded-2xl border border-border p-6 md:p-8 shadow-sm">
+                <h2 className="font-display text-xl mb-8">Order Timeline</h2>
+                
+                {/* Vertical Timeline for Mobile, Horizontal for Desktop */}
                 <div className="relative">
-                  {/* Progress Line */}
-                  <div className="absolute top-6 left-6 right-6 h-0.5 bg-border hidden md:block" />
-                  <div 
-                    className="absolute top-6 left-6 h-0.5 bg-primary hidden md:block transition-all duration-500"
-                    style={{ width: `calc(${(currentStatusIndex / (orderStatuses.length - 1)) * 100}% - 48px)` }}
-                  />
+                  {/* Desktop Horizontal Timeline */}
+                  <div className="hidden md:block">
+                    {/* Progress Line Background */}
+                    <div className="absolute top-8 left-8 right-8 h-1 bg-muted rounded-full" />
+                    {/* Progress Line Active */}
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `calc(${(currentStatusIndex / (orderStatuses.length - 1)) * 100}% - 64px)` }}
+                      transition={{ duration: 0.8, ease: 'easeOut' }}
+                      className="absolute top-8 left-8 h-1 bg-primary rounded-full"
+                    />
 
-                  {/* Status Steps */}
-                  <div className="grid md:grid-cols-4 gap-6">
-                    {orderStatuses.map((status, index) => {
-                      const StatusIcon = statusInfo[status].icon;
-                      const isCompleted = index <= currentStatusIndex;
-                      const isCurrent = index === currentStatusIndex;
-
-                      return (
-                        <motion.div
-                          key={status}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="relative flex md:flex-col items-start md:items-center gap-4 md:gap-2"
-                        >
-                          <div 
-                            className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-                              isCompleted 
-                                ? 'bg-primary text-primary-foreground' 
-                                : 'bg-muted text-muted-foreground'
-                            }`}
+                    <div className="grid grid-cols-5 gap-4">
+                      {timelineEvents.map((event, index) => {
+                        const StatusIcon = event.icon;
+                        return (
+                          <motion.div
+                            key={event.status}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="flex flex-col items-center text-center"
                           >
-                            {isCompleted && index < currentStatusIndex ? (
-                              <CheckCircle2 size={24} />
-                            ) : (
-                              <StatusIcon size={24} />
-                            )}
-                          </div>
-                          <div className="flex-1 md:text-center">
-                            <p className={`font-medium ${isCurrent ? 'text-primary' : isCompleted ? 'text-foreground' : 'text-muted-foreground'}`}>
-                              {statusInfo[status].label}
-                            </p>
-                            <p className="text-sm text-muted-foreground mt-1 hidden md:block">
-                              {statusInfo[status].description}
-                            </p>
-                          </div>
-                        </motion.div>
-                      );
-                    })}
+                            <motion.div 
+                              initial={{ scale: 0.8 }}
+                              animate={{ scale: event.isCurrent ? 1.1 : 1 }}
+                              className={`relative z-10 w-16 h-16 rounded-full flex items-center justify-center border-4 transition-all duration-300 ${
+                                event.isCompleted || event.isCurrent
+                                  ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30' 
+                                  : 'bg-card border-muted text-muted-foreground'
+                              }`}
+                            >
+                              {event.isCompleted ? (
+                                <CheckCircle2 size={28} />
+                              ) : (
+                                <StatusIcon size={28} />
+                              )}
+                              {event.isCurrent && (
+                                <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-card animate-pulse" />
+                              )}
+                            </motion.div>
+                            <div className="mt-4">
+                              <p className={`font-medium text-sm ${
+                                event.isCurrent ? 'text-primary' : event.isCompleted ? 'text-foreground' : 'text-muted-foreground'
+                              }`}>
+                                {event.label}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1 max-w-[120px]">
+                                {event.description}
+                              </p>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Mobile Vertical Timeline */}
+                  <div className="md:hidden">
+                    <div className="relative pl-8">
+                      {/* Vertical Line */}
+                      <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-muted" />
+                      <motion.div 
+                        initial={{ height: 0 }}
+                        animate={{ height: `${(currentStatusIndex / (orderStatuses.length - 1)) * 100}%` }}
+                        transition={{ duration: 0.8, ease: 'easeOut' }}
+                        className="absolute left-3 top-0 w-0.5 bg-primary"
+                      />
+
+                      <div className="space-y-8">
+                        {timelineEvents.map((event, index) => {
+                          const StatusIcon = event.icon;
+                          return (
+                            <motion.div
+                              key={event.status}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              className="relative flex gap-4"
+                            >
+                              <div 
+                                className={`absolute -left-5 w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
+                                  event.isCompleted || event.isCurrent
+                                    ? 'bg-primary border-primary text-primary-foreground' 
+                                    : 'bg-card border-muted text-muted-foreground'
+                                }`}
+                              >
+                                {event.isCompleted ? (
+                                  <CheckCircle2 size={20} />
+                                ) : (
+                                  <StatusIcon size={20} />
+                                )}
+                              </div>
+                              <div className="flex-1 pb-2">
+                                <p className={`font-medium ${
+                                  event.isCurrent ? 'text-primary' : event.isCompleted ? 'text-foreground' : 'text-muted-foreground'
+                                }`}>
+                                  {event.label}
+                                </p>
+                                <p className="text-sm text-muted-foreground mt-0.5">
+                                  {event.description}
+                                </p>
+                                {event.isCurrent && (
+                                  <span className="inline-flex items-center gap-1 mt-2 text-xs text-primary bg-primary/10 px-2 py-1 rounded-full">
+                                    <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                                    Current Status
+                                  </span>
+                                )}
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-6 text-center">
-                <p className="text-destructive font-medium">This order has been cancelled</p>
+              <div className="bg-destructive/10 border border-destructive/20 rounded-2xl p-8 text-center">
+                <XCircle size={48} className="mx-auto text-destructive mb-4" />
+                <p className="text-destructive font-display text-xl">This order has been cancelled</p>
+                <p className="text-muted-foreground mt-2">If you have any questions, please contact our support team.</p>
               </div>
             )}
 
             <div className="grid lg:grid-cols-3 gap-6">
               {/* Order Items */}
-              <div className="lg:col-span-2 bg-card rounded-xl border border-border p-6">
-                <h2 className="font-display text-xl mb-4">Order Items</h2>
+              <div className="lg:col-span-2 bg-card rounded-2xl border border-border p-6 shadow-sm">
+                <h2 className="font-display text-xl mb-6">Order Items ({order.order_items.length})</h2>
                 <div className="space-y-4">
-                  {order.order_items.map((item) => (
-                    <div key={item.id} className="flex items-center gap-4 py-3 border-b border-border last:border-0">
+                  {order.order_items.map((item, index) => (
+                    <motion.div 
+                      key={item.id} 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="flex items-center gap-4 p-4 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors"
+                    >
                       {item.product_image && (
                         <img
                           src={item.product_image}
@@ -349,7 +517,7 @@ const OrderTrackingPage = () => {
                         />
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium">{item.product_name}</p>
+                        <p className="font-medium truncate">{item.product_name}</p>
                         <p className="text-sm text-muted-foreground mt-1">
                           Qty: {item.quantity}
                           {item.size && ` • Size: ${item.size}`}
@@ -359,29 +527,33 @@ const OrderTrackingPage = () => {
                           {formatPrice(Number(item.price))} each
                         </p>
                       </div>
-                      <p className="font-medium">
+                      <p className="font-display text-lg">
                         {formatPrice(Number(item.price) * item.quantity)}
                       </p>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
-                <div className="mt-4 pt-4 border-t border-border flex justify-between items-center">
-                  <span className="font-medium">Total</span>
-                  <span className="font-display text-xl text-primary">
-                    {formatPrice(Number(order.total_amount))}
-                  </span>
+                <div className="mt-6 pt-6 border-t border-border">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-medium">Total Amount</span>
+                    <span className="font-display text-2xl text-primary">
+                      {formatPrice(Number(order.total_amount))}
+                    </span>
+                  </div>
                 </div>
               </div>
 
               {/* Order Details Sidebar */}
               <div className="space-y-6">
                 {/* Shipping Info */}
-                <div className="bg-card rounded-xl border border-border p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <MapPin size={20} className="text-primary" />
+                <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <MapPin size={20} className="text-primary" />
+                    </div>
                     <h3 className="font-display text-lg">Shipping Address</h3>
                   </div>
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground leading-relaxed">
                     {order.shipping_address}<br />
                     {order.shipping_city}
                     {order.shipping_postal_code && `, ${order.shipping_postal_code}`}
@@ -389,9 +561,11 @@ const OrderTrackingPage = () => {
                 </div>
 
                 {/* Payment Info */}
-                <div className="bg-card rounded-xl border border-border p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <CreditCard size={20} className="text-primary" />
+                <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <CreditCard size={20} className="text-primary" />
+                    </div>
                     <h3 className="font-display text-lg">Payment Method</h3>
                   </div>
                   <p className="text-muted-foreground">
@@ -399,9 +573,22 @@ const OrderTrackingPage = () => {
                   </p>
                 </div>
 
+                {/* Need Help */}
+                <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6">
+                  <h3 className="font-display text-lg mb-2">Need Help?</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    If you have any questions about your order, our team is here to help.
+                  </p>
+                  <Link to="/contact">
+                    <Button variant="outline" size="sm" className="w-full">
+                      Contact Support
+                    </Button>
+                  </Link>
+                </div>
+
                 {/* Notes */}
                 {order.notes && (
-                  <div className="bg-card rounded-xl border border-border p-6">
+                  <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
                     <h3 className="font-display text-lg mb-2">Order Notes</h3>
                     <p className="text-muted-foreground text-sm">{order.notes}</p>
                   </div>
