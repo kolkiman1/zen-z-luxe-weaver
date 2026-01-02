@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { Search, Eye, Package, MapPin, Filter, Copy, Check, Printer, FileText, Mail } from 'lucide-react';
+import { Search, Eye, Package, MapPin, Filter, Copy, Check, Printer, FileText, Mail, User, Phone } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { useActivityLog } from '@/hooks/useActivityLog';
@@ -73,7 +73,8 @@ const AdminOrders = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [printMode, setPrintMode] = useState<'invoice' | 'label' | null>(null);
-  const [customerInfo, setCustomerInfo] = useState<{ full_name?: string; email?: string; phone?: string } | null>(null);
+  const [customerInfo, setCustomerInfo] = useState<{ full_name?: string; email?: string; phone?: string; address?: string; city?: string; postal_code?: string } | null>(null);
+  const [loadingCustomer, setLoadingCustomer] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = async (order: Order, mode: 'invoice' | 'label') => {
@@ -492,7 +493,17 @@ const AdminOrders = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => setSelectedOrder(order)}
+                              onClick={async () => {
+                                setSelectedOrder(order);
+                                setLoadingCustomer(true);
+                                const { data: profile } = await supabase
+                                  .from('profiles')
+                                  .select('full_name, email, phone, address, city, postal_code')
+                                  .eq('user_id', order.user_id)
+                                  .maybeSingle();
+                                setCustomerInfo(profile);
+                                setLoadingCustomer(false);
+                              }}
                               className="gap-2"
                             >
                               <Eye size={14} />
@@ -533,7 +544,7 @@ const AdminOrders = () => {
         </div>
 
         {/* Order Details Dialog */}
-        <Dialog open={!!selectedOrder && !printMode} onOpenChange={() => setSelectedOrder(null)}>
+        <Dialog open={!!selectedOrder && !printMode} onOpenChange={() => { setSelectedOrder(null); setCustomerInfo(null); }}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-3">
@@ -608,6 +619,63 @@ const AdminOrders = () => {
                       {formatPrice(Number(selectedOrder.total_amount))}
                     </p>
                   </div>
+                </div>
+
+                {/* Customer Details */}
+                <div className="p-4 bg-secondary/30 rounded-xl">
+                  <h4 className="font-medium mb-3 flex items-center gap-2">
+                    <User size={16} className="text-primary" />
+                    Customer Details
+                  </h4>
+                  {loadingCustomer ? (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-primary"></div>
+                      Loading customer info...
+                    </div>
+                  ) : customerInfo ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Name</p>
+                        <p className="font-medium">{customerInfo.full_name || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                          <Mail size={12} /> Email
+                        </p>
+                        <a 
+                          href={`mailto:${customerInfo.email}`} 
+                          className="font-medium text-primary hover:underline"
+                        >
+                          {customerInfo.email || 'N/A'}
+                        </a>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                          <Phone size={12} /> Phone
+                        </p>
+                        <a 
+                          href={`tel:${customerInfo.phone}`} 
+                          className="font-medium text-primary hover:underline"
+                        >
+                          {customerInfo.phone || 'N/A'}
+                        </a>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Profile Address</p>
+                        <p className="text-sm text-muted-foreground">
+                          {customerInfo.address ? (
+                            <>
+                              {customerInfo.address}
+                              {customerInfo.city && `, ${customerInfo.city}`}
+                              {customerInfo.postal_code && ` - ${customerInfo.postal_code}`}
+                            </>
+                          ) : 'Not set in profile'}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground text-sm">Customer details not available</p>
+                  )}
                 </div>
 
                 {/* Payment Details for bKash/Nagad */}
