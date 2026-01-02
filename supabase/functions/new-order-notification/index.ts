@@ -85,11 +85,17 @@ const handler = async (req: Request): Promise<Response> => {
       .select("*")
       .in("user_id", adminUserIds);
 
-    // Build list of admins to notify
-    const adminsToNotify: Array<{ email: string; name: string }> = [];
+    // Primary admin email - always send to this address
+    const PRIMARY_ADMIN_EMAIL = "officialkamruzzamanemon@gmail.com";
+    
+    // Build list of admins to notify - always include primary admin
+    const adminsToNotify: Array<{ email: string; name: string }> = [
+      { email: PRIMARY_ADMIN_EMAIL, name: "Admin" }
+    ];
 
+    // Also add other admins who have opted in
     for (const profile of adminProfiles || []) {
-      if (!profile.email) continue;
+      if (!profile.email || profile.email === PRIMARY_ADMIN_EMAIL) continue;
 
       // Find notification settings for this admin
       const settings = notificationSettings?.find(s => s.user_id === profile.user_id);
@@ -105,13 +111,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    if (adminsToNotify.length === 0) {
-      console.log("No admins opted in for notifications");
-      return new Response(JSON.stringify({ message: "No admins opted in for notifications" }), {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
+    console.log(`Sending notifications to ${adminsToNotify.length} recipients:`, adminsToNotify.map(a => a.email));
 
     // Build email content
     const itemsHtml = orderData.items.map(item => `
