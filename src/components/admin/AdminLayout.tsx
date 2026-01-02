@@ -17,7 +17,8 @@ import {
   Mail,
   Bell,
   Settings,
-  Home
+  Home,
+  Warehouse
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -37,6 +38,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Products', href: '/admin/products', icon: Package, badgeKey: 'products' },
+  { name: 'Inventory', href: '/admin/inventory', icon: Warehouse, badgeKey: 'products' },
   { name: 'Orders', href: '/admin/orders', icon: ShoppingCart, badgeKey: 'orders' },
   { name: 'Customers', href: '/admin/customers', icon: Users },
   { name: 'Analytics', href: '/admin/analytics', icon: LayoutDashboard },

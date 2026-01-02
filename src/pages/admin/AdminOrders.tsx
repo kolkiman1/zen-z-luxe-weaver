@@ -213,6 +213,9 @@ const AdminOrders = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const [dateFrom, setDateFrom] = useState<string>('');
+  const [dateTo, setDateTo] = useState<string>('');
+
   const filteredOrders = orders.filter(o => {
     const matchesSearch = 
       (o.order_number?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
@@ -222,7 +225,12 @@ const AdminOrders = () => {
     
     const matchesStatus = statusFilter === 'all' || o.status === statusFilter;
     
-    return matchesSearch && matchesStatus;
+    // Date filtering
+    const orderDate = new Date(o.created_at);
+    const matchesDateFrom = !dateFrom || orderDate >= new Date(dateFrom);
+    const matchesDateTo = !dateTo || orderDate <= new Date(dateTo + 'T23:59:59');
+    
+    return matchesSearch && matchesStatus && matchesDateFrom && matchesDateTo;
   });
 
   // Calculate stats
@@ -293,31 +301,72 @@ const AdminOrders = () => {
           </div>
 
           {/* Search and Filter */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-              <Input
-                placeholder="Search by Order ID (e.g., ORD-20251228-0001), city, or address..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+                <Input
+                  placeholder="Search by Order ID, city, or address..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Filter size={18} className="text-muted-foreground" />
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    {statusOptions.map(status => (
+                      <SelectItem key={status} value={status} className="capitalize">
+                        {status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Filter size={18} className="text-muted-foreground" />
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  {statusOptions.map(status => (
-                    <SelectItem key={status} value={status} className="capitalize">
-                      {status}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            
+            {/* Date Range Filters */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">From:</span>
+                <Input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  className="w-40"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">To:</span>
+                <Input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  className="w-40"
+                />
+              </div>
+              {(dateFrom || dateTo || statusFilter !== 'all' || searchTerm) && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    setDateFrom('');
+                    setDateTo('');
+                    setStatusFilter('all');
+                    setSearchTerm('');
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              )}
+              <span className="text-sm text-muted-foreground ml-auto">
+                Showing {filteredOrders.length} of {orders.length} orders
+              </span>
             </div>
           </div>
 

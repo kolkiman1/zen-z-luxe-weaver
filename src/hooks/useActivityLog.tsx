@@ -10,6 +10,8 @@ export type ActivityAction =
   | 'product_created'
   | 'product_updated'
   | 'product_deleted'
+  | 'stock_updated'
+  | 'bulk_stock_updated'
   | 'order_status_updated'
   | 'discount_created'
   | 'discount_updated'
