@@ -52,10 +52,11 @@ interface Order {
   order_items: OrderItem[];
 }
 
-const statusOptions = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+const statusOptions = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 
 const statusColors: Record<string, string> = {
   pending: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30',
+  confirmed: 'bg-emerald-500/20 text-emerald-500 border-emerald-500/30',
   processing: 'bg-blue-500/20 text-blue-500 border-blue-500/30',
   shipped: 'bg-purple-500/20 text-purple-500 border-purple-500/30',
   delivered: 'bg-green-500/20 text-green-500 border-green-500/30',
@@ -228,9 +229,31 @@ const AdminOrders = () => {
   const stats = {
     total: orders.length,
     pending: orders.filter(o => o.status === 'pending').length,
+    confirmed: orders.filter(o => o.status === 'confirmed').length,
     processing: orders.filter(o => o.status === 'processing').length,
     shipped: orders.filter(o => o.status === 'shipped').length,
     delivered: orders.filter(o => o.status === 'delivered').length,
+  };
+
+  // Helper to check if order is from outside Dhaka
+  const isOutsideDhaka = (order: Order) => {
+    const city = order.shipping_city.toLowerCase().trim();
+    return !city.includes('dhaka');
+  };
+
+  // Helper to extract delivery payment info
+  const getDeliveryPaymentInfo = (notes: string | null) => {
+    if (!notes) return null;
+    const match = notes.match(/Delivery Advance: ৳(\d+) via (\w+), TxID: ([^,]+), From: (.+)/);
+    if (match) {
+      return {
+        amount: match[1],
+        method: match[2],
+        txId: match[3],
+        phone: match[4]
+      };
+    }
+    return null;
   };
 
   return (
@@ -242,7 +265,7 @@ const AdminOrders = () => {
       <AdminLayout title="Orders">
         <div className="space-y-6">
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
             <div className="bg-card border border-border rounded-xl p-4">
               <p className="text-muted-foreground text-sm">Total Orders</p>
               <p className="text-2xl font-display font-bold">{stats.total}</p>
@@ -250,6 +273,10 @@ const AdminOrders = () => {
             <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
               <p className="text-yellow-500 text-sm">Pending</p>
               <p className="text-2xl font-display font-bold text-yellow-500">{stats.pending}</p>
+            </div>
+            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
+              <p className="text-emerald-500 text-sm">Confirmed</p>
+              <p className="text-2xl font-display font-bold text-emerald-500">{stats.confirmed}</p>
             </div>
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
               <p className="text-blue-500 text-sm">Processing</p>
@@ -558,6 +585,63 @@ const AdminOrders = () => {
                           </p>
                         </div>
                       )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Delivery Payment Info for Outside Dhaka */}
+                {selectedOrder.notes && isOutsideDhaka(selectedOrder) && getDeliveryPaymentInfo(selectedOrder.notes) && (
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                    <h4 className="font-medium mb-3 text-amber-600 flex items-center gap-2">
+                      <Package size={16} />
+                      Delivery Advance Payment (Outside Dhaka)
+                    </h4>
+                    {(() => {
+                      const info = getDeliveryPaymentInfo(selectedOrder.notes);
+                      if (!info) return null;
+                      return (
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="text-muted-foreground text-xs uppercase tracking-wider">Amount</p>
+                            <p className="font-medium text-lg">৳{info.amount}</p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground text-xs uppercase tracking-wider">Method</p>
+                            <p className="font-medium text-lg">{info.method}</p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground text-xs uppercase tracking-wider">Transaction ID</p>
+                            <p className="font-mono font-medium text-lg">{info.txId}</p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground text-xs uppercase tracking-wider">Payment From</p>
+                            <p className="font-mono font-medium text-lg">{info.phone}</p>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {/* Quick Confirm Button for Pending Orders */}
+                {selectedOrder.status === 'pending' && (
+                  <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium text-emerald-600">Confirm This Order</h4>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {isOutsideDhaka(selectedOrder) 
+                            ? 'Verify the delivery payment above, then confirm the order.'
+                            : 'Click to confirm this order for processing.'}
+                        </p>
+                      </div>
+                      <Button 
+                        onClick={() => handleStatusChange(selectedOrder.id, 'confirmed')}
+                        disabled={isUpdating}
+                        className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                      >
+                        {isUpdating ? 'Confirming...' : 'Confirm Order'}
+                      </Button>
                     </div>
                   </div>
                 )}
