@@ -292,6 +292,33 @@ const CheckoutPage = () => {
         console.error('Failed to send confirmation email:', emailError);
       }
 
+      // Send admin notification email
+      try {
+        const adminNotificationPayload = {
+          orderId: order.id,
+          orderNumber: order.order_number || order.id,
+          customerEmail: formData.email,
+          customerName: `${formData.firstName} ${formData.lastName}`.trim() || profile?.full_name || 'Customer',
+          totalAmount: grandTotal,
+          items: items.map(item => ({
+            product_name: item.product.name,
+            quantity: item.quantity,
+            size: item.selectedSize || null,
+            color: item.selectedColor?.name || null,
+            price: item.product.price,
+          })),
+          shippingAddress: formData.address,
+          shippingCity: formData.city,
+          paymentMethod: 'Cash on Delivery',
+        };
+
+        await supabase.functions.invoke('new-order-notification', {
+          body: adminNotificationPayload,
+        });
+      } catch (adminNotifyError) {
+        console.error('Failed to send admin notification:', adminNotifyError);
+      }
+
       toast.success('Order placed successfully!', {
         description: 'Your order is pending confirmation. You will receive an update once confirmed.',
       });
