@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import GuestOrderLookup from '@/components/orders/GuestOrderLookup';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/data';
@@ -58,6 +59,7 @@ interface Order {
   shipping_postal_code: string | null;
   payment_method: string;
   notes: string | null;
+  user_id: string | null;
   order_items: OrderItem[];
 }
 
@@ -118,38 +120,52 @@ const OrderTrackingPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [isGuestLookup, setIsGuestLookup] = useState(false);
 
+  // Determine if this is a guest lookup (no orderId in URL and no user)
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth');
+    if (!authLoading) {
+      if (!orderId && !user) {
+        setIsGuestLookup(true);
+        setLoading(false);
+      } else if (!orderId && user) {
+        // Logged in user without orderId - redirect to orders page
+        navigate('/orders');
+      }
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, orderId, navigate]);
 
   useEffect(() => {
     const fetchOrder = async () => {
-      if (!user || !orderId) return;
+      if (!orderId) return;
 
-      const { data, error: fetchError } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          order_items (*)
-        `)
-        .eq('id', orderId)
-        .eq('user_id', user.id)
-        .maybeSingle();
+      // If user is logged in, fetch their order
+      if (user) {
+        const { data, error: fetchError } = await supabase
+          .from('orders')
+          .select(`
+            *,
+            order_items (*)
+          `)
+          .eq('id', orderId)
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-      if (fetchError) {
-        setError('Failed to fetch order details');
-      } else if (!data) {
-        setError('Order not found');
+        if (fetchError) {
+          setError('Failed to fetch order details');
+        } else if (!data) {
+          setError('Order not found');
+        } else {
+          setOrder(data);
+        }
       } else {
-        setOrder(data);
+        // For non-logged in users with orderId, show guest lookup
+        setIsGuestLookup(true);
       }
       setLoading(false);
     };
 
-    if (user && orderId) {
+    if (!authLoading && orderId) {
       fetchOrder();
     }
 
@@ -176,7 +192,38 @@ const OrderTrackingPage = () => {
         supabase.removeChannel(channel);
       };
     }
-  }, [user, orderId]);
+  }, [user, orderId, authLoading]);
+
+  // Set up realtime subscription when order is loaded via guest lookup
+  useEffect(() => {
+    if (order && !orderId) {
+      const channel = supabase
+        .channel(`guest-order-${order.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'orders',
+            filter: `id=eq.${order.id}`
+          },
+          (payload) => {
+            setOrder(prev => prev ? { ...prev, ...payload.new } : null);
+            toast.success('Order status updated!');
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [order, orderId]);
+
+  const handleGuestOrderFound = (foundOrder: Order) => {
+    setOrder(foundOrder);
+    setIsGuestLookup(false);
+  };
 
   const getCurrentStatusIndex = () => {
     if (!order) return 0;
@@ -196,14 +243,16 @@ const OrderTrackingPage = () => {
   };
 
   const handleCancelOrder = async () => {
-    if (!order || !user) return;
+    if (!order) return;
     
     setCancelling(true);
-    const { error: updateError } = await supabase
-      .from('orders')
-      .update({ status: 'cancelled' })
-      .eq('id', order.id)
-      .eq('user_id', user.id);
+    
+    // For guest orders, we can't verify user_id
+    const query = user 
+      ? supabase.from('orders').update({ status: 'cancelled' }).eq('id', order.id).eq('user_id', user.id)
+      : supabase.from('orders').update({ status: 'cancelled' }).eq('id', order.id);
+
+    const { error: updateError } = await query;
 
     if (updateError) {
       toast.error('Failed to cancel order. Please try again.');
@@ -250,6 +299,37 @@ const OrderTrackingPage = () => {
     );
   }
 
+  // Show guest order lookup form
+  if (isGuestLookup && !order) {
+    return (
+      <>
+        <SEOHead
+          title="Track Your Order"
+          description="Track your order status using your order number and verification details."
+        />
+        <Header />
+        <main className="pt-24 pb-16 min-h-screen bg-background">
+          <div className="container-luxury py-12">
+            <GuestOrderLookup onOrderFound={handleGuestOrderFound} />
+            
+            {user === null && (
+              <div className="text-center mt-8">
+                <p className="text-muted-foreground text-sm">
+                  Have an account?{' '}
+                  <Link to="/auth" className="text-primary hover:underline">
+                    Sign in
+                  </Link>{' '}
+                  to view all your orders
+                </p>
+              </div>
+            )}
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
   if (error || !order) {
     return (
       <>
@@ -259,9 +339,17 @@ const OrderTrackingPage = () => {
             <Package size={64} className="mx-auto text-muted-foreground mb-4" />
             <h2 className="font-display text-2xl mb-2">{error || 'Order not found'}</h2>
             <p className="text-muted-foreground mb-6">We couldn't find the order you're looking for</p>
-            <Link to="/orders">
-              <button className="btn-primary px-8 py-3">View All Orders</button>
-            </Link>
+            <div className="flex gap-4 justify-center">
+              {user ? (
+                <Link to="/orders">
+                  <button className="btn-primary px-8 py-3">View All Orders</button>
+                </Link>
+              ) : (
+                <Button onClick={() => { setIsGuestLookup(true); setError(null); }}>
+                  Try Again
+                </Button>
+              )}
+            </div>
           </div>
         </main>
         <Footer />
@@ -272,6 +360,7 @@ const OrderTrackingPage = () => {
   const currentStatusIndex = getCurrentStatusIndex();
   const timelineEvents = getTimelineEvents();
   const estimatedDelivery = getEstimatedDelivery();
+  const canCancel = order.status === 'pending' && (user?.id === order.user_id || !order.user_id);
 
   return (
     <>
@@ -286,10 +375,20 @@ const OrderTrackingPage = () => {
       <main className="pt-24 pb-16 min-h-screen bg-background">
         <div className="container-luxury">
           {/* Back Button */}
-          <Link to="/orders" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors">
-            <ArrowLeft size={18} />
-            <span>Back to Orders</span>
-          </Link>
+          {user ? (
+            <Link to="/orders" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors">
+              <ArrowLeft size={18} />
+              <span>Back to Orders</span>
+            </Link>
+          ) : (
+            <button 
+              onClick={() => { setOrder(null); setIsGuestLookup(true); }}
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+            >
+              <ArrowLeft size={18} />
+              <span>Track Another Order</span>
+            </button>
+          )}
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -317,7 +416,7 @@ const OrderTrackingPage = () => {
                   <Badge className={`text-sm px-4 py-2 border ${statusColors[order.status]}`}>
                     {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                   </Badge>
-                  {order.status === 'pending' && (
+                  {canCancel && (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="destructive" size="sm" disabled={cancelling}>

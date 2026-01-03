@@ -78,6 +78,7 @@ const App = () => (
                       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                       <Route path="/orders" element={<OrdersPage />} />
                       <Route path="/orders/:orderId" element={<OrderTrackingPage />} />
+                      <Route path="/track-order" element={<OrderTrackingPage />} />
                       <Route path="/dashboard" element={<UserDashboard />} />
                       {/* Info Pages */}
                       <Route path="/contact" element={<ContactPage />} />
