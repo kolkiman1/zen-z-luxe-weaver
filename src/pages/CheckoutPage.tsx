@@ -314,6 +314,7 @@ const CheckoutPage = () => {
         const emailPayload = {
           email: formData.email,
           customerName: `${formData.firstName} ${formData.lastName}`.trim() || profile?.full_name || 'Valued Customer',
+          customerPhone: formData.phone,
           orderNumber: order.order_number || order.id,
           orderId: order.id,
           orderDate: order.created_at,
