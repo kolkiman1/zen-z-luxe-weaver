@@ -40,7 +40,7 @@ interface OrderItem {
 interface Order {
   id: string;
   order_number: string | null;
-  user_id: string;
+  user_id: string | null;
   status: string;
   total_amount: number;
   shipping_address: string;
@@ -51,6 +51,22 @@ interface Order {
   created_at: string;
   order_items: OrderItem[];
 }
+
+// Helper to check if order is a guest order
+const isGuestOrder = (order: Order) => !order.user_id || order.notes?.includes('GUEST ORDER');
+
+// Helper to parse guest info from order notes
+const parseGuestInfo = (notes: string | null): { name?: string; email?: string; phone?: string } | null => {
+  if (!notes || !notes.includes('GUEST ORDER')) return null;
+  const nameMatch = notes.match(/Name:\s*([^|]+)/);
+  const emailMatch = notes.match(/Email:\s*([^|]+)/);
+  const phoneMatch = notes.match(/Phone:\s*([^|]+)/);
+  return {
+    name: nameMatch?.[1]?.trim(),
+    email: emailMatch?.[1]?.trim(),
+    phone: phoneMatch?.[1]?.trim(),
+  };
+};
 
 const statusOptions = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 
@@ -547,13 +563,18 @@ const AdminOrders = () => {
         <Dialog open={!!selectedOrder && !printMode} onOpenChange={() => { setSelectedOrder(null); setCustomerInfo(null); }}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-3">
+              <DialogTitle className="flex items-center gap-3 flex-wrap">
                 <span className="font-mono bg-primary/10 px-3 py-1 rounded-lg text-primary">
                   {selectedOrder?.order_number || `#${selectedOrder?.id.slice(0, 8).toUpperCase()}`}
                 </span>
                 {selectedOrder && (
                   <Badge className={`${statusColors[selectedOrder.status]} border`}>
                     {selectedOrder.status}
+                  </Badge>
+                )}
+                {selectedOrder && isGuestOrder(selectedOrder) && (
+                  <Badge className="bg-orange-500/20 text-orange-500 border border-orange-500/30 animate-pulse">
+                    👤 GUEST ORDER
                   </Badge>
                 )}
               </DialogTitle>
@@ -622,130 +643,147 @@ const AdminOrders = () => {
                 </div>
 
                 {/* Customer Details */}
-                <div className="p-4 bg-secondary/30 rounded-xl">
+                <div className={`p-4 rounded-xl ${isGuestOrder(selectedOrder) ? 'bg-orange-500/10 border border-orange-500/30' : 'bg-secondary/30'}`}>
                   <h4 className="font-medium mb-3 flex items-center gap-2">
-                    <User size={16} className="text-primary" />
+                    <User size={16} className={isGuestOrder(selectedOrder) ? 'text-orange-500' : 'text-primary'} />
                     Customer Details
+                    {isGuestOrder(selectedOrder) && (
+                      <Badge className="bg-orange-500/20 text-orange-500 border border-orange-500/30 text-xs ml-2">
+                        GUEST
+                      </Badge>
+                    )}
                   </h4>
-                {loadingCustomer ? (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-primary"></div>
-                      Loading customer info...
-                    </div>
-                  ) : customerInfo ? (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider">Name</p>
-                          <p className="font-medium">{customerInfo.full_name || 'N/A'}</p>
+                  {(() => {
+                    const guestInfo = parseGuestInfo(selectedOrder.notes);
+                    const displayInfo = guestInfo || customerInfo;
+                    const isGuest = !!guestInfo;
+                    
+                    if (loadingCustomer && !isGuest) {
+                      return (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-primary"></div>
+                          Loading customer info...
                         </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider">Email</p>
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium">{customerInfo.email || 'N/A'}</p>
-                            {customerInfo.email && (
-                              <button
-                                onClick={() => {
-                                  navigator.clipboard.writeText(customerInfo.email || '');
-                                  toast.success('Email copied!');
-                                }}
-                                className="p-1 hover:bg-secondary rounded transition-colors"
-                                title="Copy email"
-                              >
-                                <Copy size={14} className="text-muted-foreground hover:text-foreground" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider">Phone</p>
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium">{customerInfo.phone || 'N/A'}</p>
-                            {customerInfo.phone && (
-                              <button
-                                onClick={() => {
-                                  navigator.clipboard.writeText(customerInfo.phone || '');
-                                  toast.success('Phone copied!');
-                                }}
-                                className="p-1 hover:bg-secondary rounded transition-colors"
-                                title="Copy phone"
-                              >
-                                <Copy size={14} className="text-muted-foreground hover:text-foreground" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider">Profile Address</p>
-                          <div className="flex items-start gap-2">
-                            <p className="text-sm text-muted-foreground">
-                              {customerInfo.address ? (
-                                <>
-                                  {customerInfo.address}
-                                  {customerInfo.city && `, ${customerInfo.city}`}
-                                  {customerInfo.postal_code && ` - ${customerInfo.postal_code}`}
-                                </>
-                              ) : 'Not set in profile'}
-                            </p>
-                            {customerInfo.address && (
-                              <button
-                                onClick={() => {
-                                  const fullAddress = `${customerInfo.address}${customerInfo.city ? `, ${customerInfo.city}` : ''}${customerInfo.postal_code ? ` - ${customerInfo.postal_code}` : ''}`;
-                                  navigator.clipboard.writeText(fullAddress);
-                                  toast.success('Address copied!');
-                                }}
-                                className="p-1 hover:bg-secondary rounded transition-colors shrink-0"
-                                title="Copy address"
-                              >
-                                <Copy size={14} className="text-muted-foreground hover:text-foreground" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
+                      );
+                    }
+                    
+                    if (displayInfo) {
+                      const name = isGuest ? guestInfo?.name : customerInfo?.full_name;
+                      const email = isGuest ? guestInfo?.email : customerInfo?.email;
+                      const phone = isGuest ? guestInfo?.phone : customerInfo?.phone;
                       
-                      {/* Quick Contact Buttons */}
-                      <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
-                        {customerInfo.phone && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="gap-2"
-                            onClick={() => window.open(`tel:${customerInfo.phone}`, '_self')}
-                          >
-                            <Phone size={14} />
-                            Call Customer
-                          </Button>
-                        )}
-                        {customerInfo.email && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="gap-2"
-                            onClick={() => window.open(`mailto:${customerInfo.email}?subject=Regarding Order ${selectedOrder?.order_number || selectedOrder?.id}`, '_blank')}
-                          >
-                            <Mail size={14} />
-                            Email Customer
-                          </Button>
-                        )}
-                        {customerInfo.phone && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="gap-2 bg-green-500/10 border-green-500/30 text-green-600 hover:bg-green-500/20"
-                            onClick={() => window.open(`https://wa.me/${customerInfo.phone?.replace(/[^0-9]/g, '')}?text=Hi, regarding your order ${selectedOrder?.order_number || selectedOrder?.id}`, '_blank')}
-                          >
-                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                            </svg>
-                            WhatsApp
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground text-sm">Customer details not available</p>
-                  )}
+                      return (
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-xs text-muted-foreground uppercase tracking-wider">Name</p>
+                              <p className="font-medium">{name || 'N/A'}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground uppercase tracking-wider">Email</p>
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium">{email || 'N/A'}</p>
+                                {email && (
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(email);
+                                      toast.success('Email copied!');
+                                    }}
+                                    className="p-1 hover:bg-secondary rounded transition-colors"
+                                    title="Copy email"
+                                  >
+                                    <Copy size={14} className="text-muted-foreground hover:text-foreground" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground uppercase tracking-wider">Phone</p>
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium">{phone || 'N/A'}</p>
+                                {phone && (
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(phone);
+                                      toast.success('Phone copied!');
+                                    }}
+                                    className="p-1 hover:bg-secondary rounded transition-colors"
+                                    title="Copy phone"
+                                  >
+                                    <Copy size={14} className="text-muted-foreground hover:text-foreground" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                            {!isGuest && customerInfo?.address && (
+                              <div>
+                                <p className="text-xs text-muted-foreground uppercase tracking-wider">Profile Address</p>
+                                <div className="flex items-start gap-2">
+                                  <p className="text-sm text-muted-foreground">
+                                    {customerInfo.address}
+                                    {customerInfo.city && `, ${customerInfo.city}`}
+                                    {customerInfo.postal_code && ` - ${customerInfo.postal_code}`}
+                                  </p>
+                                  <button
+                                    onClick={() => {
+                                      const fullAddress = `${customerInfo.address}${customerInfo.city ? `, ${customerInfo.city}` : ''}${customerInfo.postal_code ? ` - ${customerInfo.postal_code}` : ''}`;
+                                      navigator.clipboard.writeText(fullAddress);
+                                      toast.success('Address copied!');
+                                    }}
+                                    className="p-1 hover:bg-secondary rounded transition-colors shrink-0"
+                                    title="Copy address"
+                                  >
+                                    <Copy size={14} className="text-muted-foreground hover:text-foreground" />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Quick Contact Buttons */}
+                          <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+                            {phone && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="gap-2"
+                                onClick={() => window.open(`tel:${phone}`, '_self')}
+                              >
+                                <Phone size={14} />
+                                Call Customer
+                              </Button>
+                            )}
+                            {email && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="gap-2"
+                                onClick={() => window.open(`mailto:${email}?subject=Regarding Order ${selectedOrder?.order_number || selectedOrder?.id}`, '_blank')}
+                              >
+                                <Mail size={14} />
+                                Email Customer
+                              </Button>
+                            )}
+                            {phone && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="gap-2 bg-green-500/10 border-green-500/30 text-green-600 hover:bg-green-500/20"
+                                onClick={() => window.open(`https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=Hi, regarding your order ${selectedOrder?.order_number || selectedOrder?.id}`, '_blank')}
+                              >
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                </svg>
+                                WhatsApp
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    }
+                    
+                    return <p className="text-muted-foreground text-sm">Customer details not available</p>;
+                  })()}
                 </div>
 
                 {/* Payment Details for bKash/Nagad */}
