@@ -229,7 +229,27 @@ const ProductDetailPage = () => {
                 </div>
               </div>
 
-              <p className="text-foreground/70 leading-relaxed">{product.description}</p>
+              {/* Description - Parse for multi-line content */}
+              {product.description && (
+                <div className="space-y-2">
+                  {product.description.includes('\n') || product.description.includes('•') || product.description.includes('-') ? (
+                    <ul className="space-y-2">
+                      {product.description
+                        .split(/[\n•\-]/)
+                        .map(line => line.trim())
+                        .filter(line => line.length > 0)
+                        .map((line, index) => (
+                          <li key={index} className="flex items-start gap-2 text-foreground/70">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                            <span>{line}</span>
+                          </li>
+                        ))}
+                    </ul>
+                  ) : (
+                    <p className="text-foreground/70 leading-relaxed">{product.description}</p>
+                  )}
+                </div>
+              )}
 
               {/* Size Selection */}
               {product.sizes && product.sizes.length > 0 && (

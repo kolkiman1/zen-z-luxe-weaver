@@ -10,7 +10,7 @@ interface ImageUploadProps {
   maxImages?: number;
 }
 
-const ImageUpload = ({ images, onImagesChange, maxImages = 5 }: ImageUploadProps) => {
+const ImageUpload = ({ images, onImagesChange, maxImages = 15 }: ImageUploadProps) => {
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
 
