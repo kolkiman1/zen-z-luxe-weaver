@@ -224,9 +224,16 @@ const CheckoutPage = () => {
   };
 
   const handlePlaceOrder = async () => {
-    if (!user) {
-      toast.error('Please sign in to place an order');
-      navigate('/auth');
+    // Validate email for guest checkout
+    if (!user && !formData.email.trim()) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (formData.email && !emailRegex.test(formData.email)) {
+      toast.error('Please enter a valid email address');
       return;
     }
 
@@ -236,18 +243,20 @@ const CheckoutPage = () => {
     setIsSubmitting(true);
 
     try {
-      // Update user profile with checkout info (phone, address, city, postal code)
-      await supabase
-        .from('profiles')
-        .update({
-          phone: formData.phone,
-          address: formData.address,
-          city: formData.city,
-          postal_code: formData.postalCode,
-          full_name: `${formData.firstName} ${formData.lastName}`.trim() || profile?.full_name,
-          email: formData.email,
-        })
-        .eq('user_id', user.id);
+      // Update user profile with checkout info (only for logged-in users)
+      if (user) {
+        await supabase
+          .from('profiles')
+          .update({
+            phone: formData.phone,
+            address: formData.address,
+            city: formData.city,
+            postal_code: formData.postalCode,
+            full_name: `${formData.firstName} ${formData.lastName}`.trim() || profile?.full_name,
+            email: formData.email,
+          })
+          .eq('user_id', user.id);
+      }
 
       // Build payment notes
       let paymentNotes = `Cash on Delivery - ${isDhakaCustomer ? 'Dhaka' : 'Outside Dhaka'}`;
@@ -257,11 +266,16 @@ const CheckoutPage = () => {
         paymentNotes += ` | Delivery Advance: ৳${OUTSIDE_DHAKA_DELIVERY} via ${deliveryPaymentMethod.toUpperCase()}, TxID: ${deliveryTransactionId}, From: ${deliveryPaymentNumber}`;
       }
 
+      // Build guest info notes if guest checkout
+      const guestInfo = !user 
+        ? ` | GUEST ORDER | Name: ${formData.firstName} ${formData.lastName} | Email: ${formData.email} | Phone: ${formData.phone}`
+        : '';
+
       // Create the order with pending status
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
-          user_id: user.id,
+          user_id: user?.id || null,
           total_amount: grandTotal,
           discount_code_id: appliedDiscount?.id || null,
           discount_amount: discountAmount,
@@ -269,7 +283,7 @@ const CheckoutPage = () => {
           shipping_city: formData.city,
           shipping_postal_code: formData.postalCode,
           payment_method: 'cod',
-          notes: paymentNotes,
+          notes: paymentNotes + guestInfo,
           status: 'pending',
         })
         .select()
@@ -355,11 +369,24 @@ const CheckoutPage = () => {
       }
 
       toast.success('Order placed successfully!', {
-        description: 'Your order is pending confirmation. You will receive an update once confirmed.',
+        description: user 
+          ? 'Your order is pending confirmation. You will receive an update once confirmed.'
+          : 'Check your email for order confirmation. You can track your order using the order number.',
       });
       
       clearCart();
-      navigate('/orders');
+      
+      // Navigate to orders page for logged-in users, or show success message for guests
+      if (user) {
+        navigate('/orders');
+      } else {
+        navigate('/', { 
+          state: { 
+            orderSuccess: true, 
+            orderNumber: order.order_number || order.id 
+          } 
+        });
+      }
     } catch (error: any) {
       toast.error('Failed to place order', {
         description: error.message || 'Please try again.',
@@ -368,39 +395,6 @@ const CheckoutPage = () => {
       setIsSubmitting(false);
     }
   };
-
-  // Require login before showing checkout
-  if (!user) {
-    return (
-      <>
-        <Header />
-        <main className="pt-24 pb-16 min-h-screen flex items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-md mx-auto p-8"
-          >
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
-              <Shield size={40} className="text-primary" />
-            </div>
-            <h1 className="font-display text-3xl mb-4">Sign in to Continue</h1>
-            <p className="text-muted-foreground mb-8">
-              Please sign in or create an account to proceed with your order.
-            </p>
-            <div className="space-y-3">
-              <Link to="/auth" state={{ from: '/checkout' }}>
-                <Button className="btn-primary w-full py-6">Sign In / Create Account</Button>
-              </Link>
-              <Link to="/category/all">
-                <Button variant="outline" className="w-full py-6">Continue Shopping</Button>
-              </Link>
-            </div>
-          </motion.div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
 
   if (items.length === 0) {
     return (
@@ -482,6 +476,21 @@ const CheckoutPage = () => {
                 >
                   <h2 className="font-display text-2xl">Shipping Information</h2>
 
+                  {/* Guest checkout banner */}
+                  {!user && (
+                    <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <Shield size={20} className="text-primary mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-primary">Guest Checkout</p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            You're checking out as a guest. <Link to="/auth" state={{ from: '/checkout' }} className="text-primary underline hover:no-underline">Sign in</Link> to track your orders and save your details.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="firstName">First Name *</Label>
@@ -506,14 +515,14 @@ const CheckoutPage = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">Email {!user && '*'}</Label>
                     <Input 
                       id="email" 
                       type="email" 
                       value={formData.email}
                       onChange={handleInputChange}
-                      placeholder="Enter email" 
-                      className="mt-1" 
+                      placeholder="Enter email for order updates" 
+                      className="mt-1"
                     />
                   </div>
 
