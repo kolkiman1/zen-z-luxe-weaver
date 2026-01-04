@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
@@ -13,8 +14,9 @@ import { ProductChatbot } from '@/components/chat/ProductChatbot';
 import { ParallaxSection } from '@/components/ui/parallax-section';
 import AnnouncementPopup from '@/components/home/AnnouncementPopup';
 import { SEOHead } from '@/components/SEOHead';
-import { useSectionOrder, SectionId, isScheduledActive } from '@/hooks/useSectionOrder';
+import { useSectionOrder, SectionId, isScheduledActive, SectionOrderItem } from '@/hooks/useSectionOrder';
 import { useProductCollections } from '@/hooks/useProductCollections';
+import { toast } from 'sonner';
 
 type StaticSectionId = Exclude<SectionId, 'collection'>;
 
@@ -37,12 +39,33 @@ const parallaxConfig: Record<StaticSectionId, { speed: number; direction?: 'up' 
 };
 
 const Index = () => {
+  const [searchParams] = useSearchParams();
+  const isPreviewMode = searchParams.get('preview') === 'true';
+  const [previewOrder, setPreviewOrder] = useState<SectionOrderItem[] | null>(null);
+  
   const { data: sectionOrder } = useSectionOrder();
   const { data: collections } = useProductCollections();
 
+  // Load preview order from sessionStorage
+  useEffect(() => {
+    if (isPreviewMode) {
+      const storedOrder = sessionStorage.getItem('preview-section-order');
+      if (storedOrder) {
+        try {
+          setPreviewOrder(JSON.parse(storedOrder));
+          toast.info('Preview mode: showing unpublished section order', { duration: 5000 });
+        } catch (e) {
+          console.error('Failed to parse preview order:', e);
+        }
+      }
+    }
+  }, [isPreviewMode]);
+
+  const effectiveOrder = isPreviewMode && previewOrder ? previewOrder : sectionOrder;
+
   const enabledSections = useMemo(() => {
-    return sectionOrder?.filter(s => isScheduledActive(s)) || [];
-  }, [sectionOrder]);
+    return effectiveOrder?.filter(s => isScheduledActive(s)) || [];
+  }, [effectiveOrder]);
 
   return (
     <>

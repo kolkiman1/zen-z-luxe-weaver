@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { useSectionContent, useUpdateSectionContent, SectionContent, defaultSectionContent } from '@/hooks/useSectionContent';
 import { useSectionOrder, useUpdateSectionOrder, SectionOrderItem, defaultSectionOrder } from '@/hooks/useSectionOrder';
 import { useProductCollections } from '@/hooks/useProductCollections';
+import { useSectionMedia } from '@/hooks/useSectionMedia';
 
 interface SortableItemProps {
   item: SectionOrderItem;
@@ -156,6 +157,7 @@ const AdminSectionContent = () => {
   const { data: sectionContent, isLoading: contentLoading } = useSectionContent();
   const { data: sectionOrder, isLoading: orderLoading } = useSectionOrder();
   const { data: collections } = useProductCollections();
+  const { data: sectionMedia } = useSectionMedia();
   const updateContentMutation = useUpdateSectionContent();
   const updateOrderMutation = useUpdateSectionOrder();
 
@@ -353,7 +355,16 @@ const AdminSectionContent = () => {
 
               {/* Homepage Preview */}
               <div className="lg:sticky lg:top-4">
-                <HomepagePreview sections={localOrder} />
+                <HomepagePreview 
+                  sections={localOrder} 
+                  sectionMedia={sectionMedia}
+                  sectionContent={localContent}
+                  collections={collections}
+                  onPreviewClick={() => {
+                    sessionStorage.setItem('preview-section-order', JSON.stringify(localOrder));
+                    window.open('/?preview=true', '_blank');
+                  }}
+                />
               </div>
             </div>
           </TabsContent>
