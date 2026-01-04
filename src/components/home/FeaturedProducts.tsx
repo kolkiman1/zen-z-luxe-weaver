@@ -8,12 +8,15 @@ import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 import { Button } from '@/components/ui/button';
 import { AnimatedButton } from '@/components/ui/animated-button';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
+import { useSectionContent } from '@/hooks/useSectionContent';
 
 const FeaturedProducts = () => {
   const { products: featuredProducts, loading } = useFeaturedProducts();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { data: sectionMedia } = useSectionMedia();
+  const { data: sectionContent } = useSectionContent();
   const featuredMedia = sectionMedia?.featuredProducts;
+  const content = sectionContent?.featuredProducts;
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -87,13 +90,13 @@ const FeaturedProducts = () => {
               transition={{ delay: 0.1 }}
               className="text-primary text-xs sm:text-sm font-medium uppercase tracking-widest mb-2 block"
             >
-              Curated for You
+              {content?.tagline || 'Curated for You'}
             </motion.span>
             <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 sm:mb-3">
-              Featured <span className="text-gradient-gold">Collection</span>
+              {content?.headline || 'Featured'} <span className="text-gradient-gold">{content?.headlineHighlight || 'Collection'}</span>
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base max-w-lg">
-              Handpicked premium pieces that define luxury and elegance
+              {content?.description || 'Handpicked premium pieces that define luxury and elegance'}
             </p>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">

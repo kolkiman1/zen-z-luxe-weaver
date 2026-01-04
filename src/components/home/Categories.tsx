@@ -5,11 +5,14 @@ import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { categories } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
+import { useSectionContent } from '@/hooks/useSectionContent';
 
 const Categories = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { data: sectionMedia } = useSectionMedia();
+  const { data: sectionContent } = useSectionContent();
   const categoriesMedia = sectionMedia?.categories;
+  const content = sectionContent?.categories;
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -59,10 +62,10 @@ const Categories = () => {
         >
           <div className="text-center sm:text-left">
             <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 sm:mb-4">
-              Shop by <span className="text-gradient-gold">Category</span>
+              {content?.headline || 'Shop by'} <span className="text-gradient-gold">{content?.headlineHighlight || 'Category'}</span>
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto sm:mx-0">
-              Explore our curated collections of premium fashion and accessories
+              {content?.description || 'Explore our curated collections of premium fashion and accessories'}
             </p>
           </div>
           

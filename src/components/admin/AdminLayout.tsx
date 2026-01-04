@@ -18,7 +18,9 @@ import {
   Bell,
   Settings,
   Home,
-  Warehouse
+  Warehouse,
+  Type,
+  Image
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -46,6 +48,8 @@ const navItems: NavItem[] = [
   { name: 'Tracking', href: '/admin/tracking', icon: Activity },
   { name: 'SEO', href: '/admin/seo', icon: Search },
   { name: 'Section Media', href: '/admin/section-media', icon: Settings },
+  { name: 'Section Content', href: '/admin/section-content', icon: Type },
+  { name: 'Category Banners', href: '/admin/category-banners', icon: Image },
   { name: 'Security', href: '/admin/security', icon: Shield, badgeKey: 'security' },
   { name: 'Marketing', href: '/admin/marketing', icon: Megaphone },
   { name: 'Inquiries', href: '/admin/inquiries', icon: MessageSquare, badgeKey: 'inquiries' },

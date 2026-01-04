@@ -3,11 +3,14 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { AnimatedButton } from '@/components/ui/animated-button';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
+import { useSectionContent } from '@/hooks/useSectionContent';
 
 const BrandBanner = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const { data: sectionMedia } = useSectionMedia();
+  const { data: sectionContent } = useSectionContent();
   const brandBannerMedia = sectionMedia?.brandBanner;
+  const content = sectionContent?.brandBanner;
   
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -58,7 +61,7 @@ const BrandBanner = () => {
             viewport={{ once: true }}
             className="text-primary tracking-[0.2em] sm:tracking-[0.3em] uppercase text-xs sm:text-sm mb-3 sm:mb-4"
           >
-            The Gen-Zee Promise
+            {content?.tagline || 'The Gen-Zee Promise'}
           </motion.p>
 
           <motion.h2
@@ -68,9 +71,9 @@ const BrandBanner = () => {
             transition={{ delay: 0.1 }}
             className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-4 sm:mb-6"
           >
-            Crafted with Passion,
+            {content?.headline || 'Crafted with Passion,'}
             <br />
-            <span className="text-gradient-gold">Designed for You</span>
+            <span className="text-gradient-gold">{content?.headlineHighlight || 'Designed for You'}</span>
           </motion.h2>
 
           <motion.p
@@ -80,9 +83,7 @@ const BrandBanner = () => {
             transition={{ delay: 0.2 }}
             className="text-foreground/70 text-sm sm:text-base md:text-lg mb-6 sm:mb-8 md:mb-10 leading-relaxed"
           >
-            We believe luxury should be accessible. Every piece in our collection is
-            carefully curated to bring you premium quality, timeless design, and
-            exceptional value. Experience the difference of true craftsmanship.
+            {content?.description || 'We believe luxury should be accessible. Every piece in our collection is carefully curated to bring you premium quality, timeless design, and exceptional value. Experience the difference of true craftsmanship.'}
           </motion.p>
 
           <motion.div
