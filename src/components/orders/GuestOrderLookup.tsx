@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Package, Search, Loader2, Mail, Phone, Hash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,17 +9,52 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface GuestOrderLookupProps {
   onOrderFound: (order: any) => void;
+  prefillOrderNumber?: string;
+  prefillEmail?: string;
+  prefillPhone?: string;
 }
 
-const GuestOrderLookup = ({ onOrderFound }: GuestOrderLookupProps) => {
-  const [orderNumber, setOrderNumber] = useState('');
+const GuestOrderLookup = ({ 
+  onOrderFound, 
+  prefillOrderNumber = '',
+  prefillEmail = '',
+  prefillPhone = ''
+}: GuestOrderLookupProps) => {
+  const [orderNumber, setOrderNumber] = useState(prefillOrderNumber);
   const [verificationValue, setVerificationValue] = useState('');
   const [verificationType, setVerificationType] = useState<'email' | 'phone'>('phone');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [autoLookupDone, setAutoLookupDone] = useState(false);
 
-  const handleLookup = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Initialize with prefilled values
+  useEffect(() => {
+    if (prefillOrderNumber) {
+      setOrderNumber(prefillOrderNumber.toUpperCase());
+    }
+    if (prefillPhone) {
+      setVerificationType('phone');
+      setVerificationValue(prefillPhone);
+    } else if (prefillEmail) {
+      setVerificationType('email');
+      setVerificationValue(prefillEmail);
+    }
+  }, [prefillOrderNumber, prefillEmail, prefillPhone]);
+
+  // Auto-lookup if all prefill values are provided
+  useEffect(() => {
+    if (!autoLookupDone && prefillOrderNumber && (prefillEmail || prefillPhone)) {
+      setAutoLookupDone(true);
+      // Small delay to show the form before auto-submitting
+      const timer = setTimeout(() => {
+        handleLookup();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [prefillOrderNumber, prefillEmail, prefillPhone, autoLookupDone]);
+
+  const handleLookup = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setError('');
 
     if (!orderNumber.trim()) {
@@ -35,79 +70,47 @@ const GuestOrderLookup = ({ onOrderFound }: GuestOrderLookupProps) => {
     setLoading(true);
 
     try {
-      // First, find the order by order number
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          order_items (*)
-        `)
-        .eq('order_number', orderNumber.trim().toUpperCase())
-        .maybeSingle();
+      // Use the secure edge function for guest order lookup
+      const payload: { orderNumber: string; email?: string; phone?: string } = {
+        orderNumber: orderNumber.trim().toUpperCase(),
+      };
 
-      if (orderError) {
-        console.error('Order lookup error:', orderError);
+      if (verificationType === 'email') {
+        payload.email = verificationValue.trim();
+      } else {
+        payload.phone = verificationValue.trim();
+      }
+
+      const { data, error: invokeError } = await supabase.functions.invoke('guest-order-lookup', {
+        body: payload,
+      });
+
+      if (invokeError) {
+        console.error('Edge function error:', invokeError);
         setError('An error occurred while looking up your order');
         setLoading(false);
         return;
       }
 
-      if (!orderData) {
+      if (data?.error) {
+        setError(data.error);
+        setLoading(false);
+        return;
+      }
+
+      if (!data?.order) {
         setError('Order not found. Please check your order number and try again.');
         setLoading(false);
         return;
       }
 
-      // Get the user's profile to verify email/phone
-      // For guest orders (user_id is null), we verify against shipping address info
-      // For logged-in user orders, we verify against their profile
-      if (orderData.user_id) {
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('email, phone')
-          .eq('user_id', orderData.user_id)
-          .maybeSingle();
+      // Combine order with items for the callback
+      const orderWithItems = {
+        ...data.order,
+        order_items: data.items || [],
+      };
 
-        if (profileError) {
-          console.error('Profile lookup error:', profileError);
-          setError('Unable to verify order ownership');
-          setLoading(false);
-          return;
-        }
-
-        // Verify against profile
-        const normalizedInput = verificationValue.trim().toLowerCase();
-        const profileEmail = profileData?.email?.toLowerCase() || '';
-        const profilePhone = profileData?.phone?.replace(/\D/g, '') || '';
-        const inputPhone = verificationValue.replace(/\D/g, '');
-
-        const isEmailMatch = verificationType === 'email' && profileEmail === normalizedInput;
-        const isPhoneMatch = verificationType === 'phone' && profilePhone === inputPhone;
-
-        if (!isEmailMatch && !isPhoneMatch) {
-          setError(`The ${verificationType} doesn't match our records for this order`);
-          setLoading(false);
-          return;
-        }
-      } else {
-        // For guest orders, we check if the verification matches shipping info in notes
-        // Since we don't have email/phone directly on orders, check notes or address
-        // This is a fallback - ideally guest checkout should store contact info
-        const orderNotes = orderData.notes?.toLowerCase() || '';
-        const shippingAddress = orderData.shipping_address?.toLowerCase() || '';
-        const inputValue = verificationValue.trim().toLowerCase();
-        
-        // Simple verification: check if the value appears in order notes/address
-        // In production, you'd want to store guest email/phone on the order
-        if (!orderNotes.includes(inputValue) && !shippingAddress.includes(inputValue)) {
-          // For now, allow access if order number is correct (guest orders)
-          // This is less secure but functional for MVP
-          console.log('Guest order access granted with order number');
-        }
-      }
-
-      // Order verified successfully
-      onOrderFound(orderData);
+      onOrderFound(orderWithItems);
       toast.success('Order found!');
     } catch (err) {
       console.error('Lookup error:', err);
