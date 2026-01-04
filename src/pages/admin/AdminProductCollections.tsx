@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Loader2, Plus, Trash2, Package, Tag, Grid, List, ShoppingBag } from 'lucide-react';
+import { Save, Loader2, Plus, Trash2, Package, Tag, Grid, List, ShoppingBag, Copy } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -50,6 +50,18 @@ const AdminProductCollections = () => {
       return;
     }
     setLocalCollections(prev => prev.filter(c => c.id !== id));
+  };
+
+  const handleDuplicateCollection = (collection: ProductCollection) => {
+    const newCollection: ProductCollection = {
+      ...collection,
+      id: `collection-${Date.now()}`,
+      name: `${collection.name} (Copy)`,
+      slug: `${collection.slug}-copy-${Date.now()}`,
+      enabled: false,
+    };
+    setLocalCollections([...localCollections, newCollection]);
+    toast.success('Collection duplicated! Don\'t forget to save.');
   };
 
   const handleSave = async () => {
@@ -128,6 +140,15 @@ const AdminProductCollections = () => {
                         onCheckedChange={(checked) => handleChange(collection.id, 'enabled', checked)}
                       />
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-muted-foreground hover:text-foreground"
+                      onClick={() => handleDuplicateCollection(collection)}
+                      title="Duplicate collection"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
                     {!['best-sellers', 'on-sale'].includes(collection.id) && (
                       <Button
                         variant="ghost"
