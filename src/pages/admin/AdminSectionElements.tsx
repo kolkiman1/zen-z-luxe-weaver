@@ -151,23 +151,23 @@ export default function AdminSectionElements() {
 
   return (
     <AdminLayout title="Section Elements">
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Type className="h-6 w-6 text-primary" />
+            <div className="p-2 bg-primary/10 rounded-lg shrink-0">
+              <Type className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold">Section Elements</h1>
-              <p className="text-muted-foreground">Edit text, typography, and styling for each section</p>
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-2xl font-bold">Section Elements</h1>
+              <p className="text-sm text-muted-foreground hidden sm:block">Edit text, typography, and styling for each section</p>
             </div>
           </div>
           
           {hasChanges && (
-            <Button onClick={handleSaveAll} disabled={updateElements.isPending}>
+            <Button onClick={handleSaveAll} disabled={updateElements.isPending} size="sm" className="w-full sm:w-auto">
               <Save className="h-4 w-4 mr-2" />
-              {updateElements.isPending ? 'Saving...' : 'Save All Changes'}
+              {updateElements.isPending ? 'Saving...' : 'Save All'}
             </Button>
           )}
         </div>
@@ -181,33 +181,35 @@ export default function AdminSectionElements() {
 
             return (
               <Card key={key} className="overflow-hidden">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${config.color}`}>
-                        <Icon className="h-5 w-5 text-white" />
+                <CardHeader className="pb-3 px-3 sm:px-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`p-2 rounded-lg shrink-0 ${config.color}`}>
+                        <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                       </div>
-                      <div>
-                        <CardTitle className="text-lg">{config.title}</CardTitle>
-                        <CardDescription>{config.description}</CardDescription>
+                      <div className="min-w-0">
+                        <CardTitle className="text-base sm:text-lg truncate">{config.title}</CardTitle>
+                        <CardDescription className="text-xs sm:text-sm hidden sm:block">{config.description}</CardDescription>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setPreviewSection(key)}
+                        className="flex-1 sm:flex-none"
                       >
-                        <Eye className="h-4 w-4 mr-1.5" />
-                        Preview
+                        <Eye className="h-4 w-4 sm:mr-1.5" />
+                        <span className="hidden sm:inline">Preview</span>
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleResetSection(key)}
+                        className="flex-1 sm:flex-none"
                       >
-                        <RotateCcw className="h-4 w-4 mr-1.5" />
-                        Reset
+                        <RotateCcw className="h-4 w-4 sm:mr-1.5" />
+                        <span className="hidden sm:inline">Reset</span>
                       </Button>
                     </div>
                   </div>
@@ -215,30 +217,30 @@ export default function AdminSectionElements() {
                 
                 <Separator />
                 
-                <CardContent className="pt-4">
+                <CardContent className="pt-4 px-3 sm:px-6">
                   <ScrollArea className="max-h-[400px]">
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {sectionElements.map((element) => (
                         <div
                           key={element.id}
-                          className="group flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                          className="group flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors gap-2 sm:gap-3"
                         >
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <Badge variant="secondary" className={getElementTypeColor(element.type)}>
+                          <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                            <Badge variant="secondary" className={`${getElementTypeColor(element.type)} text-xs shrink-0`}>
                               {getElementTypeLabel(element.type)}
                             </Badge>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium truncate">
                                 {element.content || 'Empty content'}
                               </p>
-                              <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                                <span>Size: {element.style.fontSize || 'base'}</span>
-                                <span>•</span>
-                                <span>Weight: {element.style.fontWeight || 'normal'}</span>
+                              <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1 text-xs text-muted-foreground">
+                                <span>{element.style.fontSize || 'base'}</span>
+                                <span className="hidden sm:inline">•</span>
+                                <span>{element.style.fontWeight || 'normal'}</span>
                                 {element.style.textTransform && element.style.textTransform !== 'none' && (
                                   <>
-                                    <span>•</span>
-                                    <span>Transform: {element.style.textTransform}</span>
+                                    <span className="hidden sm:inline">•</span>
+                                    <span className="hidden sm:inline">{element.style.textTransform}</span>
                                   </>
                                 )}
                               </div>
@@ -246,10 +248,10 @@ export default function AdminSectionElements() {
                           </div>
                           
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
                             onClick={() => handleEditElement(key, element)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="w-full sm:w-auto sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0"
                           >
                             <Edit3 className="h-4 w-4 mr-1.5" />
                             Edit

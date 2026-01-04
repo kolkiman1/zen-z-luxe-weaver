@@ -154,10 +154,10 @@ export const SectionElementPreview = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <DialogTitle className="flex items-center gap-2">
-            <Eye className="h-5 w-5 text-primary" />
+      <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] p-0 overflow-hidden">
+        <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b">
+          <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
+            <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             {sectionTitles[sectionKey] || 'Section Preview'}
           </DialogTitle>
         </DialogHeader>
@@ -189,14 +189,14 @@ export const SectionElementPreview = ({
           />
 
           {/* Content */}
-          <div className="relative h-full flex flex-col items-center justify-center text-center p-8">
+          <div className="relative h-full flex flex-col items-center justify-center text-center p-4 sm:p-8">
             {elements.map(renderElement)}
           </div>
         </div>
 
-        <div className="px-6 py-4 border-t bg-muted/30">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t bg-muted/30">
           <p className="text-xs text-muted-foreground text-center">
-            This preview shows how elements will appear on the live site. Colors and sizing are approximations.
+            Preview approximation of live appearance
           </p>
         </div>
       </DialogContent>
