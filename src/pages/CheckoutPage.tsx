@@ -272,42 +272,85 @@ const CheckoutPage = () => {
         : '';
 
       // Create the order with pending status
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          user_id: user?.id || null,
-          total_amount: grandTotal,
-          discount_code_id: appliedDiscount?.id || null,
-          discount_amount: discountAmount,
-          shipping_address: formData.address,
-          shipping_city: formData.city,
-          shipping_postal_code: formData.postalCode,
-          payment_method: 'cod',
-          notes: paymentNotes + guestInfo,
-          status: 'pending',
-        })
-        .select()
-        .single();
+      let order: any;
 
-      if (orderError) throw orderError;
+      if (user) {
+        const { data: createdOrder, error: orderError } = await supabase
+          .from('orders')
+          .insert({
+            user_id: user?.id || null,
+            total_amount: grandTotal,
+            discount_code_id: appliedDiscount?.id || null,
+            discount_amount: discountAmount,
+            shipping_address: formData.address,
+            shipping_city: formData.city,
+            shipping_postal_code: formData.postalCode,
+            payment_method: 'cod',
+            notes: paymentNotes + guestInfo,
+            status: 'pending',
+          })
+          .select()
+          .single();
 
-      // Create order items
-      const orderItems = items.map(item => ({
-        order_id: order.id,
-        product_id: item.product.id,
-        product_name: item.product.name,
-        product_image: item.product.images[0],
-        quantity: item.quantity,
-        size: item.selectedSize || null,
-        color: item.selectedColor?.name || null,
-        price: item.product.price,
-      }));
+        if (orderError) throw orderError;
+        order = createdOrder;
 
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
+        // Create order items (authenticated users)
+        const orderItems = items.map(item => ({
+          order_id: order.id,
+          product_id: item.product.id,
+          product_name: item.product.name,
+          product_image: item.product.images[0],
+          quantity: item.quantity,
+          size: item.selectedSize || null,
+          color: item.selectedColor?.name || null,
+          price: item.product.price,
+        }));
 
-      if (itemsError) throw itemsError;
+        const { error: itemsError } = await supabase
+          .from('order_items')
+          .insert(orderItems);
+
+        if (itemsError) throw itemsError;
+      } else {
+        // Guest checkout: create order via backend function to avoid RLS failures
+        const customerName = `${formData.firstName} ${formData.lastName}`.trim();
+
+        const { data, error: invokeError } = await supabase.functions.invoke('guest-create-order', {
+          body: {
+            customer: {
+              name: customerName,
+              email: formData.email,
+              phone: formData.phone,
+            },
+            order: {
+              total_amount: grandTotal,
+              discount_code_id: appliedDiscount?.id || null,
+              discount_amount: discountAmount,
+              shipping_address: formData.address,
+              shipping_city: formData.city,
+              shipping_postal_code: formData.postalCode || null,
+              payment_method: 'cod',
+              notes: paymentNotes,
+              status: 'pending',
+            },
+            items: items.map(item => ({
+              product_id: item.product.id,
+              product_name: item.product.name,
+              product_image: item.product.images[0],
+              quantity: item.quantity,
+              size: item.selectedSize || null,
+              color: item.selectedColor?.name || null,
+              price: item.product.price,
+            })),
+          },
+        });
+
+        if (invokeError) throw new Error(invokeError.message);
+        if (!data?.order) throw new Error(data?.error || 'Failed to create guest order');
+
+        order = data.order;
+      }
 
       // Send confirmation email
       try {
