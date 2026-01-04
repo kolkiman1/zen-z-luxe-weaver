@@ -4,9 +4,12 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { categories } from '@/lib/data';
 import { Button } from '@/components/ui/button';
+import { useSectionMedia } from '@/hooks/useSectionMedia';
 
 const Categories = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { data: sectionMedia } = useSectionMedia();
+  const categoriesMedia = sectionMedia?.categories;
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -19,8 +22,34 @@ const Categories = () => {
   };
 
   return (
-    <section className="section-padding bg-background">
-      <div className="container-luxury">
+    <section className="section-padding bg-background relative overflow-hidden">
+      {/* Background Media */}
+      {categoriesMedia?.type !== 'none' && categoriesMedia?.url && (
+        <div className="absolute inset-0 z-0">
+          {categoriesMedia.type === 'video' ? (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            >
+              <source src={categoriesMedia.url} type="video/mp4" />
+            </video>
+          ) : (
+            <div 
+              className="w-full h-full bg-cover bg-center"
+              style={{ backgroundImage: `url('${categoriesMedia.url}')` }}
+            />
+          )}
+          <div 
+            className="absolute inset-0 bg-background"
+            style={{ opacity: (categoriesMedia.overlayOpacity || 70) / 100 }}
+          />
+        </div>
+      )}
+      
+      <div className="container-luxury relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

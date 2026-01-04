@@ -2,9 +2,12 @@ import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { AnimatedButton } from '@/components/ui/animated-button';
+import { useSectionMedia } from '@/hooks/useSectionMedia';
 
 const BrandBanner = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const { data: sectionMedia } = useSectionMedia();
+  const brandBannerMedia = sectionMedia?.brandBanner;
   
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -22,13 +25,28 @@ const BrandBanner = () => {
           className="absolute inset-0 -top-[20%] -bottom-[20%]"
           style={{ y: backgroundY, scale: backgroundScale }}
         >
-          <img
-            src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1920&q=80"
-            alt="Indian Luxury Fashion"
-            className="w-full h-full object-cover"
-          />
+          {brandBannerMedia?.type === 'video' && brandBannerMedia.url ? (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            >
+              <source src={brandBannerMedia.url} type="video/mp4" />
+            </video>
+          ) : (
+            <img
+              src={brandBannerMedia?.url || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1920&q=80"}
+              alt="Indian Luxury Fashion"
+              className="w-full h-full object-cover"
+            />
+          )}
         </motion.div>
-        <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />
+        <div 
+          className="absolute inset-0 bg-background backdrop-blur-sm"
+          style={{ opacity: (brandBannerMedia?.overlayOpacity || 85) / 100 }}
+        />
       </div>
 
       {/* Content */}

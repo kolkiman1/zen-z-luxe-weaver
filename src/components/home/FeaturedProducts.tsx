@@ -7,10 +7,13 @@ import ProductCard from '@/components/products/ProductCard';
 import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 import { Button } from '@/components/ui/button';
 import { AnimatedButton } from '@/components/ui/animated-button';
+import { useSectionMedia } from '@/hooks/useSectionMedia';
 
 const FeaturedProducts = () => {
   const { products: featuredProducts, loading } = useFeaturedProducts();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { data: sectionMedia } = useSectionMedia();
+  const featuredMedia = sectionMedia?.featuredProducts;
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -24,6 +27,32 @@ const FeaturedProducts = () => {
 
   return (
     <section className="section-padding bg-card relative overflow-hidden">
+      {/* Background Media */}
+      {featuredMedia?.type !== 'none' && featuredMedia?.url && (
+        <div className="absolute inset-0 z-0">
+          {featuredMedia.type === 'video' ? (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            >
+              <source src={featuredMedia.url} type="video/mp4" />
+            </video>
+          ) : (
+            <div 
+              className="w-full h-full bg-cover bg-center"
+              style={{ backgroundImage: `url('${featuredMedia.url}')` }}
+            />
+          )}
+          <div 
+            className="absolute inset-0 bg-card"
+            style={{ opacity: (featuredMedia.overlayOpacity || 70) / 100 }}
+          />
+        </div>
+      )}
+      
       {/* Decorative background elements */}
       <motion.div
         className="absolute top-0 left-0 w-64 sm:w-80 md:w-96 h-64 sm:h-80 md:h-96 bg-primary/5 rounded-full blur-3xl"

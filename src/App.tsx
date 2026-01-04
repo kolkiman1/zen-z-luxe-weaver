@@ -50,6 +50,7 @@ const AdminTrackingAnalytics = lazy(() => import("./pages/admin/AdminTrackingAna
 const AdminSeoSettings = lazy(() => import("./pages/admin/AdminSeoSettings"));
 const AdminSecurityDashboard = lazy(() => import("./pages/admin/AdminSecurityDashboard"));
 const AdminEmailTemplates = lazy(() => import("./pages/admin/AdminEmailTemplates"));
+const AdminSectionMedia = lazy(() => import("./pages/admin/AdminSectionMedia"));
 const MobileAdminApp = lazy(() => import("./pages/admin/MobileAdminApp"));
 
 const queryClient = new QueryClient();
@@ -104,6 +105,7 @@ const App = () => (
                       <Route path="/admin/announcements" element={<AdminAnnouncements />} />
                       <Route path="/admin/activity-logs" element={<AdminActivityLogs />} />
                       <Route path="/admin/seo" element={<AdminSeoSettings />} />
+                      <Route path="/admin/section-media" element={<AdminSectionMedia />} />
                       <Route path="/admin/security" element={<AdminSecurityDashboard />} />
                       <Route path="/admin/email-templates" element={<AdminEmailTemplates />} />
                       <Route path="/admin/mobile" element={<MobileAdminApp />} />

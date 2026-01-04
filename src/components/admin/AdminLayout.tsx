@@ -45,6 +45,7 @@ const navItems: NavItem[] = [
   { name: 'Analytics', href: '/admin/analytics', icon: LayoutDashboard },
   { name: 'Tracking', href: '/admin/tracking', icon: Activity },
   { name: 'SEO', href: '/admin/seo', icon: Search },
+  { name: 'Section Media', href: '/admin/section-media', icon: Settings },
   { name: 'Security', href: '/admin/security', icon: Shield, badgeKey: 'security' },
   { name: 'Marketing', href: '/admin/marketing', icon: Megaphone },
   { name: 'Inquiries', href: '/admin/inquiries', icon: MessageSquare, badgeKey: 'inquiries' },

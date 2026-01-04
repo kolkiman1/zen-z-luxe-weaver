@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useSectionMedia } from '@/hooks/useSectionMedia';
 
 const useTypewriter = (text: string, speed: number = 50, delay: number = 0) => {
   const [displayedText, setDisplayedText] = useState('');
@@ -60,6 +61,9 @@ const TypewriterTagline = () => {
 };
 
 const Hero = () => {
+  const { data: sectionMedia } = useSectionMedia();
+  const heroMedia = sectionMedia?.hero;
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Animated Background Particles */}
@@ -88,31 +92,46 @@ const Hero = () => {
         ))}
       </div>
 
-      {/* Background Image with Ken Burns zoom effect */}
+      {/* Background Image/Video with Ken Burns zoom effect */}
       <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, scale: 1 }}
-          animate={{ 
-            opacity: 1, 
-            scale: [1, 1.08, 1.12, 1.08, 1],
-          }}
-          transition={{ 
-            opacity: { duration: 1.2, ease: 'easeOut' },
-            scale: { 
-              duration: 25, 
-              ease: 'linear',
-              repeat: Infinity,
-              repeatType: 'reverse',
-            }
-          }}
-          className="absolute inset-0 bg-cover bg-center will-change-transform"
-          style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1920&q=80')`,
-            backgroundPosition: 'center top',
-            transform: 'translateZ(0)',
-          }}
+        {heroMedia?.type === 'video' && heroMedia.url ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src={heroMedia.url} type="video/mp4" />
+          </video>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, scale: 1 }}
+            animate={{ 
+              opacity: 1, 
+              scale: [1, 1.08, 1.12, 1.08, 1],
+            }}
+            transition={{ 
+              opacity: { duration: 1.2, ease: 'easeOut' },
+              scale: { 
+                duration: 25, 
+                ease: 'linear',
+                repeat: Infinity,
+                repeatType: 'reverse',
+              }
+            }}
+            className="absolute inset-0 bg-cover bg-center will-change-transform"
+            style={{
+              backgroundImage: `url('${heroMedia?.url || 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1920&q=80'}')`,
+              backgroundPosition: 'center top',
+              transform: 'translateZ(0)',
+            }}
+          />
+        )}
+        <div 
+          className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/30"
+          style={{ opacity: (heroMedia?.overlayOpacity || 85) / 100 }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/30" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
       </div>
 
