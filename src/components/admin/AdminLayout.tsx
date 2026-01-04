@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -65,8 +65,24 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
   const { badges } = useAdminNotificationBadges();
   const location = useLocation();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationSettingsOpen, setNotificationSettingsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setSidebarOpen(true);
+        setMobileMenuOpen(false);
+      }
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
@@ -100,11 +116,27 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
 
   return (
     <div className="min-h-screen bg-background flex">
+      {/* Mobile Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
       <motion.aside
         initial={false}
-        animate={{ width: sidebarOpen ? 280 : 80 }}
-        className="bg-gradient-to-b from-card via-card to-card/95 border-r border-border/50 flex flex-col fixed h-full z-40"
+        animate={{ 
+          width: sidebarOpen ? 280 : 80,
+          x: mobileMenuOpen || !isMobile ? 0 : -280
+        }}
+        className="bg-gradient-to-b from-card via-card to-card/95 border-r border-border/50 flex flex-col fixed h-full z-50 lg:z-40 lg:translate-x-0"
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-border/50">
@@ -227,17 +259,26 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
 
       {/* Main Content */}
       <div
-        className="flex-1 transition-all duration-300"
-        style={{ marginLeft: sidebarOpen ? 280 : 80 }}
+        className="flex-1 transition-all duration-300 w-full lg:w-auto"
+        style={{ marginLeft: isMobile ? 0 : (sidebarOpen ? 280 : 80) }}
       >
         {/* Header */}
-        <header className="h-16 bg-card/80 backdrop-blur-xl border-b border-border/50 flex items-center justify-between px-6 sticky top-0 z-30">
-          <div className="flex items-center gap-4">
+        <header className="h-14 lg:h-16 bg-card/80 backdrop-blur-xl border-b border-border/50 flex items-center justify-between px-3 sm:px-4 lg:px-6 sticky top-0 z-30">
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* Mobile menu button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <Menu size={20} />
+            </Button>
             <motion.h1 
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               key={title}
-              className="font-display text-xl font-semibold"
+              className="font-display text-base sm:text-lg lg:text-xl font-semibold truncate max-w-[150px] sm:max-w-none"
             >
               {title}
             </motion.h1>
@@ -261,22 +302,22 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
             </div>
             
             {/* User Info */}
-            <div className="flex items-center gap-3 pl-4 border-l border-border/50">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-gold flex items-center justify-center">
-                <span className="text-primary-foreground font-semibold text-sm">
+            <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-border/50">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-primary to-gold flex items-center justify-center">
+                <span className="text-primary-foreground font-semibold text-xs sm:text-sm">
                   {user?.email?.[0].toUpperCase()}
                 </span>
               </div>
-              <div className="hidden md:block">
+              <div className="hidden sm:block">
                 <p className="text-sm font-medium">{user?.email?.split('@')[0]}</p>
-                <p className="text-xs text-muted-foreground">Administrator</p>
+                <p className="text-xs text-muted-foreground">Admin</p>
               </div>
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="p-6">
+        <main className="p-3 sm:p-4 lg:p-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
