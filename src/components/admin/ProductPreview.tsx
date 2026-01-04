@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Heart, ShoppingBag, Eye } from 'lucide-react';
 import { formatPrice } from '@/lib/data';
 import { Button } from '@/components/ui/button';
@@ -23,16 +22,16 @@ const ProductPreview = ({ formData }: ProductPreviewProps) => {
   const price = parseFloat(formData.price) || 0;
   const originalPrice = parseFloat(formData.original_price) || 0;
   const stockQty = parseInt(formData.stock_quantity) || 0;
-  const sizes = formData.sizes.split(',').map(s => s.trim()).filter(Boolean);
+  const sizes = formData.sizes ? formData.sizes.split(',').map(s => s.trim()).filter(Boolean) : [];
 
   return (
-    <div className="bg-secondary/30 rounded-xl p-4 border border-border">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="bg-secondary/30 rounded-xl p-3 sm:p-4 border border-border sticky top-4">
+      <div className="flex items-center gap-2 mb-3 sm:mb-4">
         <Eye size={16} className="text-primary" />
         <span className="text-sm font-medium">Live Preview</span>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {/* Product Card Preview */}
         <div className="bg-card rounded-lg overflow-hidden border border-border/50">
           {/* Image */}
@@ -65,17 +64,17 @@ const ProductPreview = ({ formData }: ProductPreviewProps) => {
 
             {/* Quick Actions Preview */}
             <div className="absolute top-2 right-2 flex flex-col gap-1">
-              <Button size="icon" variant="secondary" className="w-7 h-7 rounded-full glass">
+              <Button size="icon" variant="secondary" className="w-6 h-6 sm:w-7 sm:h-7 rounded-full glass">
                 <Heart className="w-3 h-3" />
               </Button>
-              <Button size="icon" variant="secondary" className="w-7 h-7 rounded-full glass">
+              <Button size="icon" variant="secondary" className="w-6 h-6 sm:w-7 sm:h-7 rounded-full glass">
                 <Eye className="w-3 h-3" />
               </Button>
             </div>
 
             {/* Add to Cart */}
             <div className="absolute bottom-0 left-0 right-0 p-2">
-              <Button className="w-full btn-primary py-2 gap-1 text-xs">
+              <Button className="w-full btn-primary py-1.5 sm:py-2 gap-1 text-xs">
                 <ShoppingBag className="w-3 h-3" />
                 Add to Cart
               </Button>
@@ -83,19 +82,19 @@ const ProductPreview = ({ formData }: ProductPreviewProps) => {
           </div>
 
           {/* Product Info */}
-          <div className="p-3 space-y-1">
+          <div className="p-2 sm:p-3 space-y-1">
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
               {formData.category}
             </p>
-            <h3 className="font-display text-sm font-medium line-clamp-1">
+            <h3 className="font-display text-xs sm:text-sm font-medium line-clamp-1">
               {formData.name || 'Product Name'}
             </h3>
             <div className="flex items-center gap-2">
-              <span className="text-primary font-medium text-sm">
+              <span className="text-primary font-medium text-xs sm:text-sm">
                 {price > 0 ? formatPrice(price) : '৳0'}
               </span>
               {originalPrice > 0 && originalPrice > price && (
-                <span className="text-muted-foreground line-through text-xs">
+                <span className="text-muted-foreground line-through text-[10px] sm:text-xs">
                   {formatPrice(originalPrice)}
                 </span>
               )}
@@ -115,7 +114,7 @@ const ProductPreview = ({ formData }: ProductPreviewProps) => {
           {sizes.length > 0 && (
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Sizes</span>
-              <div className="flex gap-1">
+              <div className="flex gap-1 flex-wrap justify-end">
                 {sizes.slice(0, 4).map((size) => (
                   <span key={size} className="px-1.5 py-0.5 bg-secondary rounded text-[10px]">
                     {size}
