@@ -52,6 +52,7 @@ const AdminSecurityDashboard = lazy(() => import("./pages/admin/AdminSecurityDas
 const AdminEmailTemplates = lazy(() => import("./pages/admin/AdminEmailTemplates"));
 const AdminSectionMedia = lazy(() => import("./pages/admin/AdminSectionMedia"));
 const AdminSectionContent = lazy(() => import("./pages/admin/AdminSectionContent"));
+const AdminSectionElements = lazy(() => import("./pages/admin/AdminSectionElements"));
 const AdminCategoryBanners = lazy(() => import("./pages/admin/AdminCategoryBanners"));
 const AdminProductCollections = lazy(() => import("./pages/admin/AdminProductCollections"));
 const MobileAdminApp = lazy(() => import("./pages/admin/MobileAdminApp"));
@@ -110,6 +111,7 @@ const App = () => (
                       <Route path="/admin/seo" element={<AdminSeoSettings />} />
                       <Route path="/admin/section-media" element={<AdminSectionMedia />} />
                       <Route path="/admin/section-content" element={<AdminSectionContent />} />
+                      <Route path="/admin/section-elements" element={<AdminSectionElements />} />
                       <Route path="/admin/category-banners" element={<AdminCategoryBanners />} />
                       <Route path="/admin/product-collections" element={<AdminProductCollections />} />
                       <Route path="/admin/security" element={<AdminSecurityDashboard />} />
