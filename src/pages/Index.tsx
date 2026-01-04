@@ -8,13 +8,17 @@ import FeaturedProducts from '@/components/home/FeaturedProducts';
 import NewArrivals from '@/components/home/NewArrivals';
 import BrandBanner from '@/components/home/BrandBanner';
 import Features from '@/components/home/Features';
+import ProductCollection from '@/components/home/ProductCollection';
 import { ProductChatbot } from '@/components/chat/ProductChatbot';
 import { ParallaxSection } from '@/components/ui/parallax-section';
 import AnnouncementPopup from '@/components/home/AnnouncementPopup';
 import { SEOHead } from '@/components/SEOHead';
-import { useSectionOrder, SectionId } from '@/hooks/useSectionOrder';
+import { useSectionOrder, SectionId, isScheduledActive } from '@/hooks/useSectionOrder';
+import { useProductCollections } from '@/hooks/useProductCollections';
 
-const sectionComponents: Record<SectionId, React.ComponentType> = {
+type StaticSectionId = Exclude<SectionId, 'collection'>;
+
+const sectionComponents: Record<StaticSectionId, React.ComponentType> = {
   hero: Hero,
   features: Features,
   newArrivals: NewArrivals,
@@ -23,7 +27,7 @@ const sectionComponents: Record<SectionId, React.ComponentType> = {
   brandBanner: BrandBanner,
 };
 
-const parallaxConfig: Record<SectionId, { speed: number; direction?: 'up' | 'down'; fadeIn?: boolean; scale?: boolean }> = {
+const parallaxConfig: Record<StaticSectionId, { speed: number; direction?: 'up' | 'down'; fadeIn?: boolean; scale?: boolean }> = {
   hero: { speed: 0 },
   features: { speed: 0.1, fadeIn: true },
   newArrivals: { speed: 0.15, direction: 'up', fadeIn: true },
@@ -34,9 +38,10 @@ const parallaxConfig: Record<SectionId, { speed: number; direction?: 'up' | 'dow
 
 const Index = () => {
   const { data: sectionOrder } = useSectionOrder();
+  const { data: collections } = useProductCollections();
 
   const enabledSections = useMemo(() => {
-    return sectionOrder?.filter(s => s.enabled) || [];
+    return sectionOrder?.filter(s => isScheduledActive(s)) || [];
   }, [sectionOrder]);
 
   return (
@@ -48,8 +53,22 @@ const Index = () => {
 
       <main className="overflow-hidden">
         {enabledSections.map((section) => {
-          const Component = sectionComponents[section.id];
-          const config = parallaxConfig[section.id];
+          // Handle collection sections
+          if (section.id === 'collection' && section.collectionId) {
+            const collection = collections?.find(c => c.id === section.collectionId);
+            if (!collection?.enabled) return null;
+            
+            return (
+              <section key={`collection-${section.collectionId}`} className="scroll-snap-section">
+                <ParallaxSection speed={0.15} direction="up" fadeIn>
+                  <ProductCollection collection={collection} />
+                </ParallaxSection>
+              </section>
+            );
+          }
+
+          const Component = sectionComponents[section.id as StaticSectionId];
+          const config = parallaxConfig[section.id as StaticSectionId];
           
           if (!Component) return null;
           
@@ -65,10 +84,10 @@ const Index = () => {
           return (
             <section key={section.id} className="scroll-snap-section">
               <ParallaxSection 
-                speed={config.speed} 
-                direction={config.direction}
-                fadeIn={config.fadeIn}
-                scale={config.scale}
+                speed={config?.speed || 0.1} 
+                direction={config?.direction}
+                fadeIn={config?.fadeIn}
+                scale={config?.scale}
               >
                 <Component />
               </ParallaxSection>

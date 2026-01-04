@@ -1,12 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-export type SectionId = 'hero' | 'features' | 'newArrivals' | 'categories' | 'featuredProducts' | 'brandBanner';
+export type SectionId = 'hero' | 'features' | 'newArrivals' | 'categories' | 'featuredProducts' | 'brandBanner' | 'collection';
 
 export interface SectionOrderItem {
   id: SectionId;
   label: string;
   enabled: boolean;
+  startDate?: string | null;
+  endDate?: string | null;
+  collectionId?: string;
 }
 
 export const defaultSectionOrder: SectionOrderItem[] = [
@@ -17,6 +20,14 @@ export const defaultSectionOrder: SectionOrderItem[] = [
   { id: 'featuredProducts', label: 'Featured Products', enabled: true },
   { id: 'brandBanner', label: 'Brand Banner', enabled: true },
 ];
+
+export const isScheduledActive = (item: SectionOrderItem): boolean => {
+  if (!item.enabled) return false;
+  const now = new Date();
+  if (item.startDate && new Date(item.startDate) > now) return false;
+  if (item.endDate && new Date(item.endDate) < now) return false;
+  return true;
+};
 
 export const useSectionOrder = () => {
   return useQuery({
