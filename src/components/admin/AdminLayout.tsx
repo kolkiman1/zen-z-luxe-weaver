@@ -21,7 +21,8 @@ import {
   Warehouse,
   Type,
   Image,
-  Layers
+  Layers,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -50,6 +51,7 @@ const navItems: NavItem[] = [
   { name: 'SEO', href: '/admin/seo', icon: Search },
   { name: 'Section Media', href: '/admin/section-media', icon: Settings },
   { name: 'Section Content', href: '/admin/section-content', icon: Type },
+  { name: 'Section Elements', href: '/admin/section-elements', icon: Sparkles },
   { name: 'Collections', href: '/admin/product-collections', icon: Layers },
   { name: 'Category Banners', href: '/admin/category-banners', icon: Image },
   { name: 'Security', href: '/admin/security', icon: Shield, badgeKey: 'security' },
