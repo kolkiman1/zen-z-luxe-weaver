@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
 import { motion } from 'framer-motion';
 import { 
@@ -116,11 +116,19 @@ const OrderTrackingPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [isGuestLookup, setIsGuestLookup] = useState(false);
+
+  // Get prefill values from navigation state (from checkout redirect)
+  const prefillState = location.state as { 
+    orderNumber?: string; 
+    email?: string; 
+    phone?: string 
+  } | null;
 
   // Determine if this is a guest lookup (no orderId in URL and no user)
   useEffect(() => {
@@ -310,7 +318,12 @@ const OrderTrackingPage = () => {
         <Header />
         <main className="pt-24 pb-16 min-h-screen bg-background">
           <div className="container-luxury py-12">
-            <GuestOrderLookup onOrderFound={handleGuestOrderFound} />
+            <GuestOrderLookup 
+              onOrderFound={handleGuestOrderFound}
+              prefillOrderNumber={prefillState?.orderNumber}
+              prefillEmail={prefillState?.email}
+              prefillPhone={prefillState?.phone}
+            />
             
             {user === null && (
               <div className="text-center mt-8">

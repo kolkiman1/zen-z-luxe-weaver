@@ -377,14 +377,16 @@ const CheckoutPage = () => {
       
       clearCart();
       
-      // Navigate to orders page for logged-in users, or show success message for guests
+      // Navigate to orders page for logged-in users, or track-order for guests
       if (user) {
         navigate('/orders');
       } else {
-        navigate('/', { 
+        // Redirect guests to track-order page with prefilled info
+        navigate('/track-order', { 
           state: { 
-            orderSuccess: true, 
-            orderNumber: order.order_number || order.id 
+            orderNumber: order.order_number || order.id,
+            email: formData.email,
+            phone: formData.phone
           } 
         });
       }
