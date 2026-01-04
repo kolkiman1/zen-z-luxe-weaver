@@ -1,32 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+export type SectionHeight = 'auto' | 'small' | 'medium' | 'large' | 'full';
+
+export interface SectionMediaItem {
+  type: 'image' | 'video' | 'none';
+  url: string;
+  overlayOpacity?: number;
+  height?: SectionHeight;
+}
+
 export interface SectionMedia {
-  hero: {
-    type: 'image' | 'video';
-    url: string;
-    overlayOpacity?: number;
-  };
-  categories: {
-    type: 'image' | 'video' | 'none';
-    url: string;
-    overlayOpacity?: number;
-  };
-  featuredProducts: {
-    type: 'image' | 'video' | 'none';
-    url: string;
-    overlayOpacity?: number;
-  };
-  newArrivals: {
-    type: 'image' | 'video';
-    url: string;
-    overlayOpacity?: number;
-  };
-  brandBanner: {
-    type: 'image' | 'video';
-    url: string;
-    overlayOpacity?: number;
-  };
+  hero: SectionMediaItem;
+  categories: SectionMediaItem;
+  featuredProducts: SectionMediaItem;
+  newArrivals: SectionMediaItem;
+  brandBanner: SectionMediaItem;
 }
 
 const defaultSectionMedia: SectionMedia = {
@@ -34,26 +23,31 @@ const defaultSectionMedia: SectionMedia = {
     type: 'image',
     url: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1920&q=80',
     overlayOpacity: 85,
+    height: 'large',
   },
   categories: {
     type: 'none',
     url: '',
     overlayOpacity: 70,
+    height: 'auto',
   },
   featuredProducts: {
     type: 'none',
     url: '',
     overlayOpacity: 70,
+    height: 'auto',
   },
   newArrivals: {
     type: 'video',
     url: '/videos/new-arrivals-bg.mp4',
     overlayOpacity: 80,
+    height: 'medium',
   },
   brandBanner: {
     type: 'image',
     url: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1920&q=80',
     overlayOpacity: 60,
+    height: 'medium',
   },
 };
 
