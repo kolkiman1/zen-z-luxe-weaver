@@ -5,11 +5,14 @@ import { useNewArrivals } from '@/hooks/useProducts';
 import ProductCard from '@/components/products/ProductCard';
 import { AnimatedButton } from '@/components/ui/animated-button';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
+import { useSectionContent } from '@/hooks/useSectionContent';
 
 const NewArrivals = () => {
   const { products: newArrivals, loading } = useNewArrivals();
   const { data: sectionMedia } = useSectionMedia();
+  const { data: sectionContent } = useSectionContent();
   const newArrivalsMedia = sectionMedia?.newArrivals;
+  const content = sectionContent?.newArrivals;
 
   return (
     <section className="relative section-padding overflow-hidden">
@@ -58,10 +61,10 @@ const NewArrivals = () => {
         >
           <div>
             <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 sm:mb-3">
-              New <span className="text-gradient-gold">Arrivals</span>
+              {content?.headline || 'New'} <span className="text-gradient-gold">{content?.headlineHighlight || 'Arrivals'}</span>
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base max-w-lg">
-              The latest additions to our premium collection
+              {content?.description || 'The latest additions to our premium collection'}
             </p>
           </div>
           <Link to="/category/new-arrivals">

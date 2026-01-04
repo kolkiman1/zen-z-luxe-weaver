@@ -8,6 +8,7 @@ import CartSidebar from '@/components/cart/CartSidebar';
 import ProductCard from '@/components/products/ProductCard';
 import { categories } from '@/lib/data';
 import { useProducts } from '@/hooks/useProducts';
+import { useCategoryBanners } from '@/hooks/useCategoryBanners';
 import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -42,9 +43,11 @@ const CategoryPage = () => {
   const [sortBy, setSortBy] = useState('featured');
 
   const { products, loading, error } = useProducts(slug);
+  const { data: categoryBanners } = useCategoryBanners();
 
   const category = categories.find((c) => c.slug === slug);
   const categoryName = category?.name || (slug === 'new-arrivals' ? 'New Arrivals' : 'All Products');
+  const banner = slug ? categoryBanners?.[slug] : null;
 
   const filteredProducts = useMemo(() => {
     let filtered = [...products];
@@ -166,19 +169,70 @@ const CategoryPage = () => {
       <Header />
       <CartSidebar />
 
-      <main className="pt-24 pb-16 min-h-screen">
+      <main className="pt-20 pb-16 min-h-screen">
+        {/* Category Banner */}
+        {banner?.url && (
+          <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden mb-8">
+            {banner.type === 'video' ? (
+              <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+                <source src={banner.url} type="video/mp4" />
+              </video>
+            ) : (
+              <div 
+                className="w-full h-full bg-cover bg-center"
+                style={{ backgroundImage: `url('${banner.url}')` }}
+              />
+            )}
+            <div 
+              className="absolute inset-0 bg-background"
+              style={{ opacity: (banner.overlayOpacity || 60) / 100 }}
+            />
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-2"
+              >
+                {banner.headline || categoryName}
+              </motion.h1>
+              {banner.description && (
+                <motion.p 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl"
+                >
+                  {banner.description}
+                </motion.p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Default Header when no banner */}
+        {!banner?.url && (
+          <div className="container-luxury">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-12 pt-4"
+            >
+              <h1 className="font-display text-4xl md:text-5xl mb-3">{categoryName}</h1>
+              <p className="text-muted-foreground">
+                {loading ? 'Loading...' : `${filteredProducts.length} ${filteredProducts.length === 1 ? 'product' : 'products'}`}
+              </p>
+            </motion.div>
+          </div>
+        )}
+
         <div className="container-luxury">
-          {/* Page Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
-          >
-            <h1 className="font-display text-4xl md:text-5xl mb-3">{categoryName}</h1>
-            <p className="text-muted-foreground">
+
+          {/* Product count when banner is present */}
+          {banner?.url && (
+            <p className="text-center text-muted-foreground mb-6">
               {loading ? 'Loading...' : `${filteredProducts.length} ${filteredProducts.length === 1 ? 'product' : 'products'}`}
             </p>
-          </motion.div>
+          )}
 
           {/* Toolbar */}
           <div className="flex items-center justify-between gap-2 sm:gap-4 mb-6 sm:mb-8 pb-4 sm:pb-6 border-b border-border">
