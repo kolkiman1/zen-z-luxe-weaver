@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Loader2, Type, GripVertical, Eye, EyeOff, Calendar, Plus, Clock } from 'lucide-react';
+import { Save, Loader2, Type, GripVertical, Eye, EyeOff, Calendar, Plus, Clock, Undo2, Redo2 } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -21,6 +21,49 @@ import { useSectionContent, useUpdateSectionContent, SectionContent, defaultSect
 import { useSectionOrder, useUpdateSectionOrder, SectionOrderItem, defaultSectionOrder } from '@/hooks/useSectionOrder';
 import { useProductCollections } from '@/hooks/useProductCollections';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
+
+// Custom hook for undo/redo functionality
+const useUndoRedo = <T,>(initialState: T) => {
+  const [history, setHistory] = useState<T[]>([initialState]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const currentState = history[currentIndex];
+
+  const setState = useCallback((newState: T | ((prev: T) => T)) => {
+    const actualNewState = typeof newState === 'function' 
+      ? (newState as (prev: T) => T)(history[currentIndex])
+      : newState;
+    
+    const newHistory = history.slice(0, currentIndex + 1);
+    newHistory.push(actualNewState);
+    // Limit history to 50 items
+    if (newHistory.length > 50) newHistory.shift();
+    setHistory(newHistory);
+    setCurrentIndex(newHistory.length - 1);
+  }, [history, currentIndex]);
+
+  const undo = useCallback(() => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  }, [currentIndex]);
+
+  const redo = useCallback(() => {
+    if (currentIndex < history.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  }, [currentIndex, history.length]);
+
+  const canUndo = currentIndex > 0;
+  const canRedo = currentIndex < history.length - 1;
+
+  const reset = useCallback((newState: T) => {
+    setHistory([newState]);
+    setCurrentIndex(0);
+  }, []);
+
+  return { state: currentState, setState, undo, redo, canUndo, canRedo, reset };
+};
 
 interface SortableItemProps {
   item: SectionOrderItem;
@@ -162,7 +205,17 @@ const AdminSectionContent = () => {
   const updateOrderMutation = useUpdateSectionOrder();
 
   const [localContent, setLocalContent] = useState<SectionContent>(defaultSectionContent);
-  const [localOrder, setLocalOrder] = useState<SectionOrderItem[]>(defaultSectionOrder);
+  
+  // Use undo/redo for section order
+  const { 
+    state: localOrder, 
+    setState: setLocalOrder, 
+    undo, 
+    redo, 
+    canUndo, 
+    canRedo,
+    reset: resetOrderHistory 
+  } = useUndoRedo<SectionOrderItem[]>(defaultSectionOrder);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -174,8 +227,8 @@ const AdminSectionContent = () => {
   }, [sectionContent]);
 
   useEffect(() => {
-    if (sectionOrder) setLocalOrder(sectionOrder);
-  }, [sectionOrder]);
+    if (sectionOrder) resetOrderHistory(sectionOrder);
+  }, [sectionOrder, resetOrderHistory]);
 
   const handleContentChange = (section: keyof SectionContent, field: string, value: string) => {
     setLocalContent(prev => ({
@@ -300,13 +353,39 @@ const AdminSectionContent = () => {
             <div className="grid lg:grid-cols-[1fr_300px] gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <GripVertical className="w-5 h-5 text-primary" />
-                    Homepage Section Order
-                  </CardTitle>
-                  <CardDescription>
-                    Drag to reorder sections. Click the calendar icon to schedule visibility.
-                  </CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <GripVertical className="w-5 h-5 text-primary" />
+                        Homepage Section Order
+                      </CardTitle>
+                      <CardDescription>
+                        Drag to reorder sections. Click the calendar icon to schedule visibility.
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={undo}
+                        disabled={!canUndo}
+                        title="Undo"
+                        className="h-8 w-8"
+                      >
+                        <Undo2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={redo}
+                        disabled={!canRedo}
+                        title="Redo"
+                        className="h-8 w-8"
+                      >
+                        <Redo2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
