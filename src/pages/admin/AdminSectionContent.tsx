@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Loader2, Type, GripVertical, Eye, EyeOff } from 'lucide-react';
+import { Save, Loader2, Type, GripVertical, Eye, EyeOff, Calendar, Plus, Clock } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { format } from 'date-fns';
 import AdminLayout from '@/components/admin/AdminLayout';
+import HomepagePreview from '@/components/admin/HomepagePreview';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,17 +14,22 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { toast } from 'sonner';
 import { useSectionContent, useUpdateSectionContent, SectionContent, defaultSectionContent } from '@/hooks/useSectionContent';
 import { useSectionOrder, useUpdateSectionOrder, SectionOrderItem, defaultSectionOrder } from '@/hooks/useSectionOrder';
+import { useProductCollections } from '@/hooks/useProductCollections';
 
 interface SortableItemProps {
   item: SectionOrderItem;
   onToggle: (id: string, enabled: boolean) => void;
+  onScheduleChange: (id: string, startDate: string | null, endDate: string | null) => void;
 }
 
-const SortableItem = ({ item, onToggle }: SortableItemProps) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+const SortableItem = ({ item, onToggle, onScheduleChange }: SortableItemProps) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id + (item.collectionId || '') });
+  const [showSchedule, setShowSchedule] = useState(false);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -30,28 +37,117 @@ const SortableItem = ({ item, onToggle }: SortableItemProps) => {
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const hasSchedule = item.startDate || item.endDate;
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-3 p-3 sm:p-4 bg-card border border-border rounded-lg ${isDragging ? 'shadow-lg' : ''}`}
+      className={`flex flex-col gap-2 p-3 sm:p-4 bg-card border border-border rounded-lg ${isDragging ? 'shadow-lg' : ''}`}
     >
-      <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none">
-        <GripVertical className="w-5 h-5 text-muted-foreground" />
-      </button>
-      <span className="flex-1 font-medium text-sm sm:text-base">{item.label}</span>
-      <div className="flex items-center gap-2">
-        {item.enabled ? (
-          <Eye className="w-4 h-4 text-primary" />
-        ) : (
-          <EyeOff className="w-4 h-4 text-muted-foreground" />
-        )}
-        <Switch
-          checked={item.enabled}
-          onCheckedChange={(checked) => onToggle(item.id, checked)}
-          disabled={item.id === 'hero'}
-        />
+      <div className="flex items-center gap-3">
+        <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none">
+          <GripVertical className="w-5 h-5 text-muted-foreground" />
+        </button>
+        <span className="flex-1 font-medium text-sm sm:text-base">{item.label}</span>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => setShowSchedule(!showSchedule)}
+            className={`p-1.5 rounded hover:bg-muted transition-colors ${hasSchedule ? 'text-primary' : 'text-muted-foreground'}`}
+          >
+            <Calendar className="w-4 h-4" />
+          </button>
+          {item.enabled ? (
+            <Eye className="w-4 h-4 text-primary" />
+          ) : (
+            <EyeOff className="w-4 h-4 text-muted-foreground" />
+          )}
+          <Switch
+            checked={item.enabled}
+            onCheckedChange={(checked) => onToggle(item.id + (item.collectionId || ''), checked)}
+            disabled={item.id === 'hero'}
+          />
+        </div>
       </div>
+      
+      {/* Schedule Settings */}
+      {showSchedule && (
+        <motion.div 
+          initial={{ height: 0, opacity: 0 }} 
+          animate={{ height: 'auto', opacity: 1 }}
+          className="pt-3 mt-2 border-t border-border"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs flex items-center gap-1">
+                <Clock className="w-3 h-3" /> Start Date
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="w-full justify-start text-left text-xs">
+                    {item.startDate ? format(new Date(item.startDate), 'PPP') : 'Not set'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={item.startDate ? new Date(item.startDate) : undefined}
+                    onSelect={(date) => onScheduleChange(item.id + (item.collectionId || ''), date?.toISOString() || null, item.endDate || null)}
+                  />
+                  {item.startDate && (
+                    <div className="p-2 border-t">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="w-full text-xs"
+                        onClick={() => onScheduleChange(item.id + (item.collectionId || ''), null, item.endDate || null)}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs flex items-center gap-1">
+                <Clock className="w-3 h-3" /> End Date
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="w-full justify-start text-left text-xs">
+                    {item.endDate ? format(new Date(item.endDate), 'PPP') : 'Not set'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={item.endDate ? new Date(item.endDate) : undefined}
+                    onSelect={(date) => onScheduleChange(item.id + (item.collectionId || ''), item.startDate || null, date?.toISOString() || null)}
+                  />
+                  {item.endDate && (
+                    <div className="p-2 border-t">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="w-full text-xs"
+                        onClick={() => onScheduleChange(item.id + (item.collectionId || ''), item.startDate || null, null)}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+          {hasSchedule && (
+            <p className="text-[10px] text-muted-foreground mt-2">
+              This section will only show during the scheduled period
+            </p>
+          )}
+        </motion.div>
+      )}
     </div>
   );
 };
@@ -59,6 +155,7 @@ const SortableItem = ({ item, onToggle }: SortableItemProps) => {
 const AdminSectionContent = () => {
   const { data: sectionContent, isLoading: contentLoading } = useSectionContent();
   const { data: sectionOrder, isLoading: orderLoading } = useSectionOrder();
+  const { data: collections } = useProductCollections();
   const updateContentMutation = useUpdateSectionContent();
   const updateOrderMutation = useUpdateSectionOrder();
 
@@ -101,15 +198,38 @@ const AdminSectionContent = () => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       setLocalOrder(items => {
-        const oldIndex = items.findIndex(i => i.id === active.id);
-        const newIndex = items.findIndex(i => i.id === over.id);
+        const oldIndex = items.findIndex(i => (i.id + (i.collectionId || '')) === active.id);
+        const newIndex = items.findIndex(i => (i.id + (i.collectionId || '')) === over.id);
         return arrayMove(items, oldIndex, newIndex);
       });
     }
   };
 
-  const handleToggle = (id: string, enabled: boolean) => {
-    setLocalOrder(items => items.map(item => item.id === id ? { ...item, enabled } : item));
+  const handleToggle = (uniqueId: string, enabled: boolean) => {
+    setLocalOrder(items => items.map(item => 
+      (item.id + (item.collectionId || '')) === uniqueId ? { ...item, enabled } : item
+    ));
+  };
+
+  const handleScheduleChange = (uniqueId: string, startDate: string | null, endDate: string | null) => {
+    setLocalOrder(items => items.map(item => 
+      (item.id + (item.collectionId || '')) === uniqueId 
+        ? { ...item, startDate, endDate } 
+        : item
+    ));
+  };
+
+  const handleAddCollection = (collectionId: string) => {
+    const collection = collections?.find(c => c.id === collectionId);
+    if (collection) {
+      const newSection: SectionOrderItem = {
+        id: 'collection',
+        label: collection.name,
+        enabled: true,
+        collectionId: collection.id,
+      };
+      setLocalOrder([...localOrder, newSection]);
+    }
   };
 
   const handleSaveContent = async () => {
@@ -130,6 +250,11 @@ const AdminSectionContent = () => {
     }
   };
 
+  // Get available collections that aren't already added
+  const availableCollections = collections?.filter(c => 
+    c.enabled && !localOrder.some(item => item.collectionId === c.id)
+  ) || [];
+
   if (contentLoading || orderLoading) {
     return (
       <AdminLayout title="Section Content">
@@ -147,7 +272,7 @@ const AdminSectionContent = () => {
           <div>
             <h1 className="text-2xl sm:text-3xl font-display font-bold">Section Content & Order</h1>
             <p className="text-muted-foreground text-sm sm:text-base">
-              Edit text, headlines, and reorder homepage sections
+              Edit text, headlines, reorder, and schedule homepage sections
             </p>
           </div>
         </div>
@@ -170,28 +295,67 @@ const AdminSectionContent = () => {
 
           {/* Section Order Tab */}
           <TabsContent value="order" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <GripVertical className="w-5 h-5 text-primary" />
-                  Homepage Section Order
-                </CardTitle>
-                <CardDescription>Drag to reorder sections. Toggle visibility with the switch.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                  <SortableContext items={localOrder.map(i => i.id)} strategy={verticalListSortingStrategy}>
-                    {localOrder.map(item => (
-                      <SortableItem key={item.id} item={item} onToggle={handleToggle} />
-                    ))}
-                  </SortableContext>
-                </DndContext>
-                <Button onClick={handleSaveOrder} disabled={updateOrderMutation.isPending} className="w-full mt-4 gap-2">
-                  {updateOrderMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  Save Order
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="grid lg:grid-cols-[1fr_300px] gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <GripVertical className="w-5 h-5 text-primary" />
+                    Homepage Section Order
+                  </CardTitle>
+                  <CardDescription>
+                    Drag to reorder sections. Click the calendar icon to schedule visibility.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext 
+                      items={localOrder.map(i => i.id + (i.collectionId || ''))} 
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {localOrder.map(item => (
+                        <SortableItem 
+                          key={item.id + (item.collectionId || '')} 
+                          item={item} 
+                          onToggle={handleToggle}
+                          onScheduleChange={handleScheduleChange}
+                        />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
+                  
+                  {/* Add Collection Section */}
+                  {availableCollections.length > 0 && (
+                    <div className="pt-4 border-t border-border">
+                      <Label className="text-sm mb-2 block">Add Product Collection</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {availableCollections.map(collection => (
+                          <Button
+                            key={collection.id}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleAddCollection(collection.id)}
+                            className="gap-1"
+                          >
+                            <Plus className="w-3 h-3" />
+                            {collection.name}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <Button onClick={handleSaveOrder} disabled={updateOrderMutation.isPending} className="w-full mt-4 gap-2">
+                    {updateOrderMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    Save Order
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Homepage Preview */}
+              <div className="lg:sticky lg:top-4">
+                <HomepagePreview sections={localOrder} />
+              </div>
+            </div>
           </TabsContent>
 
           {/* Hero Content Tab */}
