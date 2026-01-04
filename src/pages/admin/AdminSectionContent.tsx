@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Loader2, Type, GripVertical, Eye, EyeOff, Calendar, Plus, Clock, Undo2, Redo2 } from 'lucide-react';
+import { Save, Loader2, Type, GripVertical, Eye, EyeOff, Calendar, Plus, Clock, Undo2, Redo2, SplitSquareHorizontal } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import AdminLayout from '@/components/admin/AdminLayout';
 import HomepagePreview from '@/components/admin/HomepagePreview';
 import SectionContentPreview from '@/components/admin/SectionContentPreview';
+import SectionContentComparison from '@/components/admin/SectionContentComparison';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -208,7 +209,9 @@ const AdminSectionContent = () => {
   const updateOrderMutation = useUpdateSectionOrder();
 
   const [localContent, setLocalContent] = useState<SectionContent>(defaultSectionContent);
+  const [originalContent, setOriginalContent] = useState<SectionContent>(defaultSectionContent);
   const [previewSection, setPreviewSection] = useState<ContentSectionKey | null>(null);
+  const [compareSection, setCompareSection] = useState<ContentSectionKey | null>(null);
   
   // Use undo/redo for section order
   const { 
@@ -227,7 +230,10 @@ const AdminSectionContent = () => {
   );
 
   useEffect(() => {
-    if (sectionContent) setLocalContent(sectionContent);
+    if (sectionContent) {
+      setLocalContent(sectionContent);
+      setOriginalContent(sectionContent);
+    }
   }, [sectionContent]);
 
   useEffect(() => {
@@ -294,6 +300,7 @@ const AdminSectionContent = () => {
   const handleSaveContent = async () => {
     try {
       await updateContentMutation.mutateAsync(localContent);
+      setOriginalContent(localContent);
       toast.success('Section content saved!');
     } catch (error) {
       toast.error('Failed to save content');
@@ -464,15 +471,26 @@ const AdminSectionContent = () => {
                     </CardTitle>
                     <CardDescription>Edit the main landing section text</CardDescription>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPreviewSection('hero')}
-                    className="gap-2"
-                  >
-                    <Eye className="w-4 h-4" />
-                    Preview
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCompareSection('hero')}
+                      className="gap-2"
+                    >
+                      <SplitSquareHorizontal className="w-4 h-4" />
+                      Compare
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPreviewSection('hero')}
+                      className="gap-2"
+                    >
+                      <Eye className="w-4 h-4" />
+                      Preview
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -565,15 +583,26 @@ const AdminSectionContent = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>New Arrivals</CardTitle>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPreviewSection('newArrivals')}
-                    className="gap-2"
-                  >
-                    <Eye className="w-4 h-4" />
-                    Preview
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCompareSection('newArrivals')}
+                      className="gap-2"
+                    >
+                      <SplitSquareHorizontal className="w-4 h-4" />
+                      Compare
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPreviewSection('newArrivals')}
+                      className="gap-2"
+                    >
+                      <Eye className="w-4 h-4" />
+                      Preview
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -599,15 +628,26 @@ const AdminSectionContent = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Categories Section</CardTitle>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPreviewSection('categories')}
-                    className="gap-2"
-                  >
-                    <Eye className="w-4 h-4" />
-                    Preview
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCompareSection('categories')}
+                      className="gap-2"
+                    >
+                      <SplitSquareHorizontal className="w-4 h-4" />
+                      Compare
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPreviewSection('categories')}
+                      className="gap-2"
+                    >
+                      <Eye className="w-4 h-4" />
+                      Preview
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -633,15 +673,26 @@ const AdminSectionContent = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Featured Products</CardTitle>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPreviewSection('featuredProducts')}
-                    className="gap-2"
-                  >
-                    <Eye className="w-4 h-4" />
-                    Preview
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCompareSection('featuredProducts')}
+                      className="gap-2"
+                    >
+                      <SplitSquareHorizontal className="w-4 h-4" />
+                      Compare
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPreviewSection('featuredProducts')}
+                      className="gap-2"
+                    >
+                      <Eye className="w-4 h-4" />
+                      Preview
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -671,15 +722,26 @@ const AdminSectionContent = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Brand Banner</CardTitle>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPreviewSection('brandBanner')}
-                    className="gap-2"
-                  >
-                    <Eye className="w-4 h-4" />
-                    Preview
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCompareSection('brandBanner')}
+                      className="gap-2"
+                    >
+                      <SplitSquareHorizontal className="w-4 h-4" />
+                      Compare
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPreviewSection('brandBanner')}
+                      className="gap-2"
+                    >
+                      <Eye className="w-4 h-4" />
+                      Preview
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -719,6 +781,18 @@ const AdminSectionContent = () => {
             media={sectionMedia}
             open={!!previewSection}
             onOpenChange={(open) => !open && setPreviewSection(null)}
+          />
+        )}
+
+        {/* Content Comparison Modal */}
+        {compareSection && (
+          <SectionContentComparison
+            sectionKey={compareSection}
+            originalContent={originalContent}
+            currentContent={localContent}
+            media={sectionMedia}
+            open={!!compareSection}
+            onOpenChange={(open) => !open && setCompareSection(null)}
           />
         )}
       </motion.div>
