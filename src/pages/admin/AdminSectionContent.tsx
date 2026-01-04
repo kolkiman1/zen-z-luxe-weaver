@@ -7,6 +7,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { format } from 'date-fns';
 import AdminLayout from '@/components/admin/AdminLayout';
 import HomepagePreview from '@/components/admin/HomepagePreview';
+import SectionContentPreview from '@/components/admin/SectionContentPreview';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,8 @@ import { useSectionContent, useUpdateSectionContent, SectionContent, defaultSect
 import { useSectionOrder, useUpdateSectionOrder, SectionOrderItem, defaultSectionOrder } from '@/hooks/useSectionOrder';
 import { useProductCollections } from '@/hooks/useProductCollections';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
+
+type ContentSectionKey = 'hero' | 'newArrivals' | 'categories' | 'featuredProducts' | 'brandBanner';
 
 // Custom hook for undo/redo functionality
 const useUndoRedo = <T,>(initialState: T) => {
@@ -205,6 +208,7 @@ const AdminSectionContent = () => {
   const updateOrderMutation = useUpdateSectionOrder();
 
   const [localContent, setLocalContent] = useState<SectionContent>(defaultSectionContent);
+  const [previewSection, setPreviewSection] = useState<ContentSectionKey | null>(null);
   
   // Use undo/redo for section order
   const { 
@@ -452,11 +456,24 @@ const AdminSectionContent = () => {
           <TabsContent value="hero" className="mt-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Type className="w-5 h-5 text-primary" />
-                  Hero Section Content
-                </CardTitle>
-                <CardDescription>Edit the main landing section text</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Type className="w-5 h-5 text-primary" />
+                      Hero Section Content
+                    </CardTitle>
+                    <CardDescription>Edit the main landing section text</CardDescription>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPreviewSection('hero')}
+                    className="gap-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Preview
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -546,7 +563,18 @@ const AdminSectionContent = () => {
             {/* New Arrivals */}
             <Card>
               <CardHeader>
-                <CardTitle>New Arrivals</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>New Arrivals</CardTitle>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPreviewSection('newArrivals')}
+                    className="gap-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Preview
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -569,7 +597,18 @@ const AdminSectionContent = () => {
             {/* Categories */}
             <Card>
               <CardHeader>
-                <CardTitle>Categories Section</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Categories Section</CardTitle>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPreviewSection('categories')}
+                    className="gap-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Preview
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -592,7 +631,18 @@ const AdminSectionContent = () => {
             {/* Featured Products */}
             <Card>
               <CardHeader>
-                <CardTitle>Featured Products</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Featured Products</CardTitle>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPreviewSection('featuredProducts')}
+                    className="gap-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Preview
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -619,7 +669,18 @@ const AdminSectionContent = () => {
             {/* Brand Banner */}
             <Card>
               <CardHeader>
-                <CardTitle>Brand Banner</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Brand Banner</CardTitle>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPreviewSection('brandBanner')}
+                    className="gap-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Preview
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -649,6 +710,17 @@ const AdminSectionContent = () => {
             </Button>
           </TabsContent>
         </Tabs>
+
+        {/* Content Preview Modal */}
+        {previewSection && (
+          <SectionContentPreview
+            sectionKey={previewSection}
+            content={localContent}
+            media={sectionMedia}
+            open={!!previewSection}
+            onOpenChange={(open) => !open && setPreviewSection(null)}
+          />
+        )}
       </motion.div>
     </AdminLayout>
   );
