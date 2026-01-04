@@ -389,42 +389,44 @@ export const SectionElementEditor = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-2">
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            Edit Element - {editedElement.type.charAt(0).toUpperCase() + editedElement.type.slice(1)}
+      <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] p-0 overflow-hidden">
+        <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2">
+          <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
+            <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            Edit - {editedElement.type.charAt(0).toUpperCase() + editedElement.type.slice(1)}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
           {/* Editor Panel */}
-          <div className="w-1/2 border-r overflow-hidden flex flex-col">
+          <div className="w-full lg:w-1/2 border-b lg:border-b-0 lg:border-r overflow-hidden flex flex-col">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-              <TabsList className="mx-4 mt-2 grid w-auto grid-cols-5">
-                <TabsTrigger value="presets" className="flex items-center gap-1.5">
-                  <Wand2 className="h-3.5 w-3.5" />
-                  Presets
-                </TabsTrigger>
-                <TabsTrigger value="content" className="flex items-center gap-1.5">
-                  <Type className="h-3.5 w-3.5" />
-                  Content
-                </TabsTrigger>
-                <TabsTrigger value="typography" className="flex items-center gap-1.5">
-                  <Layout className="h-3.5 w-3.5" />
-                  Type
-                </TabsTrigger>
-                <TabsTrigger value="style" className="flex items-center gap-1.5">
-                  <Palette className="h-3.5 w-3.5" />
-                  Style
-                </TabsTrigger>
-                <TabsTrigger value="animation" className="flex items-center gap-1.5">
-                  <Zap className="h-3.5 w-3.5" />
-                  Animate
-                </TabsTrigger>
-              </TabsList>
+              <div className="px-2 sm:px-4 pt-2 overflow-x-auto">
+                <TabsList className="grid w-full min-w-[300px] grid-cols-5">
+                  <TabsTrigger value="presets" className="flex items-center gap-1 text-xs sm:text-sm px-1 sm:px-2">
+                    <Wand2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    <span className="hidden sm:inline">Presets</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="content" className="flex items-center gap-1 text-xs sm:text-sm px-1 sm:px-2">
+                    <Type className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    <span className="hidden sm:inline">Content</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="typography" className="flex items-center gap-1 text-xs sm:text-sm px-1 sm:px-2">
+                    <Layout className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    <span className="hidden sm:inline">Type</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="style" className="flex items-center gap-1 text-xs sm:text-sm px-1 sm:px-2">
+                    <Palette className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    <span className="hidden sm:inline">Style</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="animation" className="flex items-center gap-1 text-xs sm:text-sm px-1 sm:px-2">
+                    <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    <span className="hidden sm:inline">Animate</span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
 
-              <ScrollArea className="flex-1 px-4 pb-4">
+              <ScrollArea className="flex-1 px-3 sm:px-4 pb-4 max-h-[40vh] lg:max-h-[60vh]">
                 {/* Presets Tab */}
                 <TabsContent value="presets" className="mt-4 space-y-4">
                   <div className="space-y-2">
@@ -847,8 +849,8 @@ export const SectionElementEditor = ({
             </Tabs>
           </div>
 
-          {/* Live Preview Panel */}
-          <div className="w-1/2 flex flex-col overflow-hidden">
+          {/* Live Preview Panel - Hidden on mobile, shown on lg screens */}
+          <div className="hidden lg:flex w-1/2 flex-col overflow-hidden">
             <div className="px-4 py-2 border-b flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Eye className="h-4 w-4 text-muted-foreground" />
@@ -944,14 +946,14 @@ export const SectionElementEditor = ({
           </div>
         </div>
 
-        <DialogFooter className="px-6 py-4 border-t">
-          <Button variant="outline" onClick={resetToDefault}>
+        <DialogFooter className="px-4 sm:px-6 py-3 sm:py-4 border-t flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={resetToDefault} className="w-full sm:w-auto" size="sm">
             <RotateCcw className="h-4 w-4 mr-2" />
             Reset
           </Button>
-          <Button onClick={handleSave}>
+          <Button onClick={handleSave} className="w-full sm:w-auto" size="sm">
             <Save className="h-4 w-4 mr-2" />
-            Save Changes
+            Save
           </Button>
         </DialogFooter>
       </DialogContent>
