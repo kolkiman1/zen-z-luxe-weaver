@@ -4,25 +4,48 @@ import { Link } from 'react-router-dom';
 import { useNewArrivals } from '@/hooks/useProducts';
 import ProductCard from '@/components/products/ProductCard';
 import { AnimatedButton } from '@/components/ui/animated-button';
+import { useSectionMedia } from '@/hooks/useSectionMedia';
 
 const NewArrivals = () => {
   const { products: newArrivals, loading } = useNewArrivals();
+  const { data: sectionMedia } = useSectionMedia();
+  const newArrivalsMedia = sectionMedia?.newArrivals;
 
   return (
     <section className="relative section-padding overflow-hidden">
-      {/* Video Background */}
+      {/* Background Media */}
       <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover"
-        >
-          <source src="/videos/new-arrivals-bg.mp4" type="video/mp4" />
-        </video>
+        {newArrivalsMedia?.type === 'video' && newArrivalsMedia.url ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          >
+            <source src={newArrivalsMedia.url} type="video/mp4" />
+          </video>
+        ) : newArrivalsMedia?.type === 'image' && newArrivalsMedia.url ? (
+          <div 
+            className="w-full h-full bg-cover bg-center"
+            style={{ backgroundImage: `url('${newArrivalsMedia.url}')` }}
+          />
+        ) : (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          >
+            <source src="/videos/new-arrivals-bg.mp4" type="video/mp4" />
+          </video>
+        )}
         {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
+        <div 
+          className="absolute inset-0 bg-background backdrop-blur-sm"
+          style={{ opacity: (newArrivalsMedia?.overlayOpacity || 80) / 100 }}
+        />
       </div>
 
       <div className="container-luxury relative z-10">
