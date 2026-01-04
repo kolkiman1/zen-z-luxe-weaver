@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Loader2, Plus, Trash2, Package, Tag, Grid, List, ShoppingBag, Copy } from 'lucide-react';
+import { Save, Loader2, Plus, Trash2, Package, Tag, Grid, List, ShoppingBag, Copy, ToggleLeft, ToggleRight, CheckSquare } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useProductCollections, useUpdateProductCollections, ProductCollection, defaultCollections } from '@/hooks/useProductCollections';
@@ -17,10 +18,58 @@ const AdminProductCollections = () => {
   const updateMutation = useUpdateProductCollections();
 
   const [localCollections, setLocalCollections] = useState<ProductCollection[]>(defaultCollections);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (collections) setLocalCollections(collections);
   }, [collections]);
+
+  const toggleSelection = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    if (selectedIds.size === localCollections.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(localCollections.map(c => c.id)));
+    }
+  };
+
+  const bulkEnable = () => {
+    setLocalCollections(prev => prev.map(c => 
+      selectedIds.has(c.id) ? { ...c, enabled: true } : c
+    ));
+    toast.success(`${selectedIds.size} collection(s) enabled`);
+  };
+
+  const bulkDisable = () => {
+    setLocalCollections(prev => prev.map(c => 
+      selectedIds.has(c.id) ? { ...c, enabled: false } : c
+    ));
+    toast.success(`${selectedIds.size} collection(s) disabled`);
+  };
+
+  const bulkDelete = () => {
+    const deletableIds = [...selectedIds].filter(id => !['best-sellers', 'on-sale'].includes(id));
+    if (deletableIds.length === 0) {
+      toast.error('Cannot delete default collections');
+      return;
+    }
+    setLocalCollections(prev => prev.filter(c => !deletableIds.includes(c.id)));
+    setSelectedIds(new Set());
+    toast.success(`${deletableIds.length} collection(s) deleted`);
+  };
+
+  const hasSelection = selectedIds.size > 0;
 
   const handleChange = (id: string, field: keyof ProductCollection, value: any) => {
     setLocalCollections(prev => prev.map(c => 
@@ -101,7 +150,7 @@ const AdminProductCollections = () => {
               Create dynamic product sections for your homepage
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button onClick={handleAddCollection} variant="outline" className="gap-2">
               <Plus className="w-4 h-4" />
               Add Collection
@@ -113,12 +162,70 @@ const AdminProductCollections = () => {
           </div>
         </div>
 
+        {/* Bulk Actions Bar */}
+        <Card className="border-dashed">
+          <CardContent className="py-3 px-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={selectAll}
+                className="gap-2"
+              >
+                <CheckSquare className="w-4 h-4" />
+                {selectedIds.size === localCollections.length ? 'Deselect All' : 'Select All'}
+              </Button>
+              
+              {hasSelection && (
+                <>
+                  <span className="text-sm text-muted-foreground">
+                    {selectedIds.size} selected
+                  </span>
+                  <div className="h-4 w-px bg-border" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={bulkEnable}
+                    className="gap-2 text-green-600 hover:text-green-700"
+                  >
+                    <ToggleRight className="w-4 h-4" />
+                    Enable
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={bulkDisable}
+                    className="gap-2 text-amber-600 hover:text-amber-700"
+                  >
+                    <ToggleLeft className="w-4 h-4" />
+                    Disable
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={bulkDelete}
+                    className="gap-2 text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </Button>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="grid gap-6">
           {localCollections.map((collection) => (
-            <Card key={collection.id}>
+            <Card key={collection.id} className={selectedIds.has(collection.id) ? 'ring-2 ring-primary' : ''}>
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
+                    <Checkbox
+                      checked={selectedIds.has(collection.id)}
+                      onCheckedChange={() => toggleSelection(collection.id)}
+                      className="mt-1"
+                    />
                     <div className={`p-2 rounded-lg ${collection.enabled ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
                       <ShoppingBag className="w-5 h-5" />
                     </div>
