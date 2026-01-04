@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
 import { 
   Type, 
   Palette, 
@@ -23,8 +24,18 @@ import {
   Bold,
   Italic,
   Underline,
-  Sparkles
+  Sparkles,
+  Wand2,
+  Play,
+  Zap
 } from 'lucide-react';
+
+export interface ElementAnimation {
+  type: 'none' | 'fade' | 'slide-up' | 'slide-down' | 'slide-left' | 'slide-right' | 'scale' | 'bounce' | 'rotate';
+  duration: number;
+  delay: number;
+  easing: 'linear' | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'spring';
+}
 
 export interface ElementStyle {
   fontSize?: string;
@@ -49,7 +60,162 @@ export interface SectionElement {
   type: 'heading' | 'subheading' | 'description' | 'badge' | 'button' | 'link';
   content: string;
   style: ElementStyle;
+  animation?: ElementAnimation;
 }
+
+// Style Presets
+const stylePresets = [
+  {
+    id: 'elegant-heading',
+    name: 'Elegant Heading',
+    description: 'Sophisticated serif-inspired style',
+    style: {
+      fontSize: '5xl',
+      fontWeight: 'bold',
+      textAlign: 'center',
+      color: '#ffffff',
+      letterSpacing: 'wide',
+      lineHeight: 'tight',
+      shadow: 'lg',
+      opacity: 1,
+    } as ElementStyle,
+  },
+  {
+    id: 'minimal-clean',
+    name: 'Minimal Clean',
+    description: 'Simple and modern',
+    style: {
+      fontSize: '3xl',
+      fontWeight: 'light',
+      textAlign: 'center',
+      color: '#ffffff',
+      letterSpacing: 'wider',
+      lineHeight: 'relaxed',
+      textTransform: 'uppercase',
+      opacity: 0.9,
+    } as ElementStyle,
+  },
+  {
+    id: 'bold-impact',
+    name: 'Bold Impact',
+    description: 'Strong and attention-grabbing',
+    style: {
+      fontSize: '6xl',
+      fontWeight: 'extrabold',
+      textAlign: 'center',
+      color: '#ffffff',
+      letterSpacing: 'tight',
+      lineHeight: 'none',
+      shadow: 'xl',
+      opacity: 1,
+    } as ElementStyle,
+  },
+  {
+    id: 'soft-subtle',
+    name: 'Soft & Subtle',
+    description: 'Gentle and understated',
+    style: {
+      fontSize: '2xl',
+      fontWeight: 'normal',
+      textAlign: 'center',
+      color: 'rgba(255,255,255,0.85)',
+      letterSpacing: 'normal',
+      lineHeight: 'relaxed',
+      opacity: 0.85,
+    } as ElementStyle,
+  },
+  {
+    id: 'luxury-gold',
+    name: 'Luxury Gold',
+    description: 'Premium golden accent',
+    style: {
+      fontSize: '4xl',
+      fontWeight: 'semibold',
+      textAlign: 'center',
+      color: '#D4AF37',
+      letterSpacing: 'wider',
+      lineHeight: 'snug',
+      shadow: 'md',
+      opacity: 1,
+    } as ElementStyle,
+  },
+  {
+    id: 'badge-style',
+    name: 'Badge Style',
+    description: 'Compact with background',
+    style: {
+      fontSize: 'sm',
+      fontWeight: 'medium',
+      textAlign: 'center',
+      color: '#ffffff',
+      backgroundColor: 'rgba(255,255,255,0.15)',
+      padding: '0.5rem',
+      borderRadius: '9999px',
+      letterSpacing: 'widest',
+      textTransform: 'uppercase',
+      opacity: 1,
+    } as ElementStyle,
+  },
+  {
+    id: 'glass-effect',
+    name: 'Glass Effect',
+    description: 'Frosted glass appearance',
+    style: {
+      fontSize: 'xl',
+      fontWeight: 'medium',
+      textAlign: 'center',
+      color: '#ffffff',
+      backgroundColor: 'rgba(255,255,255,0.1)',
+      padding: '1rem',
+      borderRadius: '0.5rem',
+      shadow: 'sm',
+      opacity: 1,
+    } as ElementStyle,
+  },
+  {
+    id: 'neon-glow',
+    name: 'Neon Glow',
+    description: 'Vibrant with glow effect',
+    style: {
+      fontSize: '4xl',
+      fontWeight: 'bold',
+      textAlign: 'center',
+      color: '#E91E63',
+      letterSpacing: 'wide',
+      shadow: '2xl',
+      opacity: 1,
+    } as ElementStyle,
+  },
+];
+
+// Animation Presets
+const animationTypes = [
+  { value: 'none', label: 'None', description: 'No animation' },
+  { value: 'fade', label: 'Fade In', description: 'Smooth opacity transition' },
+  { value: 'slide-up', label: 'Slide Up', description: 'Enter from bottom' },
+  { value: 'slide-down', label: 'Slide Down', description: 'Enter from top' },
+  { value: 'slide-left', label: 'Slide Left', description: 'Enter from right' },
+  { value: 'slide-right', label: 'Slide Right', description: 'Enter from left' },
+  { value: 'scale', label: 'Scale', description: 'Grow from small' },
+  { value: 'bounce', label: 'Bounce', description: 'Playful bounce effect' },
+  { value: 'rotate', label: 'Rotate', description: 'Spin into view' },
+];
+
+const easingOptions = [
+  { value: 'linear', label: 'Linear' },
+  { value: 'ease', label: 'Ease' },
+  { value: 'ease-in', label: 'Ease In' },
+  { value: 'ease-out', label: 'Ease Out' },
+  { value: 'ease-in-out', label: 'Ease In Out' },
+  { value: 'spring', label: 'Spring' },
+];
+
+const defaultAnimation: ElementAnimation = {
+  type: 'none',
+  duration: 500,
+  delay: 0,
+  easing: 'ease-out',
+};
 
 interface SectionElementEditorProps {
   open: boolean;
@@ -90,10 +256,14 @@ export const SectionElementEditor = ({
 }: SectionElementEditorProps) => {
   const [editedElement, setEditedElement] = useState<SectionElement | null>(null);
   const [activeTab, setActiveTab] = useState('content');
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     if (element) {
-      setEditedElement({ ...element });
+      setEditedElement({ 
+        ...element,
+        animation: element.animation || defaultAnimation
+      });
     }
   }, [element]);
 
@@ -106,13 +276,30 @@ export const SectionElementEditor = ({
     } : null);
   };
 
+  const updateAnimation = (key: keyof ElementAnimation, value: string | number) => {
+    setEditedElement(prev => prev ? {
+      ...prev,
+      animation: { ...(prev.animation || defaultAnimation), [key]: value }
+    } : null);
+  };
+
+  const applyPreset = (preset: typeof stylePresets[0]) => {
+    setEditedElement(prev => prev ? {
+      ...prev,
+      style: { ...preset.style }
+    } : null);
+  };
+
   const updateContent = (content: string) => {
     setEditedElement(prev => prev ? { ...prev, content } : null);
   };
 
   const resetToDefault = () => {
     if (element) {
-      setEditedElement({ ...element });
+      setEditedElement({ 
+        ...element,
+        animation: element.animation || defaultAnimation
+      });
     }
   };
 
@@ -121,6 +308,26 @@ export const SectionElementEditor = ({
       onSave(editedElement);
       onOpenChange(false);
     }
+  };
+
+  const playAnimation = () => {
+    setIsAnimating(false);
+    setTimeout(() => setIsAnimating(true), 50);
+  };
+
+  const getAnimationStyle = (): React.CSSProperties => {
+    const anim = editedElement.animation || defaultAnimation;
+    if (!isAnimating || anim.type === 'none') return {};
+
+    const duration = `${anim.duration}ms`;
+    const delay = `${anim.delay}ms`;
+    const easing = anim.easing === 'spring' 
+      ? 'cubic-bezier(0.68, -0.55, 0.265, 1.55)' 
+      : anim.easing;
+
+    return {
+      animation: `element-${anim.type} ${duration} ${easing} ${delay} forwards`,
+    };
   };
 
   const getPreviewStyle = (): React.CSSProperties => {
@@ -194,22 +401,85 @@ export const SectionElementEditor = ({
           {/* Editor Panel */}
           <div className="w-1/2 border-r overflow-hidden flex flex-col">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-              <TabsList className="mx-4 mt-2 grid w-auto grid-cols-3">
+              <TabsList className="mx-4 mt-2 grid w-auto grid-cols-5">
+                <TabsTrigger value="presets" className="flex items-center gap-1.5">
+                  <Wand2 className="h-3.5 w-3.5" />
+                  Presets
+                </TabsTrigger>
                 <TabsTrigger value="content" className="flex items-center gap-1.5">
                   <Type className="h-3.5 w-3.5" />
                   Content
                 </TabsTrigger>
                 <TabsTrigger value="typography" className="flex items-center gap-1.5">
                   <Layout className="h-3.5 w-3.5" />
-                  Typography
+                  Type
                 </TabsTrigger>
                 <TabsTrigger value="style" className="flex items-center gap-1.5">
                   <Palette className="h-3.5 w-3.5" />
                   Style
                 </TabsTrigger>
+                <TabsTrigger value="animation" className="flex items-center gap-1.5">
+                  <Zap className="h-3.5 w-3.5" />
+                  Animate
+                </TabsTrigger>
               </TabsList>
 
               <ScrollArea className="flex-1 px-4 pb-4">
+                {/* Presets Tab */}
+                <TabsContent value="presets" className="mt-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <Wand2 className="h-4 w-4 text-primary" />
+                      Style Templates
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Click to apply a preset style instantly
+                    </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-2">
+                    {stylePresets.map((preset) => (
+                      <button
+                        key={preset.id}
+                        onClick={() => applyPreset(preset)}
+                        className="group relative p-3 rounded-lg border border-border hover:border-primary/50 hover:bg-accent/50 transition-all text-left"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="font-medium text-sm">{preset.name}</span>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {preset.description}
+                            </p>
+                          </div>
+                          <Badge variant="outline" className="text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                            Apply
+                          </Badge>
+                        </div>
+                        {/* Mini preview */}
+                        <div 
+                          className="mt-2 p-2 rounded bg-background/50 text-center truncate"
+                          style={{
+                            fontSize: '0.75rem',
+                            fontWeight: preset.style.fontWeight === 'bold' ? 700 : 
+                                        preset.style.fontWeight === 'extrabold' ? 800 :
+                                        preset.style.fontWeight === 'semibold' ? 600 :
+                                        preset.style.fontWeight === 'light' ? 300 : 400,
+                            letterSpacing: preset.style.letterSpacing === 'wider' ? '0.05em' :
+                                          preset.style.letterSpacing === 'widest' ? '0.1em' : 'normal',
+                            textTransform: preset.style.textTransform as any,
+                            color: preset.style.color,
+                            backgroundColor: preset.style.backgroundColor,
+                            borderRadius: preset.style.borderRadius,
+                          }}
+                        >
+                          {editedElement.content || 'Preview'}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </TabsContent>
+
+                {/* Content Tab */}
                 <TabsContent value="content" className="mt-4 space-y-4">
                   <div className="space-y-2">
                     <Label>Text Content</Label>
@@ -495,18 +765,142 @@ export const SectionElementEditor = ({
                     </Select>
                   </div>
                 </TabsContent>
+
+                {/* Animation Tab */}
+                <TabsContent value="animation" className="mt-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-primary" />
+                      Animation Effect
+                    </Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {animationTypes.map((anim) => (
+                        <button
+                          key={anim.value}
+                          onClick={() => updateAnimation('type', anim.value)}
+                          className={`p-2 rounded-lg border text-left transition-all ${
+                            editedElement.animation?.type === anim.value
+                              ? 'border-primary bg-primary/10'
+                              : 'border-border hover:border-primary/50'
+                          }`}
+                        >
+                          <span className="text-xs font-medium">{anim.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-2">
+                    <Label>Duration ({editedElement.animation?.duration || 500}ms)</Label>
+                    <Slider
+                      value={[editedElement.animation?.duration || 500]}
+                      onValueChange={([v]) => updateAnimation('duration', v)}
+                      min={100}
+                      max={2000}
+                      step={50}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Delay ({editedElement.animation?.delay || 0}ms)</Label>
+                    <Slider
+                      value={[editedElement.animation?.delay || 0]}
+                      onValueChange={([v]) => updateAnimation('delay', v)}
+                      min={0}
+                      max={2000}
+                      step={50}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Easing</Label>
+                    <Select
+                      value={editedElement.animation?.easing || 'ease-out'}
+                      onValueChange={(v) => updateAnimation('easing', v)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {easingOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={playAnimation}
+                    disabled={editedElement.animation?.type === 'none'}
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Preview Animation
+                  </Button>
+                </TabsContent>
               </ScrollArea>
             </Tabs>
           </div>
 
           {/* Live Preview Panel */}
           <div className="w-1/2 flex flex-col overflow-hidden">
-            <div className="px-4 py-2 border-b flex items-center gap-2">
-              <Eye className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Live Preview</span>
+            <div className="px-4 py-2 border-b flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Eye className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Live Preview</span>
+              </div>
+              {editedElement.animation?.type !== 'none' && (
+                <Button variant="ghost" size="sm" onClick={playAnimation}>
+                  <Play className="h-3.5 w-3.5 mr-1" />
+                  Replay
+                </Button>
+              )}
             </div>
             
             <div className="flex-1 relative overflow-hidden">
+              {/* Animation keyframes */}
+              <style>{`
+                @keyframes element-fade {
+                  from { opacity: 0; }
+                  to { opacity: 1; }
+                }
+                @keyframes element-slide-up {
+                  from { opacity: 0; transform: translateY(30px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes element-slide-down {
+                  from { opacity: 0; transform: translateY(-30px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes element-slide-left {
+                  from { opacity: 0; transform: translateX(30px); }
+                  to { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes element-slide-right {
+                  from { opacity: 0; transform: translateX(-30px); }
+                  to { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes element-scale {
+                  from { opacity: 0; transform: scale(0.8); }
+                  to { opacity: 1; transform: scale(1); }
+                }
+                @keyframes element-bounce {
+                  0% { opacity: 0; transform: translateY(-20px); }
+                  50% { transform: translateY(10px); }
+                  70% { transform: translateY(-5px); }
+                  100% { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes element-rotate {
+                  from { opacity: 0; transform: rotate(-10deg) scale(0.9); }
+                  to { opacity: 1; transform: rotate(0) scale(1); }
+                }
+              `}</style>
+
               {/* Background simulation */}
               {backgroundMedia?.type === 'video' && backgroundMedia.url ? (
                 <video
@@ -535,9 +929,11 @@ export const SectionElementEditor = ({
               {/* Element Preview */}
               <div className="absolute inset-0 flex items-center justify-center p-8">
                 <div
+                  key={isAnimating ? 'animating' : 'static'}
                   className="transition-all duration-200"
                   style={{
                     ...getPreviewStyle(),
+                    ...getAnimationStyle(),
                     fontSize: getFontSizeClass(editedElement.style.fontSize || 'base'),
                   }}
                 >

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import type { SectionElement, ElementStyle } from '@/components/admin/SectionElementEditor';
+import type { SectionElement, ElementStyle, ElementAnimation } from '@/components/admin/SectionElementEditor';
 
 export interface SectionElements {
   hero: SectionElement[];
@@ -9,6 +9,13 @@ export interface SectionElements {
   newArrivals: SectionElement[];
   brandBanner: SectionElement[];
 }
+
+const defaultAnimation: ElementAnimation = {
+  type: 'none',
+  duration: 500,
+  delay: 0,
+  easing: 'ease-out',
+};
 
 const defaultElementStyle: ElementStyle = {
   fontSize: 'base',
@@ -25,24 +32,28 @@ const defaultSectionElements: SectionElements = {
       type: 'badge',
       content: 'New Collection',
       style: { ...defaultElementStyle, fontSize: 'sm', textTransform: 'uppercase', letterSpacing: 'wider' },
+      animation: { ...defaultAnimation, type: 'fade', delay: 0 },
     },
     {
       id: 'hero-tagline',
       type: 'subheading',
       content: 'Discover Your Style',
       style: { ...defaultElementStyle, fontSize: 'lg', fontWeight: 'light' },
+      animation: { ...defaultAnimation, type: 'slide-up', delay: 100 },
     },
     {
       id: 'hero-headline',
       type: 'heading',
       content: 'Elegance Redefined',
       style: { ...defaultElementStyle, fontSize: '5xl', fontWeight: 'bold' },
+      animation: { ...defaultAnimation, type: 'slide-up', delay: 200 },
     },
     {
       id: 'hero-description',
       type: 'description',
       content: 'Explore our curated collection of premium fashion pieces',
       style: { ...defaultElementStyle, fontSize: 'lg', fontWeight: 'normal' },
+      animation: { ...defaultAnimation, type: 'fade', delay: 300 },
     },
   ],
   categories: [
@@ -51,12 +62,14 @@ const defaultSectionElements: SectionElements = {
       type: 'heading',
       content: 'Shop by Category',
       style: { ...defaultElementStyle, fontSize: '3xl', fontWeight: 'bold', color: 'hsl(var(--foreground))' },
+      animation: { ...defaultAnimation, type: 'fade', delay: 0 },
     },
     {
       id: 'categories-description',
       type: 'description',
       content: 'Find the perfect style for every occasion',
       style: { ...defaultElementStyle, fontSize: 'lg', color: 'hsl(var(--muted-foreground))' },
+      animation: { ...defaultAnimation, type: 'slide-up', delay: 100 },
     },
   ],
   featuredProducts: [
@@ -65,12 +78,14 @@ const defaultSectionElements: SectionElements = {
       type: 'heading',
       content: 'Featured Products',
       style: { ...defaultElementStyle, fontSize: '3xl', fontWeight: 'bold', color: 'hsl(var(--foreground))' },
+      animation: { ...defaultAnimation, type: 'fade', delay: 0 },
     },
     {
       id: 'featured-description',
       type: 'description',
       content: 'Handpicked selections just for you',
       style: { ...defaultElementStyle, fontSize: 'lg', color: 'hsl(var(--muted-foreground))' },
+      animation: { ...defaultAnimation, type: 'slide-up', delay: 100 },
     },
   ],
   newArrivals: [
@@ -79,18 +94,21 @@ const defaultSectionElements: SectionElements = {
       type: 'badge',
       content: 'Just Dropped',
       style: { ...defaultElementStyle, fontSize: 'sm', textTransform: 'uppercase', letterSpacing: 'wider' },
+      animation: { ...defaultAnimation, type: 'fade', delay: 0 },
     },
     {
       id: 'arrivals-headline',
       type: 'heading',
       content: 'New Arrivals',
       style: { ...defaultElementStyle, fontSize: '4xl', fontWeight: 'bold' },
+      animation: { ...defaultAnimation, type: 'slide-up', delay: 100 },
     },
     {
       id: 'arrivals-description',
       type: 'description',
       content: 'Be the first to discover our latest additions',
       style: { ...defaultElementStyle, fontSize: 'lg' },
+      animation: { ...defaultAnimation, type: 'fade', delay: 200 },
     },
   ],
   brandBanner: [
@@ -99,12 +117,14 @@ const defaultSectionElements: SectionElements = {
       type: 'heading',
       content: 'Premium Quality',
       style: { ...defaultElementStyle, fontSize: '4xl', fontWeight: 'bold' },
+      animation: { ...defaultAnimation, type: 'scale', delay: 0 },
     },
     {
       id: 'brand-description',
       type: 'description',
       content: 'Crafted with care, designed to last',
       style: { ...defaultElementStyle, fontSize: 'xl' },
+      animation: { ...defaultAnimation, type: 'fade', delay: 150 },
     },
   ],
 };
