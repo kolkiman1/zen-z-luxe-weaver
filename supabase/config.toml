@@ -53,3 +53,6 @@ verify_jwt = false
 
 [functions.guest-order-lookup]
 verify_jwt = false
+
+[functions.guest-create-order]
+verify_jwt = false
