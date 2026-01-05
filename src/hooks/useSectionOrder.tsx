@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-export type SectionId = 'hero' | 'features' | 'newArrivals' | 'categories' | 'featuredProducts' | 'brandBanner' | 'collection';
+export type SectionId = 'hero' | 'features' | 'videoShowcase' | 'newArrivals' | 'categories' | 'featuredProducts' | 'brandBanner' | 'collection';
 
 export interface SectionOrderItem {
   id: SectionId;
@@ -15,6 +15,7 @@ export interface SectionOrderItem {
 export const defaultSectionOrder: SectionOrderItem[] = [
   { id: 'hero', label: 'Hero Banner', enabled: true },
   { id: 'features', label: 'Features Bar', enabled: true },
+  { id: 'videoShowcase', label: 'Video Showcase', enabled: true },
   { id: 'newArrivals', label: 'New Arrivals', enabled: true },
   { id: 'categories', label: 'Categories', enabled: true },
   { id: 'featuredProducts', label: 'Featured Products', enabled: true },
