@@ -1,99 +1,38 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
 
-const useTypewriter = (text: string, speed: number = 50, delay: number = 0) => {
-  const [displayedText, setDisplayedText] = useState('');
-  const [isComplete, setIsComplete] = useState(false);
-
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    let currentIndex = 0;
-
-    const startTyping = () => {
-      timeout = setTimeout(() => {
-        if (currentIndex <= text.length) {
-          setDisplayedText(text.slice(0, currentIndex));
-          currentIndex++;
-          startTyping();
-        } else {
-          setIsComplete(true);
-        }
-      }, currentIndex === 0 ? delay : speed);
-    };
-
-    startTyping();
-
-    return () => clearTimeout(timeout);
-  }, [text, speed, delay]);
-
-  return { displayedText, isComplete };
-};
-
-const TypewriterTagline = () => {
-  const taglineText = "Premium Fashion for the Next Generation";
-  const { displayedText, isComplete } = useTypewriter(taglineText, 45, 400);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 0.3, duration: 0.3 }}
-      className="mb-3 md:mb-4 h-6 md:h-7"
-    >
-      <p className="text-primary font-body text-xs sm:text-sm md:text-base tracking-[0.2em] md:tracking-[0.3em] uppercase">
-        {displayedText}
-        <motion.span
-          animate={{ opacity: isComplete ? 0 : [1, 0, 1] }}
-          transition={{ 
-            duration: 0.8, 
-            repeat: isComplete ? 0 : Infinity,
-            ease: "linear"
-          }}
-          className="inline-block w-[2px] h-[1em] bg-primary ml-0.5 align-middle"
-        />
-      </p>
-    </motion.div>
-  );
-};
-
 const Hero = () => {
   const { data: sectionMedia } = useSectionMedia();
   const heroMedia = sectionMedia?.hero;
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  
+  const { scrollY } = useScroll();
+  const opacity = useTransform(scrollY, [0, 400], [1, 0]);
+  const scale = useTransform(scrollY, [0, 400], [1, 1.1]);
+  const y = useTransform(scrollY, [0, 400], [0, 100]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth - 0.5) * 20,
+        y: (e.clientY / window.innerHeight - 0.5) * 20,
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Animated Background Particles */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-primary/20 rounded-full"
-            style={{
-              left: `${15 + i * 15}%`,
-              top: `${20 + (i % 3) * 25}%`,
-            }}
-            animate={{
-              y: [-20, 20, -20],
-              x: [-10, 10, -10],
-              opacity: [0.3, 0.6, 0.3],
-              scale: [1, 1.5, 1],
-            }}
-            transition={{
-              duration: 4 + i * 0.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.3,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Background Image/Video with Ken Burns zoom effect */}
-      <div className="absolute inset-0 overflow-hidden">
+    <section className="relative h-screen overflow-hidden bg-background">
+      {/* Background Media with Parallax */}
+      <motion.div 
+        className="absolute inset-0"
+        style={{ scale, y }}
+      >
         {heroMedia?.type === 'video' && heroMedia.url ? (
           <video
             autoPlay
@@ -106,336 +45,312 @@ const Hero = () => {
           </video>
         ) : (
           <motion.div
-            initial={{ opacity: 0, scale: 1 }}
-            animate={{ 
-              opacity: 1, 
-              scale: [1, 1.08, 1.12, 1.08, 1],
-            }}
-            transition={{ 
-              opacity: { duration: 1.2, ease: 'easeOut' },
-              scale: { 
-                duration: 25, 
-                ease: 'linear',
-                repeat: Infinity,
-                repeatType: 'reverse',
-              }
-            }}
-            className="absolute inset-0 bg-cover bg-center will-change-transform"
+            className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage: `url('${heroMedia?.url || 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1920&q=80'}')`,
-              backgroundPosition: 'center top',
-              transform: 'translateZ(0)',
+              x: mousePosition.x * 0.5,
+              y: mousePosition.y * 0.5,
             }}
+            transition={{ type: "spring", stiffness: 50, damping: 30 }}
           />
         )}
+        
+        {/* Dark Gradient Overlay */}
         <div 
-          className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/30"
-          style={{ opacity: (heroMedia?.overlayOpacity || 85) / 100 }}
+          className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background"
+          style={{ opacity: (heroMedia?.overlayOpacity || 75) / 100 }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+        
+        {/* Noise Texture Overlay */}
+        <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay" 
+          style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }} 
+        />
+      </motion.div>
+
+      {/* Animated Grid Lines */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.1 }}
+          transition={{ delay: 1, duration: 1 }}
+          className="absolute inset-0"
+        >
+          {/* Vertical lines */}
+          {[...Array(5)].map((_, i) => (
+            <motion.div
+              key={`v-${i}`}
+              className="absolute top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-primary/50 to-transparent"
+              style={{ left: `${20 + i * 15}%` }}
+              initial={{ scaleY: 0 }}
+              animate={{ scaleY: 1 }}
+              transition={{ delay: 1.2 + i * 0.1, duration: 1.5, ease: "easeOut" }}
+            />
+          ))}
+          {/* Horizontal lines */}
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={`h-${i}`}
+              className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"
+              style={{ top: `${30 + i * 20}%` }}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ delay: 1.5 + i * 0.1, duration: 1.5, ease: "easeOut" }}
+            />
+          ))}
+        </motion.div>
       </div>
 
-      {/* Animated Glow Orbs */}
-      <motion.div
-        className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl"
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-gold/10 rounded-full blur-3xl"
-        animate={{
-          scale: [1.2, 1, 1.2],
-          opacity: [0.2, 0.4, 0.2],
-        }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-      />
-
-      {/* Content */}
-      <div className="container-luxury relative z-10 pt-20 md:pt-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl">
-          {/* Badge with animated text, glow, and shimmer */}
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
-            className="inline-flex items-center gap-2 mb-6 md:mb-8"
-          >
-            <motion.span 
-              className="relative px-4 py-2 md:px-6 md:py-3 bg-primary/10 border border-primary/30 rounded-full text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide flex items-center gap-2 overflow-hidden"
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.2 }}
-            >
-              {/* Glow pulse background */}
-              <motion.span
-                className="absolute inset-0 rounded-full bg-primary/5"
-                animate={{
-                  boxShadow: [
-                    "0 0 10px hsl(var(--primary) / 0.1), inset 0 0 10px hsl(var(--primary) / 0.05)",
-                    "0 0 25px hsl(var(--primary) / 0.25), inset 0 0 20px hsl(var(--primary) / 0.1)",
-                    "0 0 10px hsl(var(--primary) / 0.1), inset 0 0 10px hsl(var(--primary) / 0.05)"
-                  ],
-                  opacity: [0.5, 1, 0.5]
-                }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-              />
-              {/* Continuous shimmer sweep */}
-              <motion.span
-                className="absolute inset-0 rounded-full"
-                style={{
-                  background: "linear-gradient(90deg, transparent 0%, hsl(var(--gold) / 0.3) 50%, transparent 100%)",
-                  backgroundSize: "200% 100%",
-                }}
-                animate={{
-                  backgroundPosition: ["200% 0%", "-200% 0%"],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-              />
-              <motion.span
-                animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="relative z-10"
-              >
-                <Sparkles size={18} className="text-gold" />
-              </motion.span>
-              {/* Text with emphasized "Biggest" only */}
-              <span className="relative z-10">
-                <span 
-                  className="relative inline-flex"
-                  style={{
-                    background: "linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, hsl(var(--gold)) 50%, hsl(var(--primary)) 60%, hsl(var(--primary)) 100%)",
-                    backgroundSize: "200% 100%",
-                    WebkitBackgroundClip: "text",
-                    backgroundClip: "text",
-                    color: "transparent",
-                    animation: "shimmer 3s linear infinite",
-                  }}
-                >
-                  {"Bangladesh's ".split("").map((char, index) => (
-                    <motion.span
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        delay: 0.4 + index * 0.025,
-                        duration: 0.4,
-                        ease: [0.22, 1, 0.36, 1]
-                      }}
-                      className="inline-block"
-                      style={{ whiteSpace: char === " " ? "pre" : "normal" }}
-                    >
-                      {char}
-                    </motion.span>
-                  ))}
-                </span>
-                {/* Biggest - Pure white with glow effect */}
-                <motion.span
-                  className="relative font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]"
-                  animate={{
-                    textShadow: [
-                      "0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(255,255,255,0.3)",
-                      "0 0 20px rgba(255,255,255,0.8), 0 0 40px rgba(255,255,255,0.5)",
-                      "0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(255,255,255,0.3)"
-                    ]
-                  }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  {"Biggest".split("").map((char, index) => (
-                    <motion.span
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        delay: 0.4 + 13 * 0.025 + index * 0.03,
-                        duration: 0.4,
-                        ease: [0.22, 1, 0.36, 1]
-                      }}
-                      className="inline-block"
-                    >
-                      {char}
-                    </motion.span>
-                  ))}
-                </motion.span>
-                {/* Trendy Fashion Shop - Regular shimmer */}
-                <span 
-                  className="relative inline-flex"
-                  style={{
-                    background: "linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 40%, hsl(var(--gold)) 50%, hsl(var(--primary)) 60%, hsl(var(--primary)) 100%)",
-                    backgroundSize: "200% 100%",
-                    WebkitBackgroundClip: "text",
-                    backgroundClip: "text",
-                    color: "transparent",
-                    animation: "shimmer 3s linear infinite",
-                  }}
-                >
-                  {" Trendy Fashion Shop".split("").map((char, index) => (
-                    <motion.span
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        delay: 0.4 + 20 * 0.025 + index * 0.025,
-                        duration: 0.4,
-                        ease: [0.22, 1, 0.36, 1]
-                      }}
-                      className="inline-block"
-                      style={{ whiteSpace: char === " " ? "pre" : "normal" }}
-                    >
-                      {char}
-                    </motion.span>
-                  ))}
-                </span>
-              </span>
-            </motion.span>
-          </motion.div>
-
-          {/* Tagline with typewriter effect */}
-          <TypewriterTagline />
-
-          {/* Main Heading with staggered word animation */}
-          <div className="mb-6 md:mb-10 overflow-hidden mt-4 md:mt-6">
-            <motion.h1
-              className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold leading-tight"
-            >
-              <span className="block overflow-hidden">
-                <motion.span
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  transition={{ delay: 0.5, duration: 0.7, ease: [0.33, 1, 0.68, 1] }}
-                  className="block"
-                >
-                  Elevate Your
-                </motion.span>
-              </span>
-              <span className="block overflow-hidden">
-                <motion.span
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  transition={{ delay: 0.65, duration: 0.7, ease: [0.33, 1, 0.68, 1] }}
-                  className="block relative"
-                >
-                  <span className="text-gradient-gold relative">
-                    Signature Style
-                    {/* Animated underline */}
-                    <motion.span
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ delay: 1.2, duration: 0.8, ease: "easeOut" }}
-                      className="absolute -bottom-1 left-0 right-0 h-[2px] md:h-[3px] bg-gradient-to-r from-gold via-gold-light to-gold origin-left"
-                    />
-                  </span>
-                </motion.span>
-              </span>
-            </motion.h1>
-          </div>
-
-          {/* Description with fade and blur effect */}
-          <motion.p
-            initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ delay: 0.9, duration: 0.7, ease: "easeOut" }}
-            className="text-foreground/70 text-sm sm:text-base md:text-lg max-w-lg mb-8 md:mb-12 leading-relaxed"
-          >
-            Discover curated luxury fashion, exquisite jewelry, and premium accessories
-            designed for the modern Bangladeshi.
-          </motion.p>
-
-          {/* CTA Buttons with glow effects */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9, duration: 0.6 }}
-            className="flex flex-col sm:flex-row gap-3 sm:gap-4"
-          >
-            <Link to="/category/women" className="w-full sm:w-auto">
+      {/* Main Content */}
+      <motion.div 
+        className="relative z-10 h-full flex items-center"
+        style={{ opacity }}
+      >
+        <div className="container mx-auto px-6 lg:px-12">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Column - Text Content */}
+            <div className="space-y-8">
+              {/* Eyebrow Text */}
               <motion.div
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-                className="relative group"
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
+                className="flex items-center gap-4"
               >
-                {/* Glow effect behind button */}
-                <motion.div
-                  className="absolute inset-0 rounded-lg bg-primary/50 blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-300"
-                />
-                <Button className="btn-primary relative w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base gap-2 group overflow-hidden">
-                  {/* Shimmer effect on hover */}
-                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                  <span className="relative z-10">Shop Women</span>
-                  <ArrowRight size={18} className="relative z-10 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <div className="h-px w-12 bg-primary" />
+                <span className="text-primary font-medium tracking-[0.2em] uppercase text-sm">
+                  Est. 2024 — Bangladesh
+                </span>
               </motion.div>
-            </Link>
-            <Link to="/category/men" className="w-full sm:w-auto">
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-                className="relative group"
+
+              {/* Main Heading */}
+              <div className="space-y-2">
+                <div className="overflow-hidden">
+                  <motion.h1
+                    initial={{ y: "100%" }}
+                    animate={{ y: 0 }}
+                    transition={{ delay: 0.5, duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
+                    className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.9]"
+                  >
+                    Gen
+                  </motion.h1>
+                </div>
+                <div className="overflow-hidden flex items-baseline gap-4">
+                  <motion.h1
+                    initial={{ y: "100%" }}
+                    animate={{ y: 0 }}
+                    transition={{ delay: 0.6, duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
+                    className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.9] text-gradient-gold"
+                  >
+                    Zee
+                  </motion.h1>
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 1.2, duration: 0.5, type: "spring" }}
+                    className="text-gold text-2xl md:text-3xl"
+                  >
+                    ™
+                  </motion.span>
+                </div>
+              </div>
+
+              {/* Tagline */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9, duration: 0.8 }}
+                className="text-lg md:text-xl text-muted-foreground max-w-md leading-relaxed"
               >
-                {/* Glow effect behind button */}
-                <motion.div
-                  className="absolute inset-0 rounded-lg bg-gold/40 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300"
-                />
-                <Button variant="outline" className="btn-outline-gold relative w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base overflow-hidden group">
-                  {/* Border glow animation */}
-                  <span className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ boxShadow: 'inset 0 0 20px hsl(var(--gold) / 0.3)' }} />
-                  {/* Shimmer effect on hover */}
-                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-                  <span className="relative z-10 flex items-center gap-2">
+                Where tradition meets contemporary fashion. 
+                <span className="text-foreground font-medium"> Premium quality</span>, 
+                crafted for the modern generation.
+              </motion.p>
+
+              {/* CTA Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.1, duration: 0.8 }}
+                className="flex flex-wrap gap-4 pt-4"
+              >
+                <Link to="/category/women">
+                  <Button 
+                    size="lg" 
+                    className="bg-foreground text-background hover:bg-foreground/90 rounded-full px-8 py-6 text-base font-medium group"
+                  >
+                    Shop Women
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <Link to="/category/men">
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    className="rounded-full px-8 py-6 text-base font-medium border-foreground/30 hover:bg-foreground/10 group"
+                  >
                     Shop Men
-                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                  </span>
-                </Button>
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
               </motion.div>
-            </Link>
-          </motion.div>
+
+              {/* Stats */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.4, duration: 0.8 }}
+                className="flex gap-8 pt-8 border-t border-border/50"
+              >
+                {[
+                  { value: "10K+", label: "Happy Customers" },
+                  { value: "500+", label: "Products" },
+                  { value: "4.9", label: "Rating" },
+                ].map((stat, index) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.5 + index * 0.1, duration: 0.6 }}
+                    className="space-y-1"
+                  >
+                    <p className="text-2xl md:text-3xl font-bold font-display">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* Right Column - Featured Product Card */}
+            <motion.div
+              initial={{ opacity: 0, x: 50, rotateY: -15 }}
+              animate={{ opacity: 1, x: 0, rotateY: 0 }}
+              transition={{ delay: 0.8, duration: 1, ease: "easeOut" }}
+              className="hidden lg:block relative"
+            >
+              <div 
+                className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-gold/20 backdrop-blur-sm border border-white/10"
+                style={{
+                  transform: `perspective(1000px) rotateY(${mousePosition.x * 0.3}deg) rotateX(${-mousePosition.y * 0.3}deg)`,
+                }}
+              >
+                {/* Floating Badge */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.5, duration: 0.5 }}
+                  className="absolute top-6 left-6 z-10"
+                >
+                  <span className="inline-flex items-center px-4 py-2 rounded-full bg-gold text-background text-sm font-semibold">
+                    New Collection
+                  </span>
+                </motion.div>
+
+                {/* Decorative Elements */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="w-64 h-64 border border-dashed border-primary/30 rounded-full"
+                  />
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <motion.div
+                    animate={{ rotate: -360 }}
+                    transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                    className="w-80 h-80 border border-dashed border-gold/20 rounded-full"
+                  />
+                </div>
+
+                {/* Center Text */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center space-y-4">
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 1.2, duration: 0.8 }}
+                      className="text-6xl font-display font-bold text-foreground/10"
+                    >
+                      2024
+                    </motion.p>
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 1.4, duration: 0.8 }}
+                      className="text-sm uppercase tracking-[0.3em] text-muted-foreground"
+                    >
+                      Winter Collection
+                    </motion.p>
+                  </div>
+                </div>
+
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                
+                {/* Bottom Info */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.6, duration: 0.8 }}
+                  className="absolute bottom-0 left-0 right-0 p-6"
+                >
+                  <Link to="/category/new-arrivals" className="group block">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Explore</p>
+                        <p className="text-lg font-semibold group-hover:text-primary transition-colors">
+                          Latest Arrivals →
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              </div>
+
+              {/* Floating Elements */}
+              <motion.div
+                animate={{ y: [-10, 10, -10] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-gold/20 blur-2xl"
+              />
+              <motion.div
+                animate={{ y: [10, -10, 10] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-primary/20 blur-3xl"
+              />
+            </motion.div>
+          </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Decorative Elements */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.5 }}
-        transition={{ delay: 1.2, duration: 1 }}
-        className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-gradient-radial from-primary/10 via-transparent to-transparent pointer-events-none"
-      />
-
-      {/* Scroll Indicator - Hidden on mobile */}
+      {/* Scroll Indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 0.6 }}
-        className="hidden md:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-3 cursor-pointer group"
+        transition={{ delay: 2, duration: 0.8 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer group"
         onClick={() => window.scrollBy({ top: window.innerHeight, behavior: 'smooth' })}
       >
-        <motion.span 
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="text-xs text-muted-foreground tracking-widest uppercase group-hover:text-primary transition-colors"
-        >
+        <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground group-hover:text-foreground transition-colors">
           Scroll
-        </motion.span>
-        <div className="relative w-6 h-10 border-2 border-muted-foreground/50 rounded-full group-hover:border-primary transition-colors">
-          <motion.div
-            animate={{ y: [0, 12, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full"
-          />
-        </div>
+        </span>
         <motion.div
-          animate={{ y: [0, 4, 0], opacity: [0.3, 1, 0.3] }}
+          animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-          className="flex flex-col items-center gap-1"
         >
-          <div className="w-px h-2 bg-primary/60" />
-          <div className="w-px h-3 bg-primary/40" />
-          <div className="w-px h-4 bg-primary/20" />
+          <ChevronDown className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
         </motion.div>
+      </motion.div>
+
+      {/* Side Text */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.8, duration: 0.8 }}
+        className="hidden xl:block absolute right-8 top-1/2 -translate-y-1/2"
+      >
+        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground [writing-mode:vertical-rl] rotate-180">
+          Premium Fashion Since 2024
+        </p>
       </motion.div>
     </section>
   );
