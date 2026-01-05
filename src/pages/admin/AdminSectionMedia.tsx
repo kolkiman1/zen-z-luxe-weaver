@@ -110,16 +110,20 @@ const AdminSectionMedia = () => {
 
       const { data: publicUrl } = supabase.storage.from('seo-images').getPublicUrl(fileName);
 
-      setLocalMedia(prev => ({
-        ...prev,
+      const newMedia = {
+        ...localMedia,
         [section]: {
-          ...prev[section],
+          ...localMedia[section],
           type: isVideo ? 'video' : 'image',
           url: publicUrl.publicUrl,
         },
-      }));
+      };
 
-      toast.success('File uploaded successfully');
+      setLocalMedia(newMedia);
+      
+      // Auto-save after upload
+      await updateMutation.mutateAsync(newMedia as SectionMedia);
+      toast.success('Media uploaded and saved successfully!');
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('Failed to upload file');
