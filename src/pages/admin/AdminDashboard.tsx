@@ -12,7 +12,8 @@ import {
   Clock,
   CheckCircle,
   AlertTriangle,
-  Users
+  Users,
+  RefreshCw
 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useCacheRefresh } from '@/hooks/useCacheRefresh';
 
 interface DashboardStats {
   totalProducts: number;
@@ -45,6 +47,14 @@ const AdminDashboard = () => {
     recentOrders: [],
   });
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { refreshAllSiteSettings } = useCacheRefresh();
+
+  const handleRefreshCache = async () => {
+    setIsRefreshing(true);
+    await refreshAllSiteSettings();
+    setIsRefreshing(false);
+  };
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -227,6 +237,15 @@ const AdminDashboard = () => {
                       Manage Products
                     </Button>
                   </Link>
+                  <Button 
+                    variant="outline" 
+                    className="gap-2"
+                    onClick={handleRefreshCache}
+                    disabled={isRefreshing}
+                  >
+                    <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
+                    {isRefreshing ? 'Refreshing...' : 'Refresh Cache'}
+                  </Button>
                 </div>
               </div>
               <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />

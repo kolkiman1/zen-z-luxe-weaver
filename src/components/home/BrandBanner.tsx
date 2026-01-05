@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { AnimatedButton } from '@/components/ui/animated-button';
+import { LazyBackground, LazyVideo } from '@/components/ui/lazy-background';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
 import { useSectionContent } from '@/hooks/useSectionContent';
 
@@ -27,34 +28,21 @@ const BrandBanner = () => {
 
   return (
     <section ref={sectionRef} className="relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden">
-      {/* Background with Parallax */}
+      {/* Background with Lazy Loading */}
       <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute inset-0 -top-[20%] -bottom-[20%]"
-          style={isMounted ? { y: backgroundY, scale: backgroundScale } : undefined}
-        >
-          {brandBannerMedia?.type === 'video' && brandBannerMedia.url ? (
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover"
-            >
-              <source src={brandBannerMedia.url} type="video/mp4" />
-            </video>
-          ) : (
-            <img
-              src={brandBannerMedia?.url || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1920&q=80"}
-              alt="Indian Luxury Fashion"
-              className="w-full h-full object-cover"
-            />
-          )}
-        </motion.div>
-        <div 
-          className="absolute inset-0 bg-background backdrop-blur-sm"
-          style={{ opacity: (brandBannerMedia?.overlayOpacity || 85) / 100 }}
-        />
+        {brandBannerMedia?.type === 'video' && brandBannerMedia.url ? (
+          <LazyVideo
+            src={brandBannerMedia.url}
+            className="absolute inset-0 -top-[20%] -bottom-[20%]"
+            overlayOpacity={brandBannerMedia?.overlayOpacity || 85}
+          />
+        ) : (
+          <LazyBackground
+            src={brandBannerMedia?.url || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1920&q=80"}
+            className="absolute inset-0 -top-[20%] -bottom-[20%]"
+            overlayOpacity={brandBannerMedia?.overlayOpacity || 85}
+          />
+        )}
       </div>
 
       {/* Content */}
