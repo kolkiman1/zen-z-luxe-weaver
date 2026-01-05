@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 interface NewsletterContextType {
   isSubscribed: boolean;
@@ -7,15 +7,18 @@ interface NewsletterContextType {
 
 const NewsletterContext = createContext<NewsletterContextType | undefined>(undefined);
 
-export const NewsletterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isSubscribed, setIsSubscribed] = useState(false);
+// Initialize synchronously to prevent CLS
+const getInitialSubscribedState = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  try {
+    return localStorage.getItem('gen-zee-newsletter-subscribed') === 'true';
+  } catch {
+    return false;
+  }
+};
 
-  useEffect(() => {
-    const subscribed = localStorage.getItem('gen-zee-newsletter-subscribed');
-    if (subscribed === 'true') {
-      setIsSubscribed(true);
-    }
-  }, []);
+export const NewsletterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isSubscribed, setIsSubscribed] = useState(getInitialSubscribedState);
 
   const subscribe = (email: string) => {
     if (email) {
