@@ -9,6 +9,7 @@ const VideoShowcase = () => {
   const { data: settings } = useVideoShowcase();
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const isInView = useInView(containerRef, { once: false, amount: 0.3 });
   const [isPlaying, setIsPlaying] = useState(settings?.autoplay ?? true);
   const [isMuted, setIsMuted] = useState(true);
@@ -16,8 +17,12 @@ const VideoShowcase = () => {
 
   const enabledHighlights = settings?.productHighlights.filter(h => h.enabled) || [];
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    target: isMounted ? containerRef : undefined,
     offset: ['start end', 'end start'],
   });
 
@@ -102,7 +107,7 @@ const VideoShowcase = () => {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Video Section */}
           <motion.div
-            style={{ y, opacity }}
+            style={isMounted ? { y, opacity } : undefined}
             className="relative aspect-[4/5] lg:aspect-[3/4] rounded-3xl overflow-hidden group"
           >
             {/* Video */}
