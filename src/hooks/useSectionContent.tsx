@@ -100,8 +100,10 @@ export const useSectionContent = () => {
 
       return defaultSectionContent;
     },
-    staleTime: 1000 * 60 * 1, // 1 minute for faster updates
+    staleTime: 0,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
   });
 };
 

@@ -67,7 +67,10 @@ export const useSectionOrder = () => {
 
       return defaultSectionOrder;
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
   });
 };
 
