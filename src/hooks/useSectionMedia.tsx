@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import heroWomenFashion from '@/assets/hero-women-fashion.jpg';
+import heroIndianFashion from '@/assets/hero-indian-fashion.jpg';
 
 export type SectionHeight = 'auto' | 'small' | 'medium' | 'large' | 'full';
 
@@ -22,8 +22,8 @@ export interface SectionMedia {
 const defaultSectionMedia: SectionMedia = {
   hero: {
     type: 'image',
-    url: heroWomenFashion,
-    overlayOpacity: 65,
+    url: heroIndianFashion,
+    overlayOpacity: 60,
     height: 'large',
   },
   categories: {
