@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { AnimatedButton } from '@/components/ui/animated-button';
@@ -7,13 +7,18 @@ import { useSectionContent } from '@/hooks/useSectionContent';
 
 const BrandBanner = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const { data: sectionMedia } = useSectionMedia();
   const { data: sectionContent } = useSectionContent();
   const brandBannerMedia = sectionMedia?.brandBanner;
   const content = sectionContent?.brandBanner;
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   const { scrollYProgress } = useScroll({
-    target: sectionRef,
+    target: isMounted ? sectionRef : undefined,
     offset: ["start end", "end start"]
   });
 
@@ -26,7 +31,7 @@ const BrandBanner = () => {
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
           className="absolute inset-0 -top-[20%] -bottom-[20%]"
-          style={{ y: backgroundY, scale: backgroundScale }}
+          style={isMounted ? { y: backgroundY, scale: backgroundScale } : undefined}
         >
           {brandBannerMedia?.type === 'video' && brandBannerMedia.url ? (
             <video
