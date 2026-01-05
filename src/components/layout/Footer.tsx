@@ -52,9 +52,9 @@ const Footer = () => {
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gold/5 rounded-full blur-3xl" />
       </div>
 
-      {/* Newsletter Section - Only show if not subscribed */}
-      {!isSubscribed && (
-        <div className="relative border-b border-border/50">
+      {/* Newsletter Section - Fixed height container to prevent CLS */}
+      <div className="relative border-b border-border/50 min-h-[120px] md:min-h-[160px]">
+        {!isSubscribed ? (
           <div className="container-luxury py-16 md:py-20">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -86,13 +86,8 @@ const Footer = () => {
               </form>
             </motion.div>
           </div>
-        </div>
-      )}
-
-      {/* Subscribed confirmation banner */}
-      {isSubscribed && (
-        <div className="relative border-b border-border/50">
-          <div className="container-luxury py-8">
+        ) : (
+          <div className="container-luxury py-8 flex items-center justify-center min-h-[120px] md:min-h-[160px]">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -104,8 +99,8 @@ const Footer = () => {
               <span className="font-medium">You're part of the Gen-Zee community!</span>
             </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Main Footer */}
       <div className="relative container-luxury py-16 md:py-20">

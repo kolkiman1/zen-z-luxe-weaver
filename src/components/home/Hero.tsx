@@ -141,11 +141,11 @@ const Hero = () => {
       <GlowOrb color="hsl(var(--primary) / 0.15)" size="w-96 h-96" position="top-0 -left-48" />
       <GlowOrb color="hsl(var(--gold) / 0.1)" size="w-80 h-80" position="bottom-20 -right-40" />
 
-      {/* Scanning Line Effect */}
+      {/* Scanning Line Effect - Using transform to prevent CLS */}
       <motion.div
         className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent pointer-events-none"
-        initial={{ top: '-10%' }}
-        animate={{ top: '110%' }}
+        style={{ top: 0 }}
+        animate={{ y: ['0vh', '100vh'] }}
         transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
       />
 
