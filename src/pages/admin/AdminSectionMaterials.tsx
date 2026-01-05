@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Save, Loader2, Megaphone, Video, Image, Plus, Trash2, 
   GripVertical, Eye, EyeOff, Clock, Zap, Gift, Truck, Sparkles,
-  Upload, Link as LinkIcon, Play, Pause, Layout, Type, ArrowRight
+  Upload, Link as LinkIcon, Play, Pause, Layout, Type, ArrowRight, RotateCcw
 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +20,7 @@ import { useAnnouncementBar, useUpdateAnnouncementBar, AnnouncementBarSettings, 
 import { useVideoShowcase, useUpdateVideoShowcase, VideoShowcaseSettings, defaultVideoShowcaseSettings, ProductHighlight } from '@/hooks/useVideoShowcase';
 import { useHeroContent, useUpdateHeroContent, HeroContentSettings, defaultHeroContent, HeroCategory } from '@/hooks/useHeroContent';
 import { supabase } from '@/integrations/supabase/client';
+import LivePreviewPanel from '@/components/admin/LivePreviewPanel';
 
 const iconOptions = [
   { value: 'zap', label: 'Flash/Sale', icon: Zap },
@@ -41,24 +42,60 @@ const AdminSectionMaterials = () => {
   const [localVideo, setLocalVideo] = useState<VideoShowcaseSettings>(defaultVideoShowcaseSettings);
   const [localHero, setLocalHero] = useState<HeroContentSettings>(defaultHeroContent);
   const [uploading, setUploading] = useState(false);
+  
+  // Store original settings for reset functionality
+  const originalAnnouncementRef = useRef<AnnouncementBarSettings | null>(null);
+  const originalVideoRef = useRef<VideoShowcaseSettings | null>(null);
+  const originalHeroRef = useRef<HeroContentSettings | null>(null);
 
   useEffect(() => {
     if (announcementSettings) {
       setLocalAnnouncement(announcementSettings);
+      if (!originalAnnouncementRef.current) {
+        originalAnnouncementRef.current = JSON.parse(JSON.stringify(announcementSettings));
+      }
     }
   }, [announcementSettings]);
 
   useEffect(() => {
     if (videoSettings) {
       setLocalVideo(videoSettings);
+      if (!originalVideoRef.current) {
+        originalVideoRef.current = JSON.parse(JSON.stringify(videoSettings));
+      }
     }
   }, [videoSettings]);
 
   useEffect(() => {
     if (heroSettings) {
       setLocalHero(heroSettings);
+      if (!originalHeroRef.current) {
+        originalHeroRef.current = JSON.parse(JSON.stringify(heroSettings));
+      }
     }
   }, [heroSettings]);
+
+  // Reset handlers
+  const handleResetHero = () => {
+    if (originalHeroRef.current) {
+      setLocalHero(JSON.parse(JSON.stringify(originalHeroRef.current)));
+      toast.success('Hero section reset to saved state');
+    }
+  };
+
+  const handleResetAnnouncement = () => {
+    if (originalAnnouncementRef.current) {
+      setLocalAnnouncement(JSON.parse(JSON.stringify(originalAnnouncementRef.current)));
+      toast.success('Announcement bar reset to saved state');
+    }
+  };
+
+  const handleResetVideo = () => {
+    if (originalVideoRef.current) {
+      setLocalVideo(JSON.parse(JSON.stringify(originalVideoRef.current)));
+      toast.success('Video showcase reset to saved state');
+    }
+  };
 
   // Announcement Bar handlers
   const handleAddPromotion = () => {
@@ -197,6 +234,7 @@ const AdminSectionMaterials = () => {
   const handleSaveAnnouncement = async () => {
     try {
       await updateAnnouncementMutation.mutateAsync(localAnnouncement);
+      originalAnnouncementRef.current = JSON.parse(JSON.stringify(localAnnouncement));
       toast.success('Announcement bar settings saved!');
     } catch (error) {
       console.error('Save error:', error);
@@ -207,6 +245,7 @@ const AdminSectionMaterials = () => {
   const handleSaveVideo = async () => {
     try {
       await updateVideoMutation.mutateAsync(localVideo);
+      originalVideoRef.current = JSON.parse(JSON.stringify(localVideo));
       toast.success('Video showcase settings saved!');
     } catch (error) {
       console.error('Save error:', error);
@@ -249,6 +288,7 @@ const AdminSectionMaterials = () => {
   const handleSaveHero = async () => {
     try {
       await updateHeroMutation.mutateAsync(localHero);
+      originalHeroRef.current = JSON.parse(JSON.stringify(localHero));
       toast.success('Hero section settings saved!');
     } catch (error) {
       console.error('Save error:', error);
@@ -298,6 +338,9 @@ const AdminSectionMaterials = () => {
 
           {/* Hero Section Tab */}
           <TabsContent value="hero" className="mt-6 space-y-6">
+            {/* Live Preview */}
+            <LivePreviewPanel type="hero" heroData={localHero} />
+            
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
@@ -307,10 +350,16 @@ const AdminSectionMaterials = () => {
                   </CardTitle>
                   <CardDescription>Edit the main hero section headline, description, and category pills</CardDescription>
                 </div>
-                <Button onClick={handleSaveHero} disabled={updateHeroMutation.isPending} className="gap-2">
-                  {updateHeroMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  Save
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" onClick={handleResetHero} className="gap-2">
+                    <RotateCcw className="w-4 h-4" />
+                    Reset
+                  </Button>
+                  <Button onClick={handleSaveHero} disabled={updateHeroMutation.isPending} className="gap-2">
+                    {updateHeroMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    Save
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Badge Settings */}
@@ -540,6 +589,9 @@ const AdminSectionMaterials = () => {
 
           {/* Announcement Bar Tab */}
           <TabsContent value="announcement" className="mt-6 space-y-6">
+            {/* Live Preview */}
+            <LivePreviewPanel type="announcement" announcementData={localAnnouncement} />
+            
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
@@ -549,10 +601,16 @@ const AdminSectionMaterials = () => {
                   </CardTitle>
                   <CardDescription>Configure the floating announcement bar at the top of the page</CardDescription>
                 </div>
-                <Button onClick={handleSaveAnnouncement} disabled={updateAnnouncementMutation.isPending} className="gap-2">
-                  {updateAnnouncementMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  Save
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" onClick={handleResetAnnouncement} className="gap-2">
+                    <RotateCcw className="w-4 h-4" />
+                    Reset
+                  </Button>
+                  <Button onClick={handleSaveAnnouncement} disabled={updateAnnouncementMutation.isPending} className="gap-2">
+                    {updateAnnouncementMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    Save
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* General Settings */}
@@ -715,6 +773,9 @@ const AdminSectionMaterials = () => {
 
           {/* Video Showcase Tab */}
           <TabsContent value="video" className="mt-6 space-y-6">
+            {/* Live Preview */}
+            <LivePreviewPanel type="video" videoData={localVideo} />
+            
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
@@ -724,10 +785,16 @@ const AdminSectionMaterials = () => {
                   </CardTitle>
                   <CardDescription>Configure the video showcase section on the homepage</CardDescription>
                 </div>
-                <Button onClick={handleSaveVideo} disabled={updateVideoMutation.isPending} className="gap-2">
-                  {updateVideoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  Save
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" onClick={handleResetVideo} className="gap-2">
+                    <RotateCcw className="w-4 h-4" />
+                    Reset
+                  </Button>
+                  <Button onClick={handleSaveVideo} disabled={updateVideoMutation.isPending} className="gap-2">
+                    {updateVideoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    Save
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* General Settings */}
