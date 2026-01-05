@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -20,9 +20,14 @@ const ParallaxSection = ({
   scale = false,
 }: ParallaxSectionProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   const { scrollYProgress } = useScroll({
-    target: ref,
+    target: isMounted ? ref : undefined,
     offset: ["start end", "end start"]
   });
 
@@ -35,9 +40,9 @@ const ParallaxSection = ({
     <motion.div
       ref={ref}
       style={{
-        y: speed !== 0 ? y : 0,
-        opacity: fadeIn ? opacity : 1,
-        scale: scale ? scaleValue : 1,
+        y: isMounted && speed !== 0 ? y : 0,
+        opacity: isMounted && fadeIn ? opacity : 1,
+        scale: isMounted && scale ? scaleValue : 1,
       }}
       className={cn("relative", className)}
     >
@@ -58,9 +63,14 @@ const ParallaxBackground = ({
   speed = 0.3,
 }: ParallaxBackgroundProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   const { scrollYProgress } = useScroll({
-    target: ref,
+    target: isMounted ? ref : undefined,
     offset: ["start end", "end start"]
   });
 
@@ -69,7 +79,7 @@ const ParallaxBackground = ({
   return (
     <div ref={ref} className={cn("relative overflow-hidden", className)}>
       <motion.div
-        style={{ y }}
+        style={{ y: isMounted ? y : 0 }}
         className="absolute inset-0 -top-[20%] -bottom-[20%]"
       >
         {children}
