@@ -3,9 +3,9 @@ import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'fram
 import { ArrowRight, ChevronDown, Play, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { LazyBackground, LazyVideo } from '@/components/ui/lazy-background';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
 import { useHeroContent, defaultHeroContent } from '@/hooks/useHeroContent';
-
 const FloatingParticle = ({ delay, duration, size, left, top }: { delay: number; duration: number; size: number; left: string; top: string }) => (
   <motion.div
     className="absolute rounded-full bg-primary/30 will-change-transform"
@@ -90,42 +90,46 @@ const Hero = () => {
       ref={containerRef}
       className="relative min-h-screen overflow-hidden bg-background"
     >
-      {/* Background Media - Fixed position to prevent glitching */}
-      <div className="absolute inset-0 overflow-hidden">
-        {heroMedia?.type === 'video' && heroMedia.url ? (
-          <motion.video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-            style={isMounted ? { y: bgY } : undefined}
-          >
-            <source src={heroMedia.url} type="video/mp4" />
-          </motion.video>
-        ) : (
-          <motion.div
-            className="absolute inset-0 w-full h-full bg-cover bg-center"
-            style={{
-              backgroundImage: `url('${heroMedia?.url || 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1920&q=80'}')`,
-              y: isMounted ? bgY : 0,
+      {/* Background Media with Lazy Loading */}
+      {heroMedia?.type === 'video' && heroMedia.url ? (
+        <LazyVideo
+          src={heroMedia.url}
+          className="absolute inset-0"
+          overlayOpacity={0}
+        >
+          {/* Gradient Overlay */}
+          <div 
+            className="absolute inset-0 z-10"
+            style={{ 
+              background: `
+                radial-gradient(ellipse at 30% 20%, hsl(var(--primary) / 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, hsl(var(--gold) / 0.1) 0%, transparent 50%),
+                linear-gradient(180deg, hsl(var(--background) / 0.7) 0%, hsl(var(--background) / 0.4) 50%, hsl(var(--background) / 0.95) 100%)
+              `,
+              opacity: (heroMedia?.overlayOpacity || 75) / 100 
             }}
           />
-        )}
-        
-        {/* Gradient Overlay */}
-        <div 
+        </LazyVideo>
+      ) : (
+        <LazyBackground
+          src={heroMedia?.url || 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1920&q=80'}
           className="absolute inset-0"
-          style={{ 
-            background: `
-              radial-gradient(ellipse at 30% 20%, hsl(var(--primary) / 0.15) 0%, transparent 50%),
-              radial-gradient(ellipse at 70% 80%, hsl(var(--gold) / 0.1) 0%, transparent 50%),
-              linear-gradient(180deg, hsl(var(--background) / 0.7) 0%, hsl(var(--background) / 0.4) 50%, hsl(var(--background) / 0.95) 100%)
-            `,
-            opacity: (heroMedia?.overlayOpacity || 75) / 100 
-          }}
-        />
-      </div>
+          overlayOpacity={0}
+        >
+          {/* Gradient Overlay */}
+          <div 
+            className="absolute inset-0 z-10"
+            style={{ 
+              background: `
+                radial-gradient(ellipse at 30% 20%, hsl(var(--primary) / 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, hsl(var(--gold) / 0.1) 0%, transparent 50%),
+                linear-gradient(180deg, hsl(var(--background) / 0.7) 0%, hsl(var(--background) / 0.4) 50%, hsl(var(--background) / 0.95) 100%)
+              `,
+              opacity: (heroMedia?.overlayOpacity || 75) / 100 
+            }}
+          />
+        </LazyBackground>
+      )}
 
       {/* Floating Particles - Reduced count */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
