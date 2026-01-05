@@ -101,22 +101,22 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="container-luxury pt-24 md:pt-32"
+            className="container-luxury px-4 sm:px-6 pt-16 sm:pt-24 md:pt-32"
           >
             {/* Close Button */}
             <button
               onClick={handleClose}
-              className="absolute top-6 right-6 p-2 text-muted-foreground hover:text-foreground transition-colors"
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-muted-foreground hover:text-foreground transition-colors"
             >
-              <X size={24} />
+              <X size={22} className="sm:w-6 sm:h-6" />
             </button>
 
             {/* Search Input */}
             <div className="max-w-2xl mx-auto">
               <div className="relative">
                 <Search
-                  size={24}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  size={20}
+                  className="sm:w-6 sm:h-6 absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
                 />
                 <Input
                   ref={inputRef}
@@ -124,21 +124,21 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search for products..."
-                  className="w-full h-16 pl-14 pr-4 bg-secondary border-border text-lg font-body placeholder:text-muted-foreground focus:border-primary"
+                  className="w-full h-12 sm:h-16 pl-10 sm:pl-14 pr-10 sm:pr-4 bg-secondary border-border text-base sm:text-lg font-body placeholder:text-muted-foreground focus:border-primary"
                 />
                 {loading && (
-                  <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 animate-spin text-muted-foreground" />
+                  <Loader2 className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 animate-spin text-muted-foreground" />
                 )}
               </div>
 
               {/* Results */}
-              <div className="mt-8">
+              <div className="mt-6 sm:mt-8">
                 {query.length > 1 && !loading && results.length === 0 ? (
-                  <p className="text-center text-muted-foreground">
+                  <p className="text-center text-sm sm:text-base text-muted-foreground">
                     No products found for "{query}"
                   </p>
                 ) : (
-                  <div className="grid gap-4">
+                  <div className="grid gap-2 sm:gap-4">
                     {results.map((product, index) => (
                       <motion.div
                         key={product.id}
@@ -149,9 +149,9 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                         <Link
                           to={`/product/${product.slug || product.id}`}
                           onClick={handleClose}
-                          className="flex items-center gap-4 p-4 rounded-lg bg-card hover:bg-secondary transition-colors group"
+                          className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg bg-card hover:bg-secondary transition-colors group"
                         >
-                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-secondary flex-shrink-0">
+                          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-secondary flex-shrink-0">
                             <img
                               src={product.images[0]}
                               alt={product.name}
@@ -159,18 +159,18 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                             />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate">{product.name}</h4>
-                            <p className="text-sm text-muted-foreground capitalize">
+                            <h4 className="font-medium text-sm sm:text-base truncate">{product.name}</h4>
+                            <p className="text-xs sm:text-sm text-muted-foreground capitalize">
                               {product.category} · {product.subcategory}
                             </p>
                           </div>
-                          <div className="flex items-center gap-4">
-                            <span className="text-primary font-medium">
+                          <div className="flex items-center gap-2 sm:gap-4">
+                            <span className="text-primary font-medium text-sm sm:text-base">
                               {formatPrice(product.price)}
                             </span>
                             <ArrowRight
-                              size={20}
-                              className="text-muted-foreground group-hover:text-primary transition-colors"
+                              size={18}
+                              className="hidden sm:block text-muted-foreground group-hover:text-primary transition-colors"
                             />
                           </div>
                         </Link>
@@ -182,15 +182,15 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
 
               {/* Popular Searches */}
               {query.length === 0 && (
-                <div className="mt-12">
-                  <h3 className="text-sm text-muted-foreground mb-4">Popular Searches</h3>
+                <div className="mt-8 sm:mt-12">
+                  <h3 className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">Popular Searches</h3>
                   <div className="flex flex-wrap gap-2">
                     {['Saree', 'Sherwani', 'Kurta', 'Lehenga', 'Jewelry', 'Anarkali'].map(
                       (term) => (
                         <button
                           key={term}
                           onClick={() => setQuery(term)}
-                          className="px-4 py-2 rounded-full bg-secondary text-sm hover:bg-primary hover:text-primary-foreground transition-colors"
+                          className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-secondary text-xs sm:text-sm hover:bg-primary hover:text-primary-foreground transition-colors"
                         >
                           {term}
                         </button>
