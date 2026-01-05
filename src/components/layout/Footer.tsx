@@ -40,8 +40,8 @@ const Footer = () => {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.5 } },
   };
 
   return (
@@ -57,8 +57,8 @@ const Footer = () => {
         {!isSubscribed ? (
           <div className="container-luxury w-full">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
               className="max-w-2xl mx-auto text-center"
@@ -89,8 +89,8 @@ const Footer = () => {
         ) : (
           <div className="container-luxury w-full flex items-center justify-center">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               className="flex items-center justify-center gap-3 text-primary"
             >
               <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
