@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
+import UniversalLivePreview from '@/components/admin/UniversalLivePreview';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +18,8 @@ import {
   ImageIcon,
   ShoppingBag,
   Star,
-  Layers
+  Layers,
+  ExternalLink
 } from 'lucide-react';
 import { useSectionElements, useUpdateSectionElements, defaultSectionElements } from '@/hooks/useSectionElements';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
@@ -173,7 +175,7 @@ export default function AdminSectionElements() {
         </div>
 
         {/* Section Cards */}
-        <div className="grid gap-6">
+        <div className="grid lg:grid-cols-2 gap-6">
           {Object.entries(sectionConfig).map(([key, config]) => {
             const Icon = config.icon;
             const sectionElements = currentElements[key as keyof typeof currentElements] || [];
@@ -218,7 +220,18 @@ export default function AdminSectionElements() {
                 <Separator />
                 
                 <CardContent className="pt-4 px-3 sm:px-6">
-                  <ScrollArea className="max-h-[400px]">
+                  {/* Live Preview */}
+                  <div className="mb-4">
+                    <UniversalLivePreview
+                      type="elements"
+                      data={sectionElements}
+                      media={sectionMedia}
+                      title={`${config.title} Preview`}
+                      onOpenFullPreview={() => setPreviewSection(key)}
+                    />
+                  </div>
+
+                  <ScrollArea className="max-h-[300px]">
                     <div className="space-y-2 sm:space-y-3">
                       {sectionElements.map((element) => (
                         <div

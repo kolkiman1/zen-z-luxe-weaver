@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Loader2, Type, GripVertical, Eye, EyeOff, Calendar, Plus, Clock, Undo2, Redo2, SplitSquareHorizontal } from 'lucide-react';
+import { Save, Loader2, Type, GripVertical, Eye, EyeOff, Calendar, Plus, Clock, Undo2, Redo2, SplitSquareHorizontal, ExternalLink } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -9,6 +9,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import HomepagePreview from '@/components/admin/HomepagePreview';
 import SectionContentPreview from '@/components/admin/SectionContentPreview';
 import SectionContentComparison from '@/components/admin/SectionContentComparison';
+import UniversalLivePreview from '@/components/admin/UniversalLivePreview';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,7 @@ import { useSectionContent, useUpdateSectionContent, SectionContent, defaultSect
 import { useSectionOrder, useUpdateSectionOrder, SectionOrderItem, defaultSectionOrder } from '@/hooks/useSectionOrder';
 import { useProductCollections } from '@/hooks/useProductCollections';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
+import { useHeroContent, defaultHeroContent, HeroContentSettings } from '@/hooks/useHeroContent';
 
 type ContentSectionKey = 'hero' | 'newArrivals' | 'categories' | 'featuredProducts' | 'brandBanner';
 
@@ -205,6 +207,7 @@ const AdminSectionContent = () => {
   const { data: sectionOrder, isLoading: orderLoading } = useSectionOrder();
   const { data: collections } = useProductCollections();
   const { data: sectionMedia } = useSectionMedia();
+  const { data: heroContent } = useHeroContent();
   const updateContentMutation = useUpdateSectionContent();
   const updateOrderMutation = useUpdateSectionOrder();
 
@@ -212,6 +215,7 @@ const AdminSectionContent = () => {
   const [originalContent, setOriginalContent] = useState<SectionContent>(defaultSectionContent);
   const [previewSection, setPreviewSection] = useState<ContentSectionKey | null>(null);
   const [compareSection, setCompareSection] = useState<ContentSectionKey | null>(null);
+  const [localHeroContent, setLocalHeroContent] = useState<HeroContentSettings>(defaultHeroContent);
   
   // Use undo/redo for section order
   const { 
@@ -235,6 +239,12 @@ const AdminSectionContent = () => {
       setOriginalContent(sectionContent);
     }
   }, [sectionContent]);
+
+  useEffect(() => {
+    if (heroContent) {
+      setLocalHeroContent(heroContent);
+    }
+  }, [heroContent]);
 
   useEffect(() => {
     if (sectionOrder) resetOrderHistory(sectionOrder);
@@ -493,7 +503,19 @@ const AdminSectionContent = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
+                {/* Live Preview */}
+                <UniversalLivePreview
+                  type="hero"
+                  data={heroContent || defaultHeroContent}
+                  media={sectionMedia?.hero}
+                  title="Hero Section Preview"
+                  onOpenFullPreview={() => {
+                    sessionStorage.setItem('preview-section-order', JSON.stringify(localOrder));
+                    window.open('/?preview=true', '_blank');
+                  }}
+                />
+
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label>Badge Text</Label>
