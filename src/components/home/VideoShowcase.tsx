@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import { Play, Pause, Volume2, VolumeX, ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -9,22 +9,33 @@ const VideoShowcase = () => {
   const { data: settings } = useVideoShowcase();
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isMounted, setIsMounted] = useState(false);
   const isInView = useInView(containerRef, { once: false, amount: 0.3 });
   const [isPlaying, setIsPlaying] = useState(settings?.autoplay ?? true);
   const [isMuted, setIsMuted] = useState(true);
   const [activeProduct, setActiveProduct] = useState(0);
+  const [scrollTargetEl, setScrollTargetEl] = useState<HTMLDivElement | null>(null);
+
+  const setContainerRef = useCallback((node: HTMLDivElement | null) => {
+    containerRef.current = node;
+    setScrollTargetEl(node);
+  }, []);
+
+  const scrollTarget = useMemo(
+    () =>
+      scrollTargetEl
+        ? ({ current: scrollTargetEl } as React.RefObject<HTMLDivElement>)
+        : undefined,
+    [scrollTargetEl]
+  );
 
   const enabledHighlights = settings?.productHighlights.filter(h => h.enabled) || [];
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   const { scrollYProgress } = useScroll({
-    target: isMounted ? containerRef : undefined,
+    target: scrollTarget,
     offset: ['start end', 'end start'],
   });
+
+  const canAnimate = Boolean(scrollTargetEl);
 
   const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
@@ -68,7 +79,7 @@ const VideoShowcase = () => {
   if (!settings?.enabled) return null;
 
   return (
-    <section ref={containerRef} className="relative py-20 lg:py-32 overflow-hidden bg-background">
+    <section ref={setContainerRef} className="relative py-20 lg:py-32 overflow-hidden bg-background">
       {/* Background Elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
@@ -107,7 +118,7 @@ const VideoShowcase = () => {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Video Section */}
           <motion.div
-            style={isMounted ? { y, opacity } : undefined}
+            style={canAnimate ? { y, opacity } : undefined}
             className="relative aspect-[4/5] lg:aspect-[3/4] rounded-3xl overflow-hidden group"
           >
             {/* Video */}
