@@ -22,7 +22,8 @@ import {
   Type,
   Image,
   Layers,
-  Sparkles
+  Sparkles,
+  Video
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -52,6 +53,7 @@ const navItems: NavItem[] = [
   { name: 'Section Media', href: '/admin/section-media', icon: Settings },
   { name: 'Section Content', href: '/admin/section-content', icon: Type },
   { name: 'Section Elements', href: '/admin/section-elements', icon: Sparkles },
+  { name: 'Section Materials', href: '/admin/section-materials', icon: Video },
   { name: 'Collections', href: '/admin/product-collections', icon: Layers },
   { name: 'Category Banners', href: '/admin/category-banners', icon: Image },
   { name: 'Security', href: '/admin/security', icon: Shield, badgeKey: 'security' },

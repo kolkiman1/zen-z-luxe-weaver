@@ -3,58 +3,18 @@ import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import { Play, Pause, Volume2, VolumeX, ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-
-interface ProductHighlight {
-  id: string;
-  name: string;
-  category: string;
-  price: string;
-  image: string;
-  link: string;
-}
-
-const productHighlights: ProductHighlight[] = [
-  {
-    id: '1',
-    name: 'Royal Sherwani Set',
-    category: 'Traditional Wear',
-    price: '৳12,500',
-    image: '/products/royal-sherwani-set-1.webp',
-    link: '/product/royal-sherwani-set',
-  },
-  {
-    id: '2',
-    name: 'Banarasi Silk Saree',
-    category: 'Ethnic Wear',
-    price: '৳8,900',
-    image: '/products/banarasi-silk-saree-1.jpg',
-    link: '/product/banarasi-silk-saree',
-  },
-  {
-    id: '3',
-    name: 'Designer Anarkali',
-    category: 'Party Wear',
-    price: '৳6,500',
-    image: '/products/designer-anarkali-suit-1.jpg',
-    link: '/product/designer-anarkali-suit',
-  },
-  {
-    id: '4',
-    name: 'Lehenga Choli Set',
-    category: 'Bridal Collection',
-    price: '৳15,000',
-    image: '/products/lehenga-choli-set-1.jpg',
-    link: '/product/lehenga-choli-set',
-  },
-];
+import { useVideoShowcase } from '@/hooks/useVideoShowcase';
 
 const VideoShowcase = () => {
+  const { data: settings } = useVideoShowcase();
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const isInView = useInView(containerRef, { once: false, amount: 0.3 });
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(settings?.autoplay ?? true);
   const [isMuted, setIsMuted] = useState(true);
   const [activeProduct, setActiveProduct] = useState(0);
+
+  const enabledHighlights = settings?.productHighlights.filter(h => h.enabled) || [];
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -75,11 +35,12 @@ const VideoShowcase = () => {
   }, [isInView, isPlaying]);
 
   useEffect(() => {
+    if (enabledHighlights.length === 0) return;
     const interval = setInterval(() => {
-      setActiveProduct((prev) => (prev + 1) % productHighlights.length);
+      setActiveProduct((prev) => (prev + 1) % enabledHighlights.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [enabledHighlights.length]);
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -98,6 +59,8 @@ const VideoShowcase = () => {
       setIsMuted(!isMuted);
     }
   };
+
+  if (!settings?.enabled) return null;
 
   return (
     <section ref={containerRef} className="relative py-20 lg:py-32 overflow-hidden bg-background">
@@ -124,15 +87,15 @@ const VideoShowcase = () => {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
           >
             <Sparkles className="w-4 h-4 text-gold" />
-            <span className="text-sm font-medium">Featured Collection</span>
+            <span className="text-sm font-medium">{settings?.tagline || 'Featured Collection'}</span>
           </motion.div>
           
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            Experience the
-            <span className="text-gradient-gold ml-2">Elegance</span>
+            {settings?.headline || 'Experience the'}
+            <span className="text-gradient-gold ml-2">{settings?.headlineHighlight || 'Elegance'}</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Discover our handpicked collection of premium fashion pieces crafted for the modern generation.
+            {settings?.description || 'Discover our handpicked collection of premium fashion pieces crafted for the modern generation.'}
           </p>
         </motion.div>
 
@@ -145,13 +108,13 @@ const VideoShowcase = () => {
             {/* Video */}
             <video
               ref={videoRef}
-              autoPlay
+              autoPlay={settings?.autoplay}
               loop
               muted
               playsInline
               className="absolute inset-0 w-full h-full object-cover"
             >
-              <source src="/videos/new-arrivals-bg.mp4" type="video/mp4" />
+              <source src={settings?.videoUrl || '/videos/new-arrivals-bg.mp4'} type="video/mp4" />
             </video>
 
             {/* Gradient Overlay */}
@@ -159,44 +122,46 @@ const VideoShowcase = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-background/30 to-transparent" />
 
             {/* Video Controls */}
-            <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={togglePlay}
-                  className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-colors"
-                >
-                  {isPlaying ? (
-                    <Pause className="w-5 h-5 text-white" />
-                  ) : (
-                    <Play className="w-5 h-5 text-white ml-0.5" />
-                  )}
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={toggleMute}
-                  className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-colors"
-                >
-                  {isMuted ? (
-                    <VolumeX className="w-4 h-4 text-white" />
-                  ) : (
-                    <Volume2 className="w-4 h-4 text-white" />
-                  )}
-                </motion.button>
-              </div>
+            {settings?.showControls && (
+              <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={togglePlay}
+                    className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-colors"
+                  >
+                    {isPlaying ? (
+                      <Pause className="w-5 h-5 text-white" />
+                    ) : (
+                      <Play className="w-5 h-5 text-white ml-0.5" />
+                    )}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={toggleMute}
+                    className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-colors"
+                  >
+                    {isMuted ? (
+                      <VolumeX className="w-4 h-4 text-white" />
+                    ) : (
+                      <Volume2 className="w-4 h-4 text-white" />
+                    )}
+                  </motion.button>
+                </div>
 
-              {/* Progress Bar */}
-              <div className="flex-1 mx-4 h-1 bg-white/20 rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-white/60"
-                  initial={{ width: '0%' }}
-                  animate={{ width: isPlaying ? '100%' : '0%' }}
-                  transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-                />
+                {/* Progress Bar */}
+                <div className="flex-1 mx-4 h-1 bg-white/20 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-white/60"
+                    initial={{ width: '0%' }}
+                    animate={{ width: isPlaying ? '100%' : '0%' }}
+                    transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Floating Badge */}
             <motion.div
@@ -229,11 +194,11 @@ const VideoShowcase = () => {
               viewport={{ once: true }}
               className="font-display text-2xl lg:text-3xl font-bold"
             >
-              Trending This Season
+              {settings?.sideHeadline || 'Trending This Season'}
             </motion.h3>
 
             <div className="space-y-4">
-              {productHighlights.map((product, index) => (
+              {enabledHighlights.map((product, index) => (
                 <motion.div
                   key={product.id}
                   initial={{ opacity: 0, x: 30 }}
