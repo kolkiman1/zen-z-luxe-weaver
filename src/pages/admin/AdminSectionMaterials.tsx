@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
   Save, Loader2, Megaphone, Video, Image, Plus, Trash2, 
   GripVertical, Eye, EyeOff, Clock, Zap, Gift, Truck, Sparkles,
-  Upload, Link as LinkIcon, Play, Pause
+  Upload, Link as LinkIcon, Play, Pause, Layout, Type, ArrowRight
 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,6 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { useAnnouncementBar, useUpdateAnnouncementBar, AnnouncementBarSettings, defaultAnnouncementSettings, Promotion } from '@/hooks/useAnnouncementBar';
 import { useVideoShowcase, useUpdateVideoShowcase, VideoShowcaseSettings, defaultVideoShowcaseSettings, ProductHighlight } from '@/hooks/useVideoShowcase';
+import { useHeroContent, useUpdateHeroContent, HeroContentSettings, defaultHeroContent, HeroCategory } from '@/hooks/useHeroContent';
 import { supabase } from '@/integrations/supabase/client';
 
 const iconOptions = [
@@ -31,11 +32,14 @@ const iconOptions = [
 const AdminSectionMaterials = () => {
   const { data: announcementSettings, isLoading: announcementLoading } = useAnnouncementBar();
   const { data: videoSettings, isLoading: videoLoading } = useVideoShowcase();
+  const { data: heroSettings, isLoading: heroLoading } = useHeroContent();
   const updateAnnouncementMutation = useUpdateAnnouncementBar();
   const updateVideoMutation = useUpdateVideoShowcase();
+  const updateHeroMutation = useUpdateHeroContent();
 
   const [localAnnouncement, setLocalAnnouncement] = useState<AnnouncementBarSettings>(defaultAnnouncementSettings);
   const [localVideo, setLocalVideo] = useState<VideoShowcaseSettings>(defaultVideoShowcaseSettings);
+  const [localHero, setLocalHero] = useState<HeroContentSettings>(defaultHeroContent);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -49,6 +53,12 @@ const AdminSectionMaterials = () => {
       setLocalVideo(videoSettings);
     }
   }, [videoSettings]);
+
+  useEffect(() => {
+    if (heroSettings) {
+      setLocalHero(heroSettings);
+    }
+  }, [heroSettings]);
 
   // Announcement Bar handlers
   const handleAddPromotion = () => {
@@ -204,7 +214,49 @@ const AdminSectionMaterials = () => {
     }
   };
 
-  if (announcementLoading || videoLoading) {
+  // Hero handlers
+  const handleAddCategory = () => {
+    const newCat: HeroCategory = {
+      id: `cat-${Date.now()}`,
+      name: 'New Category',
+      href: '/category/new',
+      colorFrom: 'gray-500/20',
+      colorTo: 'slate-500/20',
+      enabled: true,
+    };
+    setLocalHero(prev => ({
+      ...prev,
+      categories: [...prev.categories, newCat],
+    }));
+  };
+
+  const handleRemoveCategory = (id: string) => {
+    setLocalHero(prev => ({
+      ...prev,
+      categories: prev.categories.filter(c => c.id !== id),
+    }));
+  };
+
+  const handleCategoryChange = (id: string, field: keyof HeroCategory, value: string | boolean) => {
+    setLocalHero(prev => ({
+      ...prev,
+      categories: prev.categories.map(c => 
+        c.id === id ? { ...c, [field]: value } : c
+      ),
+    }));
+  };
+
+  const handleSaveHero = async () => {
+    try {
+      await updateHeroMutation.mutateAsync(localHero);
+      toast.success('Hero section settings saved!');
+    } catch (error) {
+      console.error('Save error:', error);
+      toast.error('Failed to save settings');
+    }
+  };
+
+  if (announcementLoading || videoLoading || heroLoading) {
     return (
       <AdminLayout title="Section Materials">
         <div className="flex items-center justify-center h-64">
@@ -228,17 +280,263 @@ const AdminSectionMaterials = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="announcement" className="w-full">
+        <Tabs defaultValue="hero" className="w-full">
           <TabsList className="w-full flex flex-wrap h-auto gap-1 p-1 bg-muted/50">
-            <TabsTrigger value="announcement" className="flex-1 min-w-[140px] text-xs sm:text-sm py-2 gap-2">
+            <TabsTrigger value="hero" className="flex-1 min-w-[120px] text-xs sm:text-sm py-2 gap-2">
+              <Layout className="w-4 h-4" />
+              Hero Section
+            </TabsTrigger>
+            <TabsTrigger value="announcement" className="flex-1 min-w-[120px] text-xs sm:text-sm py-2 gap-2">
               <Megaphone className="w-4 h-4" />
               Announcement Bar
             </TabsTrigger>
-            <TabsTrigger value="video" className="flex-1 min-w-[140px] text-xs sm:text-sm py-2 gap-2">
+            <TabsTrigger value="video" className="flex-1 min-w-[120px] text-xs sm:text-sm py-2 gap-2">
               <Video className="w-4 h-4" />
               Video Showcase
             </TabsTrigger>
           </TabsList>
+
+          {/* Hero Section Tab */}
+          <TabsContent value="hero" className="mt-6 space-y-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Layout className="w-5 h-5 text-primary" />
+                    Hero Section Content
+                  </CardTitle>
+                  <CardDescription>Edit the main hero section headline, description, and category pills</CardDescription>
+                </div>
+                <Button onClick={handleSaveHero} disabled={updateHeroMutation.isPending} className="gap-2">
+                  {updateHeroMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Badge Settings */}
+                <div className="space-y-4">
+                  <Label className="text-lg font-semibold flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-gold" />
+                    Badge Text
+                  </Label>
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div className="space-y-2">
+                      <Label>Prefix</Label>
+                      <Input
+                        value={localHero.badgePrefix}
+                        onChange={(e) => setLocalHero(prev => ({ ...prev, badgePrefix: e.target.value }))}
+                        placeholder="Bangladesh's"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Highlight (Gold)</Label>
+                      <Input
+                        value={localHero.badgeHighlight}
+                        onChange={(e) => setLocalHero(prev => ({ ...prev, badgeHighlight: e.target.value }))}
+                        placeholder="Biggest"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Suffix</Label>
+                      <Input
+                        value={localHero.badgeSuffix}
+                        onChange={(e) => setLocalHero(prev => ({ ...prev, badgeSuffix: e.target.value }))}
+                        placeholder="Fashion Destination"
+                      />
+                    </div>
+                  </div>
+                  {/* Badge Preview */}
+                  <div className="p-4 border rounded-lg bg-muted/30">
+                    <Label className="text-xs text-muted-foreground mb-2 block">Preview:</Label>
+                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 text-sm">
+                      <Sparkles className="w-4 h-4 text-gold" />
+                      <span className="text-primary">{localHero.badgePrefix}</span>
+                      <span className="text-gold font-bold">{localHero.badgeHighlight}</span>
+                      <span className="text-muted-foreground">{localHero.badgeSuffix}</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Heading Settings */}
+                <div className="space-y-4">
+                  <Label className="text-lg font-semibold flex items-center gap-2">
+                    <Type className="w-4 h-4" />
+                    Main Heading
+                  </Label>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>Line 1</Label>
+                      <Input
+                        value={localHero.headingLine1}
+                        onChange={(e) => setLocalHero(prev => ({ ...prev, headingLine1: e.target.value }))}
+                        placeholder="Redefine"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Line 2 (Gold Gradient)</Label>
+                      <Input
+                        value={localHero.headingLine2}
+                        onChange={(e) => setLocalHero(prev => ({ ...prev, headingLine2: e.target.value }))}
+                        placeholder="Your Style"
+                      />
+                    </div>
+                  </div>
+                  {/* Heading Preview */}
+                  <div className="p-4 border rounded-lg bg-muted/30">
+                    <Label className="text-xs text-muted-foreground mb-2 block">Preview:</Label>
+                    <div className="font-display font-bold text-3xl tracking-tight">
+                      <div>{localHero.headingLine1}</div>
+                      <div className="text-gradient-gold">{localHero.headingLine2}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="space-y-4">
+                  <Label className="text-lg font-semibold">Description</Label>
+                  <Textarea
+                    value={localHero.description}
+                    onChange={(e) => setLocalHero(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Curated collections that blend tradition with contemporary elegance..."
+                    rows={3}
+                  />
+                </div>
+
+                {/* CTA Buttons */}
+                <div className="space-y-4">
+                  <Label className="text-lg font-semibold">Call-to-Action Buttons</Label>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="p-4 border rounded-lg space-y-4">
+                      <Label className="font-medium">Primary Button</Label>
+                      <div className="space-y-2">
+                        <Label className="text-sm text-muted-foreground">Button Text</Label>
+                        <Input
+                          value={localHero.primaryButtonText}
+                          onChange={(e) => setLocalHero(prev => ({ ...prev, primaryButtonText: e.target.value }))}
+                          placeholder="Explore Collection"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm text-muted-foreground">Link URL</Label>
+                        <Input
+                          value={localHero.primaryButtonLink}
+                          onChange={(e) => setLocalHero(prev => ({ ...prev, primaryButtonLink: e.target.value }))}
+                          placeholder="/category/new-arrivals"
+                        />
+                      </div>
+                    </div>
+                    <div className="p-4 border rounded-lg space-y-4">
+                      <Label className="font-medium">Secondary Button</Label>
+                      <div className="space-y-2">
+                        <Label className="text-sm text-muted-foreground">Button Text</Label>
+                        <Input
+                          value={localHero.secondaryButtonText}
+                          onChange={(e) => setLocalHero(prev => ({ ...prev, secondaryButtonText: e.target.value }))}
+                          placeholder="Our Story"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm text-muted-foreground">Link URL</Label>
+                        <Input
+                          value={localHero.secondaryButtonLink}
+                          onChange={(e) => setLocalHero(prev => ({ ...prev, secondaryButtonLink: e.target.value }))}
+                          placeholder="/about"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Category Pills */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-lg font-semibold">Category Pills</Label>
+                    <Button onClick={handleAddCategory} size="sm" variant="outline" className="gap-2">
+                      <Plus className="w-4 h-4" />
+                      Add Category
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {localHero.categories.map((cat, index) => (
+                      <motion.div
+                        key={cat.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-4 border rounded-lg space-y-4"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
+                            <span className="font-medium">Category {index + 1}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={cat.enabled}
+                              onCheckedChange={(checked) => handleCategoryChange(cat.id, 'enabled', checked)}
+                            />
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => handleRemoveCategory(cat.id)}
+                              className="text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="grid gap-4 md:grid-cols-4">
+                          <div className="space-y-2">
+                            <Label>Name</Label>
+                            <Input
+                              value={cat.name}
+                              onChange={(e) => handleCategoryChange(cat.id, 'name', e.target.value)}
+                              placeholder="Women"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Link</Label>
+                            <Input
+                              value={cat.href}
+                              onChange={(e) => handleCategoryChange(cat.id, 'href', e.target.value)}
+                              placeholder="/category/women"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Color From</Label>
+                            <Input
+                              value={cat.colorFrom}
+                              onChange={(e) => handleCategoryChange(cat.id, 'colorFrom', e.target.value)}
+                              placeholder="rose-500/20"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Color To</Label>
+                            <Input
+                              value={cat.colorTo}
+                              onChange={(e) => handleCategoryChange(cat.id, 'colorTo', e.target.value)}
+                              placeholder="pink-500/20"
+                            />
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+
+                    {localHero.categories.length === 0 && (
+                      <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                        <ArrowRight className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-muted-foreground">No categories added yet</p>
+                        <Button onClick={handleAddCategory} variant="outline" size="sm" className="mt-2">
+                          Add Your First Category
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Announcement Bar Tab */}
           <TabsContent value="announcement" className="mt-6 space-y-6">

@@ -4,6 +4,7 @@ import { ArrowRight, ChevronDown, Play, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
+import { useHeroContent, defaultHeroContent } from '@/hooks/useHeroContent';
 
 const FloatingParticle = ({ delay, duration, size, left, top }: { delay: number; duration: number; size: number; left: string; top: string }) => (
   <motion.div
@@ -64,6 +65,8 @@ const AnimatedText = ({ text, delay, className }: { text: string; delay: number;
 
 const Hero = () => {
   const { data: sectionMedia } = useSectionMedia();
+  const { data: heroContent } = useHeroContent();
+  const content = heroContent || defaultHeroContent;
   const heroMedia = sectionMedia?.hero;
   const containerRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -91,11 +94,11 @@ const Hero = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [mouseX, mouseY]);
 
-  const categories = [
-    { name: "Women", href: "/category/women", color: "from-rose-500/20 to-pink-500/20" },
-    { name: "Men", href: "/category/men", color: "from-blue-500/20 to-indigo-500/20" },
-    { name: "Accessories", href: "/category/accessories", color: "from-amber-500/20 to-orange-500/20" },
-  ];
+  const categories = content.categories.filter(c => c.enabled).map(cat => ({
+    name: cat.name,
+    href: cat.href,
+    color: `from-${cat.colorFrom} to-${cat.colorTo}`,
+  }));
 
   return (
     <section 
@@ -231,9 +234,9 @@ const Hero = () => {
                     <Sparkles className="w-4 h-4 text-gold" />
                   </motion.span>
                   <span className="relative text-sm font-medium tracking-wide">
-                    <span className="text-primary">Bangladesh's</span>
-                    <span className="text-gold font-bold ml-1">Biggest</span>
-                    <span className="text-muted-foreground ml-1">Fashion Destination</span>
+                    <span className="text-primary">{content.badgePrefix}</span>
+                    <span className="text-gold font-bold ml-1">{content.badgeHighlight}</span>
+                    <span className="text-muted-foreground ml-1">{content.badgeSuffix}</span>
                   </span>
                 </span>
               </motion.div>
@@ -247,7 +250,7 @@ const Hero = () => {
                     transition={{ delay: 0.4, duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
                   >
                     <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tighter leading-[0.85]">
-                      <AnimatedText text="Redefine" delay={0.5} />
+                      <AnimatedText text={content.headingLine1} delay={0.5} />
                     </h1>
                   </motion.div>
                 </div>
@@ -260,7 +263,7 @@ const Hero = () => {
                     <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tighter leading-[0.85]">
                       <span className="relative">
                         <span className="text-gradient-gold">
-                          <AnimatedText text="Your Style" delay={0.7} />
+                          <AnimatedText text={content.headingLine2} delay={0.7} />
                         </span>
                         {/* Animated underline */}
                         <motion.span
@@ -282,15 +285,7 @@ const Hero = () => {
                 transition={{ delay: 1, duration: 0.8 }}
                 className="text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-xl leading-relaxed"
               >
-                Curated collections that blend 
-                <motion.span 
-                  className="text-foreground font-semibold mx-1"
-                  animate={{ color: ['hsl(var(--foreground))', 'hsl(var(--primary))', 'hsl(var(--foreground))'] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                >
-                  tradition
-                </motion.span>
-                with contemporary elegance for the modern generation.
+                {content.description}
               </motion.p>
 
               {/* Category Pills */}
@@ -327,7 +322,7 @@ const Hero = () => {
                 transition={{ delay: 1.4, duration: 0.8 }}
                 className="flex flex-wrap gap-4 pt-4"
               >
-                <Link to="/category/new-arrivals">
+                <Link to={content.primaryButtonLink}>
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -341,7 +336,7 @@ const Hero = () => {
                     >
                       <span className="relative z-10 flex items-center gap-2">
                         <Play className="w-4 h-4 fill-current" />
-                        Explore Collection
+                        {content.primaryButtonText}
                       </span>
                       {/* Button shimmer */}
                       <motion.span
@@ -352,14 +347,14 @@ const Hero = () => {
                     </Button>
                   </motion.div>
                 </Link>
-                <Link to="/about">
+                <Link to={content.secondaryButtonLink}>
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     <Button 
                       variant="outline" 
                       size="lg"
                       className="rounded-full px-8 py-6 text-base font-semibold border-foreground/20 hover:bg-foreground/5 hover:border-foreground/40 transition-all duration-300"
                     >
-                      Our Story
+                      {content.secondaryButtonText}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </motion.div>
