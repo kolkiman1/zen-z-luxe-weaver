@@ -202,14 +202,14 @@ const QuickViewModal = ({ product, isOpen, onClose }: QuickViewModalProps) => {
           </div>
 
           {/* Product Details */}
-          <ScrollArea className="h-[500px] md:h-auto md:max-h-[90vh]">
-            <div className="p-6 md:p-8 flex flex-col">
+          <ScrollArea className="h-[350px] sm:h-[500px] md:h-auto md:max-h-[90vh]">
+            <div className="p-4 sm:p-6 md:p-8 flex flex-col">
               {/* Header */}
-              <div className="mb-4">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+              <div className="mb-3 sm:mb-4">
+                <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider mb-1 sm:mb-2">
                   {product.subcategory}
                 </p>
-                <h2 className="font-display text-2xl md:text-3xl mb-2">{product.name}</h2>
+                <h2 className="font-display text-xl sm:text-2xl md:text-3xl mb-1.5 sm:mb-2">{product.name}</h2>
                 
                 {/* Rating Summary */}
                 <div className="flex items-center gap-3 mb-3">
@@ -422,31 +422,31 @@ const QuickViewModal = ({ product, isOpen, onClose }: QuickViewModalProps) => {
               </AnimatePresence>
 
               {/* Actions - Always visible */}
-              <div className="flex gap-3 mt-6 pt-4 border-t border-border">
+              <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-border">
                 <Button
                   onClick={handleAddToCart}
-                  className="flex-1 btn-primary py-6 gap-2"
+                  className="flex-1 btn-primary py-5 sm:py-6 gap-1.5 sm:gap-2 text-sm sm:text-base"
                   disabled={!product.inStock}
                 >
-                  <ShoppingBag size={18} />
+                  <ShoppingBag size={16} className="sm:w-[18px] sm:h-[18px]" />
                   {product.inStock ? 'Add to Cart' : 'Out of Stock'}
                 </Button>
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={handleToggleWishlist}
-                  className={`w-14 h-14 rounded-lg ${
+                  className={`w-12 h-12 sm:w-14 sm:h-14 rounded-lg flex-shrink-0 ${
                     inWishlist ? 'bg-primary/10 border-primary text-primary' : ''
                   }`}
                 >
-                  <Heart size={20} fill={inWishlist ? 'currentColor' : 'none'} />
+                  <Heart size={18} className="sm:w-5 sm:h-5" fill={inWishlist ? 'currentColor' : 'none'} />
                 </Button>
               </div>
 
               {/* Stock Status */}
-              <div className="mt-4 flex items-center gap-2">
+              <div className="mt-3 sm:mt-4 flex items-center gap-2">
                 <div className={`w-2 h-2 rounded-full ${product.inStock ? 'bg-green-500' : 'bg-destructive'}`} />
-                <span className="text-sm text-muted-foreground">
+                <span className="text-xs sm:text-sm text-muted-foreground">
                   {product.inStock ? 'In Stock' : 'Out of Stock'}
                 </span>
               </div>

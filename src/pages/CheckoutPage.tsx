@@ -477,26 +477,26 @@ const CheckoutPage = () => {
       <Header />
       <CartSidebar />
 
-      <main className="pt-24 pb-16 min-h-screen">
-        <div className="container-luxury">
+      <main className="pt-20 sm:pt-24 pb-12 sm:pb-16 min-h-screen">
+        <div className="container-luxury px-4 sm:px-6">
           {/* Back Link */}
-          <Link to="/category/all" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8">
-            <ChevronLeft size={18} />
+          <Link to="/category/all" className="inline-flex items-center gap-1.5 sm:gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 sm:mb-8">
+            <ChevronLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
             Continue Shopping
           </Link>
 
-          <div className="grid lg:grid-cols-3 gap-12">
+          <div className="grid lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
             {/* Checkout Form */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-6 sm:space-y-8">
               {/* Progress Steps */}
-              <div className="flex items-center gap-4 mb-8">
+              <div className="flex items-center gap-2 sm:gap-4 mb-6 sm:mb-8 overflow-x-auto pb-2">
                 {stepLabels.map((label, index) => {
                   const stepNumber = index + 1;
                   const isActive = step >= stepNumber;
                   return (
-                    <div key={stepNumber} className="flex items-center gap-2">
+                    <div key={stepNumber} className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                        className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium ${
                           isActive
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-secondary text-muted-foreground'
@@ -504,10 +504,10 @@ const CheckoutPage = () => {
                       >
                         {stepNumber}
                       </div>
-                      <span className={`text-sm ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      <span className={`text-xs sm:text-sm whitespace-nowrap ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
                         {label}
                       </span>
-                      {index < stepLabels.length - 1 && <div className="w-8 h-px bg-border" />}
+                      {index < stepLabels.length - 1 && <div className="w-4 sm:w-8 h-px bg-border" />}
                     </div>
                   );
                 })}
@@ -518,9 +518,9 @@ const CheckoutPage = () => {
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="space-y-6"
+                  className="space-y-4 sm:space-y-6"
                 >
-                  <h2 className="font-display text-2xl">Shipping Information</h2>
+                  <h2 className="font-display text-xl sm:text-2xl">Shipping Information</h2>
 
                   {/* Guest checkout banner */}
                   {!user && (
