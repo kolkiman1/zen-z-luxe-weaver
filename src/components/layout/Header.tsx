@@ -55,10 +55,10 @@ const Header = () => {
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed left-0 right-0 z-40 transition-all duration-500 ${
           isScrolled 
-            ? 'glass py-2 md:py-3' 
-            : 'bg-gradient-to-b from-background/80 to-transparent py-3 md:py-4'
+            ? 'glass py-2 md:py-3 top-0' 
+            : 'bg-gradient-to-b from-background/80 to-transparent py-3 md:py-4 top-10'
         }`}
       >
         <div className="container-luxury">

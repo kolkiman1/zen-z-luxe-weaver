@@ -9,7 +9,9 @@ import FeaturedProducts from '@/components/home/FeaturedProducts';
 import NewArrivals from '@/components/home/NewArrivals';
 import BrandBanner from '@/components/home/BrandBanner';
 import Features from '@/components/home/Features';
+import VideoShowcase from '@/components/home/VideoShowcase';
 import ProductCollection from '@/components/home/ProductCollection';
+import FloatingAnnouncementBar from '@/components/home/FloatingAnnouncementBar';
 import { ProductChatbot } from '@/components/chat/ProductChatbot';
 import { ParallaxSection } from '@/components/ui/parallax-section';
 import AnnouncementPopup from '@/components/home/AnnouncementPopup';
@@ -23,6 +25,7 @@ type StaticSectionId = Exclude<SectionId, 'collection'>;
 const sectionComponents: Record<StaticSectionId, React.ComponentType> = {
   hero: Hero,
   features: Features,
+  videoShowcase: VideoShowcase,
   newArrivals: NewArrivals,
   categories: Categories,
   featuredProducts: FeaturedProducts,
@@ -32,6 +35,7 @@ const sectionComponents: Record<StaticSectionId, React.ComponentType> = {
 const parallaxConfig: Record<StaticSectionId, { speed: number; direction?: 'up' | 'down'; fadeIn?: boolean; scale?: boolean }> = {
   hero: { speed: 0 },
   features: { speed: 0.1, fadeIn: true },
+  videoShowcase: { speed: 0.1, fadeIn: true },
   newArrivals: { speed: 0.15, direction: 'up', fadeIn: true },
   categories: { speed: 0.1, fadeIn: true },
   featuredProducts: { speed: 0.15, direction: 'up', fadeIn: true },
@@ -70,7 +74,8 @@ const Index = () => {
   return (
     <>
       <SEOHead url="/" />
-
+      
+      <FloatingAnnouncementBar />
       <Header />
       <CartSidebar />
 
