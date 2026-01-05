@@ -55,6 +55,7 @@ const AdminSectionContent = lazy(() => import("./pages/admin/AdminSectionContent
 const AdminSectionElements = lazy(() => import("./pages/admin/AdminSectionElements"));
 const AdminCategoryBanners = lazy(() => import("./pages/admin/AdminCategoryBanners"));
 const AdminProductCollections = lazy(() => import("./pages/admin/AdminProductCollections"));
+const AdminSectionMaterials = lazy(() => import("./pages/admin/AdminSectionMaterials"));
 const MobileAdminApp = lazy(() => import("./pages/admin/MobileAdminApp"));
 
 const queryClient = new QueryClient();
@@ -114,6 +115,7 @@ const App = () => (
                       <Route path="/admin/section-elements" element={<AdminSectionElements />} />
                       <Route path="/admin/category-banners" element={<AdminCategoryBanners />} />
                       <Route path="/admin/product-collections" element={<AdminProductCollections />} />
+                      <Route path="/admin/section-materials" element={<AdminSectionMaterials />} />
                       <Route path="/admin/security" element={<AdminSecurityDashboard />} />
                       <Route path="/admin/email-templates" element={<AdminEmailTemplates />} />
                       <Route path="/admin/mobile" element={<MobileAdminApp />} />

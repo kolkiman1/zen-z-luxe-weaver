@@ -1,27 +1,15 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Clock, Zap, Gift, Truck, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Clock, Zap, Gift, Truck, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-interface Promotion {
-  id: string;
-  text: string;
-  link?: string;
-  icon: 'zap' | 'gift' | 'truck' | 'clock';
-  highlight?: string;
-}
-
-const promotions: Promotion[] = [
-  { id: '1', text: 'Winter Sale', highlight: 'Up to 50% OFF', link: '/category/sale', icon: 'zap' },
-  { id: '2', text: 'Free Shipping on orders over', highlight: '৳1000', link: '/shipping', icon: 'truck' },
-  { id: '3', text: 'New Arrivals', highlight: 'Shop Now', link: '/category/new-arrivals', icon: 'gift' },
-];
+import { useAnnouncementBar } from '@/hooks/useAnnouncementBar';
 
 const iconMap = {
   zap: Zap,
   gift: Gift,
   truck: Truck,
   clock: Clock,
+  sparkles: Sparkles,
 };
 
 interface CountdownProps {
@@ -71,36 +59,41 @@ const Countdown = ({ targetDate }: CountdownProps) => {
 };
 
 const FloatingAnnouncementBar = () => {
+  const { data: settings } = useAnnouncementBar();
   const [isVisible, setIsVisible] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Sale ends in 7 days from now
+  const enabledPromotions = settings?.promotions.filter(p => p.enabled) || [];
+
+  // Sale ends based on settings
   const saleEndDate = new Date();
-  saleEndDate.setDate(saleEndDate.getDate() + 7);
+  saleEndDate.setDate(saleEndDate.getDate() + (settings?.countdownDays || 7));
 
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || !settings?.autoRotate || enabledPromotions.length === 0) return;
     
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % promotions.length);
-    }, 4000);
+      setCurrentIndex((prev) => (prev + 1) % enabledPromotions.length);
+    }, settings?.rotationInterval || 4000);
 
     return () => clearInterval(interval);
-  }, [isPaused]);
+  }, [isPaused, settings?.autoRotate, settings?.rotationInterval, enabledPromotions.length]);
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + promotions.length) % promotions.length);
+    if (enabledPromotions.length === 0) return;
+    setCurrentIndex((prev) => (prev - 1 + enabledPromotions.length) % enabledPromotions.length);
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % promotions.length);
+    if (enabledPromotions.length === 0) return;
+    setCurrentIndex((prev) => (prev + 1) % enabledPromotions.length);
   };
 
-  if (!isVisible) return null;
+  if (!isVisible || !settings?.enabled || enabledPromotions.length === 0) return null;
 
-  const currentPromo = promotions[currentIndex];
-  const Icon = iconMap[currentPromo.icon];
+  const currentPromo = enabledPromotions[currentIndex];
+  const Icon = iconMap[currentPromo?.icon || 'zap'] || Zap;
 
   return (
     <motion.div
@@ -145,11 +138,13 @@ const FloatingAnnouncementBar = () => {
             onMouseLeave={() => setIsPaused(false)}
           >
             {/* Left - Countdown */}
-            <div className="hidden md:flex items-center gap-2 text-sm">
-              <Clock className="w-4 h-4" />
-              <span className="font-medium">Sale Ends:</span>
-              <Countdown targetDate={saleEndDate} />
-            </div>
+            {settings?.showCountdown && (
+              <div className="hidden md:flex items-center gap-2 text-sm">
+                <Clock className="w-4 h-4" />
+                <span className="font-medium">Sale Ends:</span>
+                <Countdown targetDate={saleEndDate} />
+              </div>
+            )}
 
             {/* Center - Rotating Promotions */}
             <div className="flex-1 flex items-center justify-center gap-2">
@@ -213,7 +208,7 @@ const FloatingAnnouncementBar = () => {
             <div className="flex items-center gap-3">
               {/* Progress indicators */}
               <div className="hidden sm:flex items-center gap-1">
-                {promotions.map((_, i) => (
+                {enabledPromotions.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setCurrentIndex(i)}
