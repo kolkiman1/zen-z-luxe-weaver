@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { AnimatedButton } from '@/components/ui/animated-button';
@@ -8,26 +8,35 @@ import { useSectionContent } from '@/hooks/useSectionContent';
 
 const BrandBanner = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const [isMounted, setIsMounted] = useState(false);
+  const [scrollTargetEl, setScrollTargetEl] = useState<HTMLElement | null>(null);
   const { data: sectionMedia } = useSectionMedia();
   const { data: sectionContent } = useSectionContent();
   const brandBannerMedia = sectionMedia?.brandBanner;
   const content = sectionContent?.brandBanner;
 
-  useEffect(() => {
-    setIsMounted(true);
+  const setSectionRef = useCallback((node: HTMLElement | null) => {
+    sectionRef.current = node;
+    setScrollTargetEl(node);
   }, []);
-  
+
+  const scrollTarget = useMemo(
+    () =>
+      scrollTargetEl
+        ? ({ current: scrollTargetEl } as React.RefObject<HTMLElement>)
+        : undefined,
+    [scrollTargetEl]
+  );
+
   const { scrollYProgress } = useScroll({
-    target: isMounted ? sectionRef : undefined,
-    offset: ["start end", "end start"]
+    target: scrollTarget,
+    offset: ["start end", "end start"],
   });
 
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
   const backgroundScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.1, 1.15, 1.2]);
 
   return (
-    <section ref={sectionRef} className="relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden">
+    <section ref={setSectionRef} className="relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden">
       {/* Background with Lazy Loading */}
       <div className="absolute inset-0 overflow-hidden">
         {brandBannerMedia?.type === 'video' && brandBannerMedia.url ? (

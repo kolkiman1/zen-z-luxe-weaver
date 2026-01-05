@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -19,17 +19,26 @@ const ParallaxSection = ({
   fadeIn = true,
   scale = false,
 }: ParallaxSectionProps) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isMounted, setIsMounted] = useState(false);
+  const [targetEl, setTargetEl] = useState<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    setIsMounted(true);
+  const setRef = useCallback((node: HTMLDivElement | null) => {
+    setTargetEl(node);
   }, []);
-  
+
+  const target = useMemo(
+    () =>
+      targetEl
+        ? ({ current: targetEl } as React.RefObject<HTMLDivElement>)
+        : undefined,
+    [targetEl]
+  );
+
   const { scrollYProgress } = useScroll({
-    target: isMounted ? ref : undefined,
-    offset: ["start end", "end start"]
+    target,
+    offset: ['start end', 'end start'],
   });
+
+  const enabled = Boolean(targetEl);
 
   const yValue = direction === 'up' ? speed * 100 : -speed * 100;
   const y = useTransform(scrollYProgress, [0, 1], [yValue, -yValue]);
@@ -38,13 +47,13 @@ const ParallaxSection = ({
 
   return (
     <motion.div
-      ref={ref}
+      ref={setRef}
       style={{
-        y: isMounted && speed !== 0 ? y : 0,
-        opacity: isMounted && fadeIn ? opacity : 1,
-        scale: isMounted && scale ? scaleValue : 1,
+        y: enabled && speed !== 0 ? y : 0,
+        opacity: enabled && fadeIn ? opacity : 1,
+        scale: enabled && scale ? scaleValue : 1,
       }}
-      className={cn("relative", className)}
+      className={cn('relative', className)}
     >
       {children}
     </motion.div>
@@ -62,24 +71,32 @@ const ParallaxBackground = ({
   className,
   speed = 0.3,
 }: ParallaxBackgroundProps) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isMounted, setIsMounted] = useState(false);
+  const [targetEl, setTargetEl] = useState<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    setIsMounted(true);
+  const setRef = useCallback((node: HTMLDivElement | null) => {
+    setTargetEl(node);
   }, []);
-  
+
+  const target = useMemo(
+    () =>
+      targetEl
+        ? ({ current: targetEl } as React.RefObject<HTMLDivElement>)
+        : undefined,
+    [targetEl]
+  );
+
   const { scrollYProgress } = useScroll({
-    target: isMounted ? ref : undefined,
-    offset: ["start end", "end start"]
+    target,
+    offset: ['start end', 'end start'],
   });
 
+  const enabled = Boolean(targetEl);
   const y = useTransform(scrollYProgress, [0, 1], [`${speed * 50}%`, `-${speed * 50}%`]);
 
   return (
-    <div ref={ref} className={cn("relative overflow-hidden", className)}>
+    <div ref={setRef} className={cn('relative overflow-hidden', className)}>
       <motion.div
-        style={{ y: isMounted ? y : 0 }}
+        style={{ y: enabled ? y : 0 }}
         className="absolute inset-0 -top-[20%] -bottom-[20%]"
       >
         {children}
