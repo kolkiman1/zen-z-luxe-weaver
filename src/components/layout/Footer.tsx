@@ -53,9 +53,9 @@ const Footer = () => {
       </div>
 
       {/* Newsletter Section - Fixed height container to prevent CLS */}
-      <div className="relative border-b border-border/50 min-h-[120px] md:min-h-[160px]">
+      <div className="relative border-b border-border/50 h-[280px] md:h-[320px] flex items-center">
         {!isSubscribed ? (
-          <div className="container-luxury py-16 md:py-20">
+          <div className="container-luxury w-full">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -87,7 +87,7 @@ const Footer = () => {
             </motion.div>
           </div>
         ) : (
-          <div className="container-luxury py-8 flex items-center justify-center min-h-[120px] md:min-h-[160px]">
+          <div className="container-luxury w-full flex items-center justify-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
