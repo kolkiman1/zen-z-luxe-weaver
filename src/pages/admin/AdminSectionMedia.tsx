@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Image, Video, Upload, Save, Eye, Trash2, Loader2, Maximize2 } from 'lucide-react';
+import { Image, Video, Upload, Save, Eye, Trash2, Loader2, Maximize2, ExternalLink } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import SectionMediaPreview from '@/components/admin/SectionMediaPreview';
+import UniversalLivePreview from '@/components/admin/UniversalLivePreview';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -401,15 +402,41 @@ const AdminSectionMedia = () => {
                         </div>
                       )}
 
-                      {/* Height indicator */}
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>Height:</span>
-                        <span className="font-medium">
-                          {heightOptions.find(h => h.value === (localMedia[section.key].height || 'auto'))?.label}
-                        </span>
-                        <span>
-                          ({heightOptions.find(h => h.value === (localMedia[section.key].height || 'auto'))?.description})
-                        </span>
+                      {/* Live Preview Panel */}
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <Label>Live Preview</Label>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              sessionStorage.setItem('preview-section-media', JSON.stringify(localMedia));
+                              window.open('/?preview=true', '_blank');
+                            }}
+                            className="gap-2"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            Open Site Preview
+                          </Button>
+                        </div>
+                        
+                        <UniversalLivePreview
+                          type="media"
+                          data={localMedia[section.key]}
+                          title={`${section.title} Preview`}
+                          onOpenFullPreview={() => setFullscreenPreview(section.key)}
+                        />
+
+                        {/* Height indicator */}
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span>Height:</span>
+                          <span className="font-medium">
+                            {heightOptions.find(h => h.value === (localMedia[section.key].height || 'auto'))?.label}
+                          </span>
+                          <span>
+                            ({heightOptions.find(h => h.value === (localMedia[section.key].height || 'auto'))?.description})
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>

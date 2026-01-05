@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, ShoppingBag, Eye } from 'lucide-react';
 import { Product, formatPrice } from '@/lib/data';
 import { useCart } from '@/contexts/CartContext';
@@ -13,12 +13,25 @@ interface ProductCardProps {
   index?: number;
 }
 
+// Generate a placeholder color based on product name
+const generatePlaceholderColor = (name: string) => {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash % 60) + 20; // Warm tones
+  return `hsl(${hue}, 15%, 18%)`;
+};
+
 const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const inWishlist = isInWishlist(product.id);
+
+  const placeholderColor = generatePlaceholderColor(product.name);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -55,13 +68,59 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
         <Link to={`/product/${product.slug || product.id}`} className="block group">
           {/* Image Container */}
           <div className="relative aspect-[3/4] overflow-hidden rounded-md sm:rounded-lg bg-secondary mb-2 sm:mb-3 md:mb-4">
-            {/* Product Image */}
+            {/* LQIP Placeholder */}
+            <AnimatePresence>
+              {!isImageLoaded && (
+                <motion.div
+                  initial={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute inset-0 z-10"
+                  style={{ backgroundColor: placeholderColor }}
+                >
+                  {/* Shimmer animation */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent"
+                      animate={{ x: ['-100%', '200%'] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+                    />
+                  </div>
+                  {/* Pulse effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-muted/30 to-muted/10 animate-pulse" />
+                  {/* Image placeholder icon */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <svg 
+                      className="w-10 h-10 text-muted-foreground/20" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={1} 
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
+                      />
+                    </svg>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Product Image with progressive loading */}
             <motion.img
               src={product.images[0]}
               alt={product.name}
               className="w-full h-full object-cover"
-              animate={{ scale: isHovered ? 1.05 : 1 }}
+              onLoad={() => setIsImageLoaded(true)}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ 
+                opacity: isImageLoaded ? 1 : 0, 
+                scale: isHovered ? 1.05 : (isImageLoaded ? 1 : 1.05)
+              }}
               transition={{ duration: 0.6, ease: 'easeOut' }}
+              loading="lazy"
             />
 
             {/* Badges */}
