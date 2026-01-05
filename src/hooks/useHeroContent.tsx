@@ -65,6 +65,8 @@ export const useHeroContent = () => {
       const value = data.value as Record<string, unknown>;
       return { ...defaultHeroContent, ...value } as HeroContentSettings;
     },
+    staleTime: 1000 * 60 * 1, // 1 minute for faster updates
+    refetchOnWindowFocus: true,
   });
 };
 

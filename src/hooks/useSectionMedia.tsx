@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import heroIndianFashion from '@/assets/hero-indian-fashion.jpg';
+import heroFashionGroup from '@/assets/hero-fashion-group.jpg';
 
 export type SectionHeight = 'auto' | 'small' | 'medium' | 'large' | 'full';
 
@@ -22,7 +22,7 @@ export interface SectionMedia {
 const defaultSectionMedia: SectionMedia = {
   hero: {
     type: 'image',
-    url: heroIndianFashion,
+    url: heroFashionGroup,
     overlayOpacity: 60,
     height: 'large',
   },
@@ -73,7 +73,8 @@ export const useSectionMedia = () => {
 
       return defaultSectionMedia;
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 1, // Reduced to 1 minute for faster updates
+    refetchOnWindowFocus: true,
   });
 };
 

@@ -46,8 +46,8 @@ const Hero = () => {
   
   const { scrollY } = useScroll();
   const opacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const scale = useTransform(scrollY, [0, 400], [1, 1.1]);
-  const y = useTransform(scrollY, [0, 400], [0, 100]);
+  // Simplified scroll transforms to prevent glitching
+  const bgY = useTransform(scrollY, [0, 500], [0, 50]);
   const textY = useTransform(scrollY, [0, 300], [0, -30]);
 
   useEffect(() => {
@@ -90,28 +90,25 @@ const Hero = () => {
       ref={containerRef}
       className="relative min-h-screen overflow-hidden bg-background"
     >
-      {/* Background Media with Parallax */}
-      <motion.div 
-        className="absolute inset-0 will-change-transform"
-        style={isMounted ? { scale, y } : undefined}
-      >
+      {/* Background Media - Fixed position to prevent glitching */}
+      <div className="absolute inset-0 overflow-hidden">
         {heroMedia?.type === 'video' && heroMedia.url ? (
-          <video
+          <motion.video
             autoPlay
             loop
             muted
             playsInline
             className="absolute inset-0 w-full h-full object-cover"
+            style={isMounted ? { y: bgY } : undefined}
           >
             <source src={heroMedia.url} type="video/mp4" />
-          </video>
+          </motion.video>
         ) : (
           <motion.div
-            className="absolute inset-0 bg-cover bg-center will-change-transform"
+            className="absolute inset-0 w-full h-full bg-cover bg-center"
             style={{
               backgroundImage: `url('${heroMedia?.url || 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1920&q=80'}')`,
-              x: isMounted ? smoothMouseX : 0,
-              y: isMounted ? smoothMouseY : 0,
+              y: isMounted ? bgY : 0,
             }}
           />
         )}
@@ -128,7 +125,7 @@ const Hero = () => {
             opacity: (heroMedia?.overlayOpacity || 75) / 100 
           }}
         />
-      </motion.div>
+      </div>
 
       {/* Floating Particles - Reduced count */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
