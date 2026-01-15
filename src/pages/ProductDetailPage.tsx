@@ -30,6 +30,21 @@ const ProductDetailPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
 
+  const imageCount = product?.images?.length || 1;
+
+  const nextImage = () => {
+    setSelectedImage((prev) => (prev + 1) % imageCount);
+  };
+
+  const prevImage = () => {
+    setSelectedImage((prev) => (prev - 1 + imageCount) % imageCount);
+  };
+
+  const swipeHandlers = useSwipe({
+    onSwipeLeft: nextImage,
+    onSwipeRight: prevImage,
+  });
+
   useEffect(() => {
     if (product?.sizes?.length) {
       setSelectedSize(product.sizes[0]);
@@ -76,19 +91,6 @@ const ProductDetailPage = () => {
       description: `${product.name} has been added to your cart.`,
     });
   };
-
-  const nextImage = () => {
-    setSelectedImage((prev) => (prev + 1) % product.images.length);
-  };
-
-  const prevImage = () => {
-    setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length);
-  };
-
-  const swipeHandlers = useSwipe({
-    onSwipeLeft: nextImage,
-    onSwipeRight: prevImage,
-  });
 
   const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'Gen-zee.store';
   const productImage = product.images[0]?.startsWith('http') 
