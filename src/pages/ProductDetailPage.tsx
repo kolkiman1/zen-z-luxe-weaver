@@ -14,6 +14,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useSwipe } from '@/hooks/useSwipe';
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -84,6 +85,11 @@ const ProductDetailPage = () => {
     setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length);
   };
 
+  const swipeHandlers = useSwipe({
+    onSwipeLeft: nextImage,
+    onSwipeRight: prevImage,
+  });
+
   const siteName = seoSettings?.siteTitle?.split('|')[0]?.trim() || 'Gen-zee.store';
   const productImage = product.images[0]?.startsWith('http') 
     ? product.images[0] 
@@ -140,8 +146,9 @@ const ProductDetailPage = () => {
             >
               {/* Main Image */}
               <div
-                className="relative aspect-[3/4] sm:aspect-[4/5] rounded-lg sm:rounded-xl overflow-hidden bg-secondary cursor-zoom-in"
+                className="relative aspect-[3/4] sm:aspect-[4/5] rounded-lg sm:rounded-xl overflow-hidden bg-secondary cursor-zoom-in touch-pan-y"
                 onClick={() => setIsZoomed(!isZoomed)}
+                {...swipeHandlers}
               >
                 <AnimatePresence mode="wait">
                   <motion.img

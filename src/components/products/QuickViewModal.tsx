@@ -7,6 +7,7 @@ import { useWishlist } from '@/contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useSwipe } from '@/hooks/useSwipe';
 
 interface Review {
   id: string;
@@ -134,12 +135,17 @@ const QuickViewModal = ({ product, isOpen, onClose }: QuickViewModalProps) => {
     );
   };
 
+  const swipeHandlers = useSwipe({
+    onSwipeLeft: nextImage,
+    onSwipeRight: prevImage,
+  });
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-lg md:max-w-3xl lg:max-w-5xl p-0 overflow-hidden bg-card border-border max-h-[90vh] sm:max-h-[85vh]">
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* Image Section */}
-          <div className="relative aspect-[4/3] sm:aspect-square bg-secondary">
+          <div className="relative aspect-[4/3] sm:aspect-square bg-secondary touch-pan-y" {...swipeHandlers}>
             <AnimatePresence mode="wait">
               <motion.img
                 key={currentImageIndex}
