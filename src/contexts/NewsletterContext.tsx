@@ -11,7 +11,7 @@ const NewsletterContext = createContext<NewsletterContextType | undefined>(undef
 const getInitialSubscribedState = (): boolean => {
   if (typeof window === 'undefined') return false;
   try {
-    return localStorage.getItem('gen-zee-newsletter-subscribed') === 'true';
+    return localStorage.getItem('zen-zee-newsletter-subscribed') === 'true';
   } catch {
     return false;
   }
@@ -22,7 +22,7 @@ export const NewsletterProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const subscribe = (email: string) => {
     if (email) {
-      localStorage.setItem('gen-zee-newsletter-subscribed', 'true');
+      localStorage.setItem('zen-zee-newsletter-subscribed', 'true');
       setIsSubscribed(true);
     }
   };

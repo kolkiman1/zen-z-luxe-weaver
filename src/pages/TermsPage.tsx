@@ -8,7 +8,7 @@ const TermsPage = () => {
   const sections = [
     {
       title: '1. Acceptance of Terms',
-      content: `By accessing and using Gen-zee.store, you accept and agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use our website or services.`,
+      content: `By accessing and using Zen Zee Store, you accept and agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use our website or services.`,
     },
     {
       title: '2. Use of Website',
@@ -62,7 +62,7 @@ const TermsPage = () => {
     },
     {
       title: '8. Intellectual Property',
-      content: `All content on this website, including but not limited to text, graphics, logos, images, and software, is the property of Gen-zee.store and is protected by intellectual property laws. You may not:
+      content: `All content on this website, including but not limited to text, graphics, logos, images, and software, is the property of Zen Zee Store and is protected by intellectual property laws. You may not:
 
 • Copy, reproduce, or distribute any content without permission
 • Use our trademarks without written consent
@@ -79,7 +79,7 @@ const TermsPage = () => {
     },
     {
       title: '10. Indemnification',
-      content: `You agree to indemnify and hold harmless Gen-zee.store, its officers, directors, employees, and agents from any claims, damages, or expenses arising from:
+      content: `You agree to indemnify and hold harmless Zen Zee Store, its officers, directors, employees, and agents from any claims, damages, or expenses arising from:
 
 • Your use of the website
 • Your violation of these terms
@@ -97,7 +97,7 @@ const TermsPage = () => {
       title: '13. Contact Information',
       content: `For questions about these Terms and Conditions, please contact us:
 
-**Email:** legal@gen-zee.store
+**Email:** legal@zen-zee.store
 **Phone:** +880 1XXX-XXXXXX
 **Address:** Gulshan-2, Dhaka 1212, Bangladesh`,
     },
@@ -107,7 +107,7 @@ const TermsPage = () => {
     <>
       <SEOHead
         title="Terms & Conditions"
-        description="Read the terms and conditions for using Gen-zee.store. Understand your rights and responsibilities when shopping with us."
+        description="Read the terms and conditions for using Zen Zee Store. Understand your rights and responsibilities when shopping with us."
         keywords="terms and conditions, terms of service, legal, user agreement"
         url="/terms"
         noIndex={false}

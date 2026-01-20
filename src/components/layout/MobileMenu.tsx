@@ -104,7 +104,7 @@ const MobileMenu = ({ isOpen, onClose, user, isAdmin, onSignOut }: MobileMenuPro
             {/* Header */}
             <div className="sticky top-0 bg-card/95 backdrop-blur-sm border-b border-border p-6 pt-20">
               <h2 className="font-display text-xl">
-                <span className="text-primary">Gen</span>-zee
+                <span className="text-primary">Zen</span> Zee
               </h2>
               <p className="text-xs text-muted-foreground mt-1 tracking-wider uppercase">Menu</p>
             </div>

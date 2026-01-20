@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import genZeeLogo from '@/assets/gen-zee-logo.png';
+import zenZeeLogo from '@/assets/zen-zee-logo.png';
 
 const LoadingScreen = () => {
   return (
@@ -30,8 +30,8 @@ const LoadingScreen = () => {
           />
           
           <motion.img
-            src={genZeeLogo}
-            alt="Gen-zee"
+            src={zenZeeLogo}
+            alt="Zen Zee"
             className="h-16 md:h-20 w-auto relative z-10"
             animate={{
               scale: [1, 1.05, 1],

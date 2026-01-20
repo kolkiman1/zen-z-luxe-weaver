@@ -22,12 +22,12 @@ interface SeoSettings {
 }
 
 const defaultSettings: SeoSettings = {
-  siteTitle: 'Gen-zee.store | Premium Fashion for the Next Generation',
-  siteDescription: 'Discover premium fashion, exquisite jewelry, and luxury accessories at Gen-zee.store.',
+  siteTitle: 'Zen Zee Store | Premium Fashion for the Next Generation',
+  siteDescription: 'Discover premium fashion, exquisite jewelry, and luxury accessories at Zen Zee Store.',
   keywords: 'premium fashion, luxury clothing, Bangladesh, jewelry, accessories',
   ogImage: '',
   twitterHandle: '',
-  canonicalUrl: 'https://gen-zee.store',
+  canonicalUrl: 'https://zen-zee.store',
 };
 
 const AdminSeoSettings = () => {

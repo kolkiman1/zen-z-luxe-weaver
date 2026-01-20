@@ -209,7 +209,7 @@ const AuthPage = () => {
                   <div className="text-center mb-8">
                     <Link to="/" className="inline-block mb-6">
                       <h1 className="font-display text-2xl">
-                        <span className="text-primary">Gen</span>-zee
+                        <span className="text-primary">Zen</span> Zee
                       </h1>
                     </Link>
                     <h2 className="font-display text-2xl mb-2">

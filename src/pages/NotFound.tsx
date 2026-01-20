@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Home, ShoppingBag, Search, HelpCircle, ArrowLeft } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
-import genZeeLogo from "@/assets/gen-zee-logo.png";
+import zenZeeLogo from "@/assets/zen-zee-logo.png";
 
 const NotFound = () => {
   const location = useLocation();
@@ -23,7 +23,7 @@ const NotFound = () => {
   return (
     <>
       <SEOHead
-        title="Page Not Found | Gen-zee.store"
+        title="Page Not Found | Zen Zee Store"
         description="The page you're looking for doesn't exist. Explore our premium fashion collections."
         noIndex={true}
       />
@@ -31,7 +31,7 @@ const NotFound = () => {
         {/* Header with logo */}
         <header className="py-6 px-4">
           <Link to="/" className="inline-block">
-            <img src={genZeeLogo} alt="Gen-zee" className="h-10 w-auto" />
+            <img src={zenZeeLogo} alt="Zen Zee" className="h-10 w-auto" />
           </Link>
         </header>
 
