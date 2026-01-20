@@ -171,7 +171,7 @@ const handler = async (req: Request): Promise<Response> => {
             </div>
             
             <div style="text-align: center; padding: 20px; color: #999; font-size: 12px;">
-              <p style="margin: 0;">This is an automated notification from Gen-zee Store</p>
+              <p style="margin: 0;">This is an automated notification from Zen Zee Store</p>
             </div>
           </div>
         </body>
@@ -181,8 +181,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send notification to support team
     const emailResponse = await sendEmail({
-      from: "Gen-zee Support <support@gen-zee.store>",
-      to: ["support@gen-zee.store"],
+      from: "Zen Zee Support <support@zen-zee.store>",
+      to: ["support@zen-zee.store"],
       reply_to: data.email,
       subject: supportSubject,
       html: supportEmailHtml,
@@ -217,7 +217,7 @@ const handler = async (req: Request): Promise<Response> => {
         <body style="margin: 0; padding: 0; background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
           <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
             <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-              <h1 style="color: #d4af37; margin: 0; font-size: 28px;">GEN-ZEE</h1>
+              <h1 style="color: #d4af37; margin: 0; font-size: 28px;">ZEN ZEE</h1>
               <p style="color: #cccccc; margin: 10px 0 0 0; font-size: 14px;">Thank you for contacting us</p>
             </div>
             
@@ -240,14 +240,14 @@ const handler = async (req: Request): Promise<Response> => {
               <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px;">
                 <p style="color: #888; font-size: 13px; margin: 0;">
                   Best regards,<br>
-                  <strong style="color: #333;">The Gen-zee Support Team</strong>
+                  <strong style="color: #333;">The Zen Zee Support Team</strong>
                 </p>
               </div>
             </div>
             
             <div style="text-align: center; padding: 20px; color: #999; font-size: 12px;">
               <p style="margin: 0 0 10px 0;">Need immediate help? Call us at +880 1XXX-XXXXXX</p>
-              <p style="margin: 0;">© ${new Date().getFullYear()} Gen-zee Store. All rights reserved.</p>
+              <p style="margin: 0;">© ${new Date().getFullYear()} Zen Zee Store. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -257,7 +257,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send auto-reply to customer
     const customerReply = await sendEmail({
-      from: "Gen-zee Support <support@gen-zee.store>",
+      from: "Zen Zee Support <support@zen-zee.store>",
       to: [data.email],
       subject: customerSubject,
       html: customerEmailHtml,

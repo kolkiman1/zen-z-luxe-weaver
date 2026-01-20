@@ -114,7 +114,7 @@ const handler = async (req: Request): Promise<Response> => {
     
     <!-- Invoice Header -->
     <div style="background: linear-gradient(135deg, #1f2937 0%, #374151 100%); padding: 40px; text-align: center;">
-      <h1 style="margin: 0; font-size: 32px; color: #ffffff; font-weight: 700; letter-spacing: -0.5px;">GEN-ZEE</h1>
+      <h1 style="margin: 0; font-size: 32px; color: #ffffff; font-weight: 700; letter-spacing: -0.5px;">ZEN ZEE</h1>
       <p style="margin: 8px 0 0; color: #9ca3af; font-size: 14px; letter-spacing: 2px; text-transform: uppercase;">Premium Fashion & Lifestyle</p>
     </div>
 
@@ -218,7 +218,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     <!-- Thank You Note -->
     <div style="margin: 0 40px 32px; text-align: center; padding: 24px; background-color: #fef3c7; border-radius: 8px;">
-      <p style="margin: 0; font-size: 16px; color: #92400e; font-weight: 600;">Thank you for shopping with Gen-zee!</p>
+      <p style="margin: 0; font-size: 16px; color: #92400e; font-weight: 600;">Thank you for shopping with Zen Zee!</p>
       <p style="margin: 8px 0 0; font-size: 14px; color: #a16207;">We appreciate your business and hope you enjoy your purchase.</p>
     </div>
 
@@ -226,12 +226,12 @@ const handler = async (req: Request): Promise<Response> => {
     <div style="background-color: #1f2937; padding: 32px 40px; text-align: center;">
       <p style="color: #9ca3af; font-size: 14px; margin: 0 0 8px;">Questions about your order?</p>
       <p style="margin: 0;">
-        <a href="mailto:support@gen-zee.store" style="color: #60a5fa; text-decoration: none; font-weight: 500;">support@gen-zee.store</a>
+        <a href="mailto:support@zen-zee.store" style="color: #60a5fa; text-decoration: none; font-weight: 500;">support@zen-zee.store</a>
       </p>
       <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #374151;">
-        <p style="color: #6b7280; font-size: 12px; margin: 0;">Gen-zee.store</p>
+        <p style="color: #6b7280; font-size: 12px; margin: 0;">Zen Zee Store</p>
         <p style="color: #6b7280; font-size: 12px; margin: 4px 0 0;">Premium Fashion & Lifestyle</p>
-        <p style="color: #4b5563; font-size: 11px; margin: 16px 0 0;">© ${new Date().getFullYear()} Gen-zee. All rights reserved.</p>
+        <p style="color: #4b5563; font-size: 11px; margin: 16px 0 0;">© ${new Date().getFullYear()} Zen Zee. All rights reserved.</p>
       </div>
     </div>
   </div>
@@ -243,9 +243,9 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Order details:", { orderNumber: data.orderNumber, items: data.items?.length });
 
     const emailResponse = await resend.emails.send({
-      from: "Gen-zee Store <order-confirmation@gen-zee.store>",
+      from: "Zen Zee Store <order-confirmation@zen-zee.store>",
       to: [data.email],
-      subject: `Invoice #${data.orderNumber} - Order Confirmed | Gen-zee`,
+      subject: `Invoice #${data.orderNumber} - Order Confirmed | Zen Zee`,
       html: emailHtml,
     });
 

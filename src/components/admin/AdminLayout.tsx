@@ -160,9 +160,9 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
               >
                 <Link to="/" className="font-display text-xl flex items-center gap-2">
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-gold flex items-center justify-center">
-                    <span className="text-primary-foreground font-bold text-sm">G</span>
+                    <span className="text-primary-foreground font-bold text-sm">Z</span>
                   </div>
-                  Gen-zee<span className="text-primary">.</span>admin
+                  Zen Zee<span className="text-primary"> </span>Admin
                 </Link>
               </motion.div>
             )}

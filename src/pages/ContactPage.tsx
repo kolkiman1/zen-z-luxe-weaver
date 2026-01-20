@@ -125,7 +125,7 @@ const ContactPage = () => {
     {
       icon: Mail,
       title: 'Email Us',
-      details: ['support@gen-zee.store'],
+      details: ['support@zen-zee.store'],
     },
     {
       icon: Clock,
@@ -138,8 +138,8 @@ const ContactPage = () => {
     <>
       <SEOHead
         title="Contact Us"
-        description="Get in touch with Gen-zee.store. We're here to help with your fashion inquiries, orders, and support. Contact us via phone, email, or visit our store in Dhaka."
-        keywords="contact Gen-zee, customer support, fashion store dhaka, contact us"
+        description="Get in touch with Zen Zee Store. We're here to help with your fashion inquiries, orders, and support. Contact us via phone, email, or visit our store in Dhaka."
+        keywords="contact Zen Zee, customer support, fashion store dhaka, contact us"
         url="/contact"
       />
 

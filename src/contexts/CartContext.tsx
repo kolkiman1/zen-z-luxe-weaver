@@ -27,14 +27,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
-    const savedCart = localStorage.getItem('gen-zee-cart');
+    const savedCart = localStorage.getItem('zen-zee-cart');
     if (savedCart) {
       setItems(JSON.parse(savedCart));
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('gen-zee-cart', JSON.stringify(items));
+    localStorage.setItem('zen-zee-cart', JSON.stringify(items));
   }, [items]);
 
   const addToCart = (

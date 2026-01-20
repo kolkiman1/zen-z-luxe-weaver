@@ -79,9 +79,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email using Resend
     const emailResponse = await resend.emails.send({
-      from: "Gen-zee Store <noreply@gen-zee.store>",
+      from: "Zen Zee Store <noreply@zen-zee.store>",
       to: [email],
-      subject: "Reset Your Password - Gen-zee Store",
+      subject: "Reset Your Password - Zen Zee Store",
       html: `
         <!DOCTYPE html>
         <html>
@@ -99,7 +99,7 @@ const handler = async (req: Request): Promise<Response> => {
                   <tr>
                     <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);">
                       <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff;">
-                        <span style="color: #f59e0b;">Gen</span>-zee
+                        <span style="color: #f59e0b;">Zen</span> Zee
                       </h1>
                       <p style="margin: 8px 0 0; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.6);">Wear the Trend</p>
                     </td>
@@ -144,7 +144,7 @@ const handler = async (req: Request): Promise<Response> => {
                   <tr>
                     <td style="padding: 30px 40px; text-align: center; background-color: #f8f8f8; border-top: 1px solid #eaeaea;">
                       <p style="margin: 0; font-size: 12px; color: #888888;">
-                        © ${new Date().getFullYear()} Gen-zee Store. All rights reserved.
+                        © ${new Date().getFullYear()} Zen Zee Store. All rights reserved.
                       </p>
                       <p style="margin: 10px 0 0; font-size: 12px; color: #aaaaaa;">
                         This email was sent because a password reset was requested for this email address.

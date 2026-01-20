@@ -15,14 +15,14 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [items, setItems] = useState<Product[]>([]);
 
   useEffect(() => {
-    const savedWishlist = localStorage.getItem('gen-zee-wishlist');
+    const savedWishlist = localStorage.getItem('zen-zee-wishlist');
     if (savedWishlist) {
       setItems(JSON.parse(savedWishlist));
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('gen-zee-wishlist', JSON.stringify(items));
+    localStorage.setItem('zen-zee-wishlist', JSON.stringify(items));
   }, [items]);
 
   const addToWishlist = (product: Product) => {

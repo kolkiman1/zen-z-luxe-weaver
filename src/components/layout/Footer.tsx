@@ -22,7 +22,7 @@ const Footer = () => {
       return;
     }
     subscribe(email);
-    toast.success('Welcome to the Gen-Zee community!', {
+    toast.success('Welcome to the Zen Zee community!', {
       description: 'You\'ll receive exclusive offers and style inspiration.',
     });
     setEmail('');
@@ -67,7 +67,7 @@ const Footer = () => {
                 Newsletter
               </span>
               <h3 className="font-display text-3xl md:text-4xl mb-4">
-                Join the <span className="text-gradient-gold">Gen-Zee</span> Community
+                Join the <span className="text-gradient-gold">Zen Zee</span> Community
               </h3>
               <p className="text-muted-foreground mb-8 max-w-md mx-auto">
                 Subscribe for exclusive offers, new arrivals, and style inspiration.
@@ -96,7 +96,7 @@ const Footer = () => {
               <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                 <Check size={16} />
               </div>
-              <span className="font-medium">You're part of the Gen-Zee community!</span>
+              <span className="font-medium">You're part of the Zen Zee community!</span>
             </motion.div>
           </div>
         )}
@@ -115,7 +115,7 @@ const Footer = () => {
           <motion.div variants={itemVariants}>
             <Link to="/" className="inline-block mb-6">
               <h2 className="font-display text-2xl font-semibold">
-                Gen-zee<span className="text-primary">.</span>store
+                Zen Zee<span className="text-primary"> </span>Store
               </h2>
             </Link>
             <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
@@ -251,7 +251,7 @@ const Footer = () => {
                   </div>
                   <div>
                     <span className="text-xs text-muted-foreground/70 uppercase tracking-wider">Email</span>
-                    <p className="text-sm text-foreground mt-0.5">support@gen-zee.store</p>
+                    <p className="text-sm text-foreground mt-0.5">support@zen-zee.store</p>
                   </div>
                 </motion.div>
               </li>
@@ -266,7 +266,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
             <p className="flex items-center gap-1">
               &copy; {new Date().getFullYear()} 
-              <span className="text-foreground font-medium">Gen-zee.store</span>
+              <span className="text-foreground font-medium">Zen Zee Store</span>
               <span className="mx-1">·</span>
               All rights reserved.
             </p>

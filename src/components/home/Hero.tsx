@@ -511,7 +511,7 @@ const Hero = () => {
       >
         <div className="w-px h-16 lg:h-20 bg-gradient-to-b from-transparent via-gold/50 to-transparent" />
         <p className="text-[10px] lg:text-xs uppercase tracking-[0.3em] text-muted-foreground [writing-mode:vertical-rl]">
-          Gen Zee™
+          Zen Zee™
         </p>
         <div className="w-px h-16 lg:h-20 bg-gradient-to-b from-transparent via-gold/50 to-transparent" />
       </motion.div>

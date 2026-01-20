@@ -107,7 +107,7 @@ const handler = async (req: Request): Promise<Response> => {
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px;">
     <!-- Header -->
     <div style="text-align: center; margin-bottom: 32px; border-bottom: 2px solid #f3f4f6; padding-bottom: 24px;">
-      <h1 style="margin: 0; font-size: 28px; color: #111827;">Gen-zee.store</h1>
+      <h1 style="margin: 0; font-size: 28px; color: #111827;">Zen Zee Store</h1>
       <p style="margin: 8px 0 0; color: #6b7280;">Premium Fashion & Lifestyle</p>
     </div>
 
@@ -201,13 +201,13 @@ const handler = async (req: Request): Promise<Response> => {
     <!-- Continue Shopping CTA -->
     <div style="text-align: center; margin-bottom: 24px;">
       <p style="color: #6b7280; margin: 0 0 16px;">We're sorry to see this order cancelled. We hope to serve you again soon!</p>
-      <a href="https://gen-zee.store" style="display: inline-block; background-color: #111827; color: white; padding: 12px 32px; text-decoration: none; border-radius: 8px; font-weight: 500;">Continue Shopping</a>
+      <a href="https://zen-zee.store" style="display: inline-block; background-color: #111827; color: white; padding: 12px 32px; text-decoration: none; border-radius: 8px; font-weight: 500;">Continue Shopping</a>
     </div>
 
     <!-- Footer -->
     <div style="text-align: center; padding-top: 24px; border-top: 1px solid #e5e7eb;">
-      <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px;">Need help? Contact us at support@gen-zee.store</p>
-      <p style="color: #9ca3af; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} Gen-zee.store. All rights reserved.</p>
+      <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px;">Need help? Contact us at support@zen-zee.store</p>
+      <p style="color: #9ca3af; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} Zen Zee Store. All rights reserved.</p>
     </div>
   </div>
 </body>
@@ -215,7 +215,7 @@ const handler = async (req: Request): Promise<Response> => {
     `;
 
     const emailResponse = await resend.emails.send({
-      from: "Gen-zee Store <noreply@gen-zee.store>",
+      from: "Zen Zee Store <noreply@zen-zee.store>",
       to: [data.email],
       subject: `Order Cancelled - ${data.orderNumber}`,
       html: emailHtml,
