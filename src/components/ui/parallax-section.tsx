@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { usePerformanceOptional } from '@/contexts/PerformanceContext';
 
 interface ParallaxSectionProps {
   children: React.ReactNode;
@@ -19,6 +20,8 @@ const ParallaxSection = ({
   fadeIn = true,
   scale = false,
 }: ParallaxSectionProps) => {
+  const performance = usePerformanceOptional();
+  const isPerformanceMode = performance?.settings?.disableParallax ?? false;
   const [targetEl, setTargetEl] = useState<HTMLDivElement | null>(null);
 
   const setRef = useCallback((node: HTMLDivElement | null) => {
@@ -38,12 +41,17 @@ const ParallaxSection = ({
     offset: ['start end', 'end start'],
   });
 
-  const enabled = Boolean(targetEl);
+  const enabled = Boolean(targetEl) && !isPerformanceMode;
 
   const yValue = direction === 'up' ? speed * 100 : -speed * 100;
   const y = useTransform(scrollYProgress, [0, 1], [yValue, -yValue]);
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.6, 1, 1, 0.6]);
   const scaleValue = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.95, 1, 1, 0.95]);
+
+  // Performance mode: just render children without effects
+  if (isPerformanceMode) {
+    return <div className={cn('relative', className)}>{children}</div>;
+  }
 
   return (
     <motion.div

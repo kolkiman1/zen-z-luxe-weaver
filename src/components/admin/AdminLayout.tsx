@@ -23,7 +23,8 @@ import {
   Image,
   Layers,
   Sparkles,
-  Video
+  Video,
+  Zap
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -63,6 +64,7 @@ const navItems: NavItem[] = [
   { name: 'Admins', href: '/admin/users', icon: Users },
   { name: 'Announcements', href: '/admin/announcements', icon: Megaphone },
   { name: 'Activity Logs', href: '/admin/activity-logs', icon: Activity },
+  { name: 'Performance', href: '/admin/performance', icon: Zap },
 ];
 
 interface AdminLayoutProps {
