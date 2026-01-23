@@ -10,6 +10,7 @@ import { WishlistProvider } from "@/contexts/WishlistContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NewsletterProvider } from "@/contexts/NewsletterContext";
 import { LoadingProvider } from "@/contexts/LoadingContext";
+import { PerformanceProvider } from "@/contexts/PerformanceContext";
 import { TrackingScripts } from "@/components/TrackingScripts";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 
@@ -58,7 +59,7 @@ const AdminCategoryBanners = lazy(() => import("./pages/admin/AdminCategoryBanne
 const AdminProductCollections = lazy(() => import("./pages/admin/AdminProductCollections"));
 const AdminSectionMaterials = lazy(() => import("./pages/admin/AdminSectionMaterials"));
 const MobileAdminApp = lazy(() => import("./pages/admin/MobileAdminApp"));
-
+const AdminPerformance = lazy(() => import("./pages/admin/AdminPerformance"));
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -69,62 +70,65 @@ const App = () => (
           <WishlistProvider>
             <NewsletterProvider>
               <LoadingProvider>
-                <TooltipProvider>
-                  <TrackingScripts />
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter>
-                    <Suspense fallback={<LoadingScreen />}>
-                      <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/category/:slug" element={<CategoryPage />} />
-                        <Route path="/product/:id" element={<ProductDetailPage />} />
-                        <Route path="/wishlist" element={<WishlistPage />} />
-                        <Route path="/checkout" element={<CheckoutPage />} />
-                        <Route path="/payment-success" element={<PaymentSuccessPage />} />
-                        <Route path="/auth" element={<AuthPage />} />
-                        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                        <Route path="/orders" element={<OrdersPage />} />
-                        <Route path="/orders/:orderId" element={<OrderTrackingPage />} />
-                        <Route path="/track-order" element={<OrderTrackingPage />} />
-                        <Route path="/dashboard" element={<UserDashboard />} />
-                        {/* Info Pages */}
-                        <Route path="/contact" element={<ContactPage />} />
-                        <Route path="/faq" element={<FAQPage />} />
-                        <Route path="/shipping" element={<ShippingPage />} />
-                        <Route path="/returns" element={<ReturnsPage />} />
-                        <Route path="/privacy" element={<PrivacyPage />} />
-                        <Route path="/terms" element={<TermsPage />} />
-                        <Route path="/size-guide" element={<SizeGuidePage />} />
-                        <Route path="/about" element={<AboutPage />} />
-                        {/* Admin Routes */}
-                        <Route path="/admin" element={<AdminDashboard />} />
-                        <Route path="/admin/products" element={<AdminProducts />} />
-                        <Route path="/admin/inventory" element={<AdminInventory />} />
-                        <Route path="/admin/orders" element={<AdminOrders />} />
-                        <Route path="/admin/customers" element={<AdminCustomers />} />
-                        <Route path="/admin/analytics" element={<AdminAnalytics />} />
-                        <Route path="/admin/tracking" element={<AdminTrackingAnalytics />} />
-                        <Route path="/admin/marketing" element={<AdminMarketing />} />
-                        <Route path="/admin/inquiries" element={<AdminInquiries />} />
-                        <Route path="/admin/users" element={<AdminUsers />} />
-                        <Route path="/admin/announcements" element={<AdminAnnouncements />} />
-                        <Route path="/admin/activity-logs" element={<AdminActivityLogs />} />
-                        <Route path="/admin/seo" element={<AdminSeoSettings />} />
-                        <Route path="/admin/section-media" element={<AdminSectionMedia />} />
-                        <Route path="/admin/section-content" element={<AdminSectionContent />} />
-                        <Route path="/admin/section-elements" element={<AdminSectionElements />} />
-                        <Route path="/admin/category-banners" element={<AdminCategoryBanners />} />
-                        <Route path="/admin/product-collections" element={<AdminProductCollections />} />
-                        <Route path="/admin/section-materials" element={<AdminSectionMaterials />} />
-                        <Route path="/admin/security" element={<AdminSecurityDashboard />} />
-                        <Route path="/admin/email-templates" element={<AdminEmailTemplates />} />
-                        <Route path="/admin/mobile" element={<MobileAdminApp />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </Suspense>
-                  </BrowserRouter>
-                </TooltipProvider>
+                <PerformanceProvider>
+                  <TooltipProvider>
+                    <TrackingScripts />
+                    <Toaster />
+                    <Sonner />
+                    <BrowserRouter>
+                      <Suspense fallback={<LoadingScreen />}>
+                        <Routes>
+                          <Route path="/" element={<Index />} />
+                          <Route path="/category/:slug" element={<CategoryPage />} />
+                          <Route path="/product/:id" element={<ProductDetailPage />} />
+                          <Route path="/wishlist" element={<WishlistPage />} />
+                          <Route path="/checkout" element={<CheckoutPage />} />
+                          <Route path="/payment-success" element={<PaymentSuccessPage />} />
+                          <Route path="/auth" element={<AuthPage />} />
+                          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                          <Route path="/orders" element={<OrdersPage />} />
+                          <Route path="/orders/:orderId" element={<OrderTrackingPage />} />
+                          <Route path="/track-order" element={<OrderTrackingPage />} />
+                          <Route path="/dashboard" element={<UserDashboard />} />
+                          {/* Info Pages */}
+                          <Route path="/contact" element={<ContactPage />} />
+                          <Route path="/faq" element={<FAQPage />} />
+                          <Route path="/shipping" element={<ShippingPage />} />
+                          <Route path="/returns" element={<ReturnsPage />} />
+                          <Route path="/privacy" element={<PrivacyPage />} />
+                          <Route path="/terms" element={<TermsPage />} />
+                          <Route path="/size-guide" element={<SizeGuidePage />} />
+                          <Route path="/about" element={<AboutPage />} />
+                          {/* Admin Routes */}
+                          <Route path="/admin" element={<AdminDashboard />} />
+                          <Route path="/admin/products" element={<AdminProducts />} />
+                          <Route path="/admin/inventory" element={<AdminInventory />} />
+                          <Route path="/admin/orders" element={<AdminOrders />} />
+                          <Route path="/admin/customers" element={<AdminCustomers />} />
+                          <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                          <Route path="/admin/tracking" element={<AdminTrackingAnalytics />} />
+                          <Route path="/admin/marketing" element={<AdminMarketing />} />
+                          <Route path="/admin/inquiries" element={<AdminInquiries />} />
+                          <Route path="/admin/users" element={<AdminUsers />} />
+                          <Route path="/admin/announcements" element={<AdminAnnouncements />} />
+                          <Route path="/admin/activity-logs" element={<AdminActivityLogs />} />
+                          <Route path="/admin/seo" element={<AdminSeoSettings />} />
+                          <Route path="/admin/section-media" element={<AdminSectionMedia />} />
+                          <Route path="/admin/section-content" element={<AdminSectionContent />} />
+                          <Route path="/admin/section-elements" element={<AdminSectionElements />} />
+                          <Route path="/admin/category-banners" element={<AdminCategoryBanners />} />
+                          <Route path="/admin/product-collections" element={<AdminProductCollections />} />
+                          <Route path="/admin/section-materials" element={<AdminSectionMaterials />} />
+                          <Route path="/admin/security" element={<AdminSecurityDashboard />} />
+                          <Route path="/admin/email-templates" element={<AdminEmailTemplates />} />
+                          <Route path="/admin/mobile" element={<MobileAdminApp />} />
+                          <Route path="/admin/performance" element={<AdminPerformance />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </Suspense>
+                    </BrowserRouter>
+                  </TooltipProvider>
+                </PerformanceProvider>
               </LoadingProvider>
             </NewsletterProvider>
           </WishlistProvider>
