@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, ShoppingBag, ChevronLeft, ChevronRight, Minus, Plus, Star, ThumbsUp } from 'lucide-react';
+import { Heart, ShoppingBag, ChevronLeft, ChevronRight, Minus, Plus, Star, ThumbsUp, ZoomIn, ZoomOut, Maximize2, X } from 'lucide-react';
 import { Product, formatPrice } from '@/lib/data';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
@@ -104,6 +104,13 @@ const QuickViewModal = ({ product, isOpen, onClose }: QuickViewModalProps) => {
   const [selectedColor, setSelectedColor] = useState<{ name: string; hex: string } | undefined>();
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'details' | 'reviews'>('details');
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const dragStart = useRef({ x: 0, y: 0 });
+  const positionStart = useRef({ x: 0, y: 0 });
   
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -123,16 +130,23 @@ const QuickViewModal = ({ product, isOpen, onClose }: QuickViewModalProps) => {
     toggleWishlist(product);
   };
 
+  const resetZoom = () => {
+    setZoomLevel(1);
+    setPosition({ x: 0, y: 0 });
+  };
+
   const nextImage = () => {
     setCurrentImageIndex((prev) => 
       prev === product.images.length - 1 ? 0 : prev + 1
     );
+    resetZoom();
   };
 
   const prevImage = () => {
     setCurrentImageIndex((prev) => 
       prev === 0 ? product.images.length - 1 : prev - 1
     );
+    resetZoom();
   };
 
   const swipeHandlers = useSwipe({
@@ -140,12 +154,94 @@ const QuickViewModal = ({ product, isOpen, onClose }: QuickViewModalProps) => {
     onSwipeRight: prevImage,
   });
 
+  const handleZoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 0.5, 3));
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel(prev => {
+      const newZoom = Math.max(prev - 0.5, 1);
+      if (newZoom === 1) {
+        setPosition({ x: 0, y: 0 });
+      }
+      return newZoom;
+    });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imageRef.current || zoomLevel <= 1) return;
+
+    if (isDragging) {
+      const deltaX = e.clientX - dragStart.current.x;
+      const deltaY = e.clientY - dragStart.current.y;
+      
+      setPosition({
+        x: positionStart.current.x + deltaX,
+        y: positionStart.current.y + deltaY,
+      });
+    } else {
+      // Hover-based panning
+      const rect = imageRef.current.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      
+      const maxMove = (zoomLevel - 1) * 50;
+      setPosition({
+        x: (0.5 - x) * maxMove * 2,
+        y: (0.5 - y) * maxMove * 2,
+      });
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoomLevel > 1 && isFullscreen) {
+      setIsDragging(true);
+      dragStart.current = { x: e.clientX, y: e.clientY };
+      positionStart.current = { ...position };
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      handleZoomIn();
+    } else {
+      handleZoomOut();
+    }
+  };
+
+  const handleDoubleClick = () => {
+    if (zoomLevel > 1) {
+      resetZoom();
+    } else {
+      setZoomLevel(2);
+    }
+  };
+
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-lg md:max-w-3xl lg:max-w-5xl p-0 overflow-hidden bg-card border-border max-h-[90vh] sm:max-h-[85vh]">
         <div className="grid grid-cols-1 md:grid-cols-2">
-          {/* Image Section */}
-          <div className="relative aspect-[4/3] sm:aspect-square bg-secondary touch-pan-y" {...swipeHandlers}>
+          {/* Image Section with Zoom */}
+          <div 
+            ref={imageRef}
+            className="relative aspect-[4/3] sm:aspect-square bg-secondary touch-pan-y overflow-hidden"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={() => {
+              if (!isFullscreen && zoomLevel > 1) {
+                setPosition({ x: 0, y: 0 });
+              }
+            }}
+            onWheel={handleWheel}
+            onDoubleClick={handleDoubleClick}
+            style={{ cursor: zoomLevel > 1 ? 'grab' : 'zoom-in' }}
+            {...swipeHandlers}
+          >
             <AnimatePresence mode="wait">
               <motion.img
                 key={currentImageIndex}
@@ -153,34 +249,82 @@ const QuickViewModal = ({ product, isOpen, onClose }: QuickViewModalProps) => {
                 alt={product.name}
                 className="w-full h-full object-cover"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={{ 
+                  opacity: 1,
+                  scale: zoomLevel,
+                  x: position.x,
+                  y: position.y,
+                }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
+                transition={{ 
+                  opacity: { duration: 0.3 },
+                  scale: { duration: 0.2 },
+                  x: { duration: 0.1 },
+                  y: { duration: 0.1 },
+                }}
+                draggable={false}
               />
             </AnimatePresence>
+
+            {/* Zoom Level Indicator */}
+            {zoomLevel > 1 && (
+              <div className="absolute top-3 right-3 px-2 py-1 bg-background/80 backdrop-blur-sm rounded-md text-xs font-medium z-10">
+                {Math.round(zoomLevel * 100)}%
+              </div>
+            )}
+
+            {/* Zoom Controls */}
+            <div className="absolute bottom-4 right-4 flex gap-1.5 z-10">
+              <Button
+                size="icon"
+                variant="secondary"
+                className="w-8 h-8 rounded-full glass"
+                onClick={(e) => { e.stopPropagation(); handleZoomOut(); }}
+                disabled={zoomLevel <= 1}
+              >
+                <ZoomOut size={14} />
+              </Button>
+              <Button
+                size="icon"
+                variant="secondary"
+                className="w-8 h-8 rounded-full glass"
+                onClick={(e) => { e.stopPropagation(); handleZoomIn(); }}
+                disabled={zoomLevel >= 3}
+              >
+                <ZoomIn size={14} />
+              </Button>
+              <Button
+                size="icon"
+                variant="secondary"
+                className="w-8 h-8 rounded-full glass"
+                onClick={(e) => { e.stopPropagation(); setIsFullscreen(true); }}
+              >
+                <Maximize2 size={14} />
+              </Button>
+            </div>
 
             {/* Image Navigation */}
             {product.images.length > 1 && (
               <>
                 <button
                   onClick={prevImage}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors z-10"
                 >
                   <ChevronLeft size={20} />
                 </button>
                 <button
                   onClick={nextImage}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors z-10"
                 >
                   <ChevronRight size={20} />
                 </button>
 
                 {/* Image Dots */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
                   {product.images.map((_, index) => (
                     <button
                       key={index}
-                      onClick={() => setCurrentImageIndex(index)}
+                      onClick={() => { setCurrentImageIndex(index); resetZoom(); }}
                       className={`w-2 h-2 rounded-full transition-all ${
                         index === currentImageIndex 
                           ? 'bg-primary w-6' 
@@ -193,7 +337,7 @@ const QuickViewModal = ({ product, isOpen, onClose }: QuickViewModalProps) => {
             )}
 
             {/* Badges */}
-            <div className="absolute top-4 left-4 flex flex-col gap-2">
+            <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 pointer-events-none">
               {product.isNew && (
                 <span className="px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
                   NEW
@@ -461,6 +605,121 @@ const QuickViewModal = ({ product, isOpen, onClose }: QuickViewModalProps) => {
         </div>
       </DialogContent>
     </Dialog>
+
+    {/* Fullscreen Image Modal */}
+    <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
+      <DialogContent className="max-w-[100vw] max-h-[100vh] w-screen h-screen p-0 bg-background/95 backdrop-blur-xl border-none">
+        <div className="relative w-full h-full flex items-center justify-center">
+          {/* Close Button */}
+          <Button
+            size="icon"
+            variant="ghost"
+            className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-background/50 hover:bg-background/80"
+            onClick={() => setIsFullscreen(false)}
+          >
+            <X size={20} />
+          </Button>
+
+          {/* Zoom Controls */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-2 z-50">
+            <Button
+              size="sm"
+              variant="secondary"
+              className="gap-1.5 glass"
+              onClick={handleZoomOut}
+              disabled={zoomLevel <= 1}
+            >
+              <ZoomOut size={16} />
+            </Button>
+            <div className="px-3 py-1.5 bg-background/80 backdrop-blur-sm rounded-md text-sm font-medium flex items-center">
+              {Math.round(zoomLevel * 100)}%
+            </div>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="gap-1.5 glass"
+              onClick={handleZoomIn}
+              disabled={zoomLevel >= 3}
+            >
+              <ZoomIn size={16} />
+            </Button>
+          </div>
+
+          {/* Image Container */}
+          <div className="w-full h-full max-w-5xl max-h-[80vh] mx-auto p-4 flex items-center justify-center">
+            <div
+              className="relative w-full h-full overflow-hidden rounded-xl"
+              onMouseMove={handleMouseMove}
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onWheel={handleWheel}
+              onDoubleClick={handleDoubleClick}
+              style={{ cursor: zoomLevel > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in' }}
+              {...swipeHandlers}
+            >
+              <motion.img
+                src={product.images[currentImageIndex]}
+                alt={`${product.name} - Image ${currentImageIndex + 1}`}
+                className="w-full h-full object-contain"
+                animate={{
+                  scale: zoomLevel,
+                  x: position.x,
+                  y: position.y,
+                }}
+                transition={{
+                  scale: { duration: 0.2 },
+                  x: { duration: isDragging ? 0 : 0.1 },
+                  y: { duration: isDragging ? 0 : 0.1 },
+                }}
+                draggable={false}
+              />
+            </div>
+          </div>
+
+          {/* Navigation Arrows */}
+          {product.images.length > 1 && (
+            <>
+              <button
+                onClick={prevImage}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors z-50"
+              >
+                <ChevronLeft size={24} />
+              </button>
+              <button
+                onClick={nextImage}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors z-50"
+              >
+                <ChevronRight size={24} />
+              </button>
+            </>
+          )}
+
+          {/* Thumbnail Strip */}
+          {product.images.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 p-2 bg-background/50 backdrop-blur-sm rounded-lg z-50">
+              {product.images.map((img, index) => (
+                <button
+                  key={index}
+                  onClick={() => { setCurrentImageIndex(index); resetZoom(); }}
+                  className={`w-12 h-12 rounded-md overflow-hidden border-2 transition-all ${
+                    currentImageIndex === index ? 'border-primary scale-110' : 'border-transparent opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Instructions */}
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 text-xs text-muted-foreground text-center z-40">
+            <p>Scroll to zoom • Drag to pan • Double-click to toggle zoom</p>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };
 
