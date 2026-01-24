@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, ShoppingBag, Minus, Plus, ChevronLeft, ChevronRight, Check, Truck, RefreshCw, Shield, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Heart, ShoppingBag, Minus, Plus, Check, Truck, RefreshCw, Shield, Loader2 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
 import ProductCard from '@/components/products/ProductCard';
+import ImageZoomViewer from '@/components/products/ImageZoomViewer';
 import { formatPrice } from '@/lib/data';
 import { useProduct, useRelatedProducts } from '@/hooks/useProducts';
 import { SEOHead } from '@/components/SEOHead';
@@ -14,7 +15,6 @@ import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { useSwipe } from '@/hooks/useSwipe';
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,22 +28,6 @@ const ProductDetailPage = () => {
   const [selectedSize, setSelectedSize] = useState<string | undefined>();
   const [selectedColor, setSelectedColor] = useState<{ name: string; hex: string } | undefined>();
   const [quantity, setQuantity] = useState(1);
-  const [isZoomed, setIsZoomed] = useState(false);
-
-  const imageCount = product?.images?.length || 1;
-
-  const nextImage = () => {
-    setSelectedImage((prev) => (prev + 1) % imageCount);
-  };
-
-  const prevImage = () => {
-    setSelectedImage((prev) => (prev - 1 + imageCount) % imageCount);
-  };
-
-  const swipeHandlers = useSwipe({
-    onSwipeLeft: nextImage,
-    onSwipeRight: prevImage,
-  });
 
   useEffect(() => {
     if (product?.sizes?.length) {
@@ -146,44 +130,17 @@ const ProductDetailPage = () => {
               animate={{ opacity: 1, x: 0 }}
               className="space-y-3 sm:space-y-4"
             >
-              {/* Main Image */}
-              <div
-                className="relative aspect-[3/4] sm:aspect-[4/5] rounded-lg sm:rounded-xl overflow-hidden bg-secondary cursor-zoom-in touch-pan-y"
-                onClick={() => setIsZoomed(!isZoomed)}
-                {...swipeHandlers}
-              >
-                <AnimatePresence mode="wait">
-                  <motion.img
-                    key={selectedImage}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1, scale: isZoomed ? 1.5 : 1 }}
-                    exit={{ opacity: 0 }}
-                    src={product.images[selectedImage]}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-300"
-                  />
-                </AnimatePresence>
-
-                {/* Navigation Arrows */}
-                {product.images.length > 1 && (
-                  <>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); prevImage(); }}
-                      className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
-                    >
-                      <ChevronLeft size={18} className="sm:w-5 sm:h-5" />
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); nextImage(); }}
-                      className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
-                    >
-                      <ChevronRight size={18} className="sm:w-5 sm:h-5" />
-                    </button>
-                  </>
-                )}
+              {/* Main Image with Zoom */}
+              <div className="relative">
+                <ImageZoomViewer
+                  images={product.images}
+                  currentIndex={selectedImage}
+                  onIndexChange={setSelectedImage}
+                  alt={product.name}
+                />
 
                 {/* Badges */}
-                <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col gap-1.5 sm:gap-2">
+                <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col gap-1.5 sm:gap-2 z-10 pointer-events-none">
                   {product.isNew && (
                     <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium rounded-full">
                       NEW
@@ -195,21 +152,6 @@ const ProductDetailPage = () => {
                     </span>
                   )}
                 </div>
-
-                {/* Mobile Image Dots */}
-                {product.images.length > 1 && (
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 sm:hidden">
-                    {product.images.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={(e) => { e.stopPropagation(); setSelectedImage(index); }}
-                        className={`w-2 h-2 rounded-full transition-colors ${
-                          selectedImage === index ? 'bg-primary' : 'bg-background/60'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                )}
               </div>
 
               {/* Thumbnails - Hidden on mobile, shown on sm+ */}
