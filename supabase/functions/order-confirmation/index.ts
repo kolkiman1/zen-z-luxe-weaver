@@ -243,7 +243,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Order details:", { orderNumber: data.orderNumber, items: data.items?.length });
 
     const emailResponse = await resend.emails.send({
-      from: "Zen Zee Store <order-confirmation@zen-zee.store>",
+      from: "Zen Zee Store <order-confirmation@gen-zee.store>",
       to: [data.email],
       subject: `Invoice #${data.orderNumber} - Order Confirmed | Zen Zee`,
       html: emailHtml,

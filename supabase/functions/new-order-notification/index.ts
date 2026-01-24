@@ -204,7 +204,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send emails to all admins
     const emailPromises = adminsToNotify.map(admin => 
       resend.emails.send({
-        from: "Gen-zee Orders <orders@gen-zee.store>",
+        from: "Zen Zee Orders <orders@gen-zee.store>",
         to: [admin.email],
         subject: `🛒 New Order: ${orderData.orderNumber} - ${formatPrice(orderData.totalAmount)}`,
         html: emailHtml,

@@ -39,9 +39,9 @@ const handler = async (req: Request): Promise<Response> => {
       : "from your account settings";
 
     const emailResponse = await resend.emails.send({
-      from: "Gen-zee Store <noreply@gen-zee.store>",
+      from: "Zen Zee Store <noreply@gen-zee.store>",
       to: [email],
-      subject: "Password Changed - Gen-zee Store",
+      subject: "Password Changed - Zen Zee Store",
       html: `
         <!DOCTYPE html>
         <html>

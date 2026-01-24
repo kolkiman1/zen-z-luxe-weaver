@@ -215,7 +215,7 @@ const handler = async (req: Request): Promise<Response> => {
     `;
 
     const emailResponse = await resend.emails.send({
-      from: "Zen Zee Store <noreply@zen-zee.store>",
+      from: "Zen Zee Store <noreply@gen-zee.store>",
       to: [data.email],
       subject: `Order Cancelled - ${data.orderNumber}`,
       html: emailHtml,

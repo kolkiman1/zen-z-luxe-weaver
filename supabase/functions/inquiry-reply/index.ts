@@ -126,7 +126,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const emailResponse = await sendEmail({
-      from: "Gen-zee Support <support@gen-zee.store>",
+      from: "Zen Zee Support <support@gen-zee.store>",
       to: [data.customerEmail],
       reply_to: "support@gen-zee.store",
       subject: `Re: ${data.originalSubject}`,
