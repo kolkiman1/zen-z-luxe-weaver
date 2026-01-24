@@ -181,8 +181,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send notification to support team
     const emailResponse = await sendEmail({
-      from: "Zen Zee Support <support@zen-zee.store>",
-      to: ["support@zen-zee.store"],
+      from: "Zen Zee Support <support@gen-zee.store>",
+      to: ["support@gen-zee.store"],
       reply_to: data.email,
       subject: supportSubject,
       html: supportEmailHtml,
@@ -257,7 +257,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send auto-reply to customer
     const customerReply = await sendEmail({
-      from: "Zen Zee Support <support@zen-zee.store>",
+      from: "Zen Zee Support <support@gen-zee.store>",
       to: [data.email],
       subject: customerSubject,
       html: customerEmailHtml,

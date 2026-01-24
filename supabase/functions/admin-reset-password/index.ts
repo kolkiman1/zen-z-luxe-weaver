@@ -76,9 +76,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email to user
     const emailResponse = await resend.emails.send({
-      from: "Gen-zee Store <noreply@gen-zee.store>",
+      from: "Zen Zee Store <noreply@gen-zee.store>",
       to: [userEmail],
-      subject: "Password Reset Request - Gen-zee Store",
+      subject: "Password Reset Request - Zen Zee Store",
       html: `
         <!DOCTYPE html>
         <html>

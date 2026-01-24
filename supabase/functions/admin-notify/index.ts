@@ -284,7 +284,7 @@ serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: "Gen-Zee Store <onboarding@resend.dev>",
+            from: "Zen Zee Store <noreply@gen-zee.store>",
             to: [admin.email],
             subject,
             html: htmlContent,
