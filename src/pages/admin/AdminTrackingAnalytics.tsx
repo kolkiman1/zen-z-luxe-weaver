@@ -32,8 +32,8 @@ const AdminTrackingAnalytics = () => {
   const { seoSettings, trackingSettings, isLoading } = useSiteSettings();
   const [testingConnection, setTestingConnection] = useState<string | null>(null);
   
-  // Get GA property ID from the tracking settings (extract from GA4 ID format: G-XXXXXXXX)
-  const gaPropertyId = trackingSettings?.googleAnalyticsId || '';
+  // Get GA property ID from tracking settings (numeric property ID, not measurement ID)
+  const gaPropertyId = trackingSettings?.googleAnalyticsPropertyId || '';
   const { data: analyticsData, loading: analyticsLoading, error: analyticsError, isSampleData, refresh: refreshAnalytics } = useGoogleAnalytics(gaPropertyId);
 
   const isGAConfigured = Boolean(trackingSettings?.googleAnalyticsId);

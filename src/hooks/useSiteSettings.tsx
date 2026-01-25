@@ -12,6 +12,7 @@ interface SeoSettings {
 
 interface TrackingSettings {
   googleAnalyticsId: string;
+  googleAnalyticsPropertyId: string;
   facebookPixelId: string;
   googleTagManagerId: string;
 }
@@ -27,6 +28,7 @@ const defaultSeoSettings: SeoSettings = {
 
 const defaultTrackingSettings: TrackingSettings = {
   googleAnalyticsId: '',
+  googleAnalyticsPropertyId: '',
   facebookPixelId: '',
   googleTagManagerId: '',
 };
