@@ -63,6 +63,7 @@ interface SeoSettings {
   ogImage: string;
   twitterHandle: string;
   googleAnalyticsId: string;
+  googleAnalyticsPropertyId: string;
   facebookPixelId: string;
   googleTagManagerId: string;
   hotjarId: string;
@@ -178,6 +179,7 @@ const AdminMarketing = () => {
     ogImage: '/og-image.jpg',
     twitterHandle: '@zenzstore',
     googleAnalyticsId: '',
+    googleAnalyticsPropertyId: '',
     facebookPixelId: '',
     googleTagManagerId: '',
     hotjarId: '',
@@ -1413,6 +1415,19 @@ Crawl-delay: 1`}
                         onChange={e => setSeoSettings({ ...seoSettings, googleAnalyticsId: e.target.value })}
                         placeholder="G-XXXXXXXXXX"
                       />
+                      <p className="text-xs text-muted-foreground">Used for tracking script on your website</p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="gaPropertyId">Property ID (for API data)</Label>
+                      <Input
+                        id="gaPropertyId"
+                        value={seoSettings.googleAnalyticsPropertyId || ''}
+                        onChange={e => setSeoSettings({ ...seoSettings, googleAnalyticsPropertyId: e.target.value })}
+                        placeholder="123456789"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Find it in GA4: Admin → Property Settings → Property ID (numeric)
+                      </p>
                     </div>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
