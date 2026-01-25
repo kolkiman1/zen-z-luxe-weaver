@@ -258,6 +258,7 @@ const AdminMarketing = () => {
     
     const trackingData = {
       googleAnalyticsId: seoSettings.googleAnalyticsId,
+      googleAnalyticsPropertyId: seoSettings.googleAnalyticsPropertyId,
       facebookPixelId: seoSettings.facebookPixelId,
       googleTagManagerId: seoSettings.googleTagManagerId,
       hotjarId: seoSettings.hotjarId,
