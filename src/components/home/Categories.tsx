@@ -6,13 +6,18 @@ import { categories } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
 import { useSectionContent } from '@/hooks/useSectionContent';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const Categories = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { activeTheme } = useTheme();
   const { data: sectionMedia } = useSectionMedia();
   const { data: sectionContent } = useSectionContent();
   const categoriesMedia = sectionMedia?.categories;
   const content = sectionContent?.categories;
+
+  const cardShape = activeTheme === 'brutalist' ? 'rounded-none' : 'rounded-lg sm:rounded-xl';
+  const borderStyle = activeTheme === 'brutalist' ? 'border-2 border-border' : 'border border-primary/0 group-hover:border-primary/50';
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -106,14 +111,14 @@ const Categories = () => {
             >
               <Link
                 to={`/category/${category.slug}`}
-                className="block relative group aspect-[3/4] rounded-lg sm:rounded-xl overflow-hidden"
+                className={`block relative group aspect-[3/4] overflow-hidden ${cardShape} ${activeTheme === 'editorial' ? 'bg-card border border-border' : ''}`}
               >
                 {/* Image */}
                 <motion.img
                   src={category.image}
                   alt={category.name}
                   className="w-full h-full object-cover"
-                  whileHover={{ scale: 1.08 }}
+                  whileHover={activeTheme === 'editorial' ? { scale: 1.02 } : { scale: 1.08 }}
                   transition={{ duration: 0.6 }}
                 />
 
@@ -141,9 +146,7 @@ const Categories = () => {
                 </div>
 
                 {/* Animated Border */}
-                <motion.div
-                  className="absolute inset-0 rounded-lg sm:rounded-xl border-2 border-primary/0 group-hover:border-primary/50 transition-colors duration-300"
-                />
+                <motion.div className={`absolute inset-0 ${cardShape} transition-colors duration-300 ${borderStyle}`} />
               </Link>
             </motion.div>
           ))}

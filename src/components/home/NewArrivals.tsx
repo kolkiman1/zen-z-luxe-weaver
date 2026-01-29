@@ -2,7 +2,8 @@ import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useNewArrivals } from '@/hooks/useProducts';
-import ProductCard from '@/components/products/ProductCard';
+import ThemedProductCard from '@/components/products/ThemedProductCard';
+import { useTheme } from '@/contexts/ThemeContext';
 import { AnimatedButton } from '@/components/ui/animated-button';
 import { LazyBackground, LazyVideo } from '@/components/ui/lazy-background';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
@@ -10,10 +11,18 @@ import { useSectionContent } from '@/hooks/useSectionContent';
 
 const NewArrivals = () => {
   const { products: newArrivals, loading } = useNewArrivals();
+  const { activeTheme } = useTheme();
   const { data: sectionMedia } = useSectionMedia();
   const { data: sectionContent } = useSectionContent();
   const newArrivalsMedia = sectionMedia?.newArrivals;
   const content = sectionContent?.newArrivals;
+
+  const gridClass =
+    activeTheme === 'editorial'
+      ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10'
+      : activeTheme === 'brutalist'
+        ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4'
+        : 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8';
 
   return (
     <section className="relative section-padding overflow-hidden">
@@ -72,9 +81,9 @@ const NewArrivals = () => {
             <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
+          <div className={gridClass}>
             {newArrivals.slice(0, 4).map((product, index) => (
-              <ProductCard key={product.id} product={product} index={index} />
+              <ThemedProductCard key={product.id} product={product} index={index} />
             ))}
           </div>
         )}

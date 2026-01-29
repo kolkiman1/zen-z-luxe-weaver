@@ -5,7 +5,8 @@ import { SlidersHorizontal, Grid3X3, Grid2X2, X, Loader2, ChevronDown, ArrowUpDo
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
-import ProductCard from '@/components/products/ProductCard';
+import ThemedProductCard from '@/components/products/ThemedProductCard';
+import { useTheme } from '@/contexts/ThemeContext';
 import { categories } from '@/lib/data';
 import { useProducts } from '@/hooks/useProducts';
 import { useCategoryBanners } from '@/hooks/useCategoryBanners';
@@ -36,6 +37,7 @@ const subcategories: Record<string, string[]> = {
 
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { activeTheme } = useTheme();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [gridCols, setGridCols] = useState(3);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
@@ -107,6 +109,23 @@ const CategoryPage = () => {
   ];
 
   const currentSortLabel = sortOptions.find(opt => opt.value === sortBy)?.label || 'Sort';
+
+  const gridClass = useMemo(() => {
+    const baseCols =
+      gridCols === 2
+        ? 'grid-cols-1 sm:grid-cols-2'
+        : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+
+    if (activeTheme === 'editorial') {
+      return `grid ${baseCols} gap-10 md:gap-12`;
+    }
+
+    if (activeTheme === 'brutalist') {
+      return `grid ${baseCols} gap-4 md:gap-5`;
+    }
+
+    return `grid ${baseCols} gap-6 md:gap-8`;
+  }, [activeTheme, gridCols]);
   const FilterContent = () => (
     <div className="space-y-6">
       {/* Clear Filters */}
@@ -348,15 +367,9 @@ const CategoryPage = () => {
                   <Button onClick={clearFilters}>Clear Filters</Button>
                 </div>
               ) : (
-                <div
-                  className={`grid gap-6 md:gap-8 ${
-                    gridCols === 2
-                      ? 'grid-cols-1 sm:grid-cols-2'
-                      : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-                  }`}
-                >
+                <div className={gridClass}>
                   {filteredProducts.map((product, index) => (
-                    <ProductCard key={product.id} product={product} index={index} />
+                    <ThemedProductCard key={product.id} product={product} index={index} />
                   ))}
                 </div>
               )}
