@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Heart, Eye, ShoppingBag } from 'lucide-react';
 import type { Product } from '@/lib/data';
 import { formatPrice } from '@/lib/data';
@@ -24,6 +24,7 @@ const ProductCardBrutalist = ({ product, index = 0 }: ProductCardProps) => {
   const { isInWishlist, toggleWishlist } = useWishlist();
   const performance = usePerformanceOptional();
   const isPerformanceMode = performance?.isPerformanceMode ?? false;
+  const prefersReducedMotion = useReducedMotion();
   const inWishlist = isInWishlist(product.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -115,7 +116,7 @@ const ProductCardBrutalist = ({ product, index = 0 }: ProductCardProps) => {
 
   return (
     <>
-      {isPerformanceMode ? (
+      {isPerformanceMode || prefersReducedMotion ? (
         <div onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
           <Link to={`/product/${product.slug || product.id}`} className="block">
             <Content />

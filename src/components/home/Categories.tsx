@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { categories } from '@/lib/data';
@@ -12,6 +12,7 @@ import SectionHeader from '@/components/home/SectionHeader';
 const Categories = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { activeTheme } = useTheme();
+  const prefersReducedMotion = useReducedMotion();
   const { data: sectionMedia } = useSectionMedia();
   const { data: sectionContent } = useSectionContent();
   const categoriesMedia = sectionMedia?.categories;
@@ -117,9 +118,9 @@ const Categories = () => {
                 <motion.img
                   src={category.image}
                   alt={category.name}
-                  className="w-full h-full object-cover"
-                  whileHover={activeTheme === 'editorial' ? { scale: 1.02 } : { scale: 1.08 }}
-                  transition={{ duration: 0.6 }}
+                  className={`w-full h-full object-cover transition-transform ${activeTheme === 'brutalist' ? 'duration-150 group-hover:scale-[1.03]' : 'duration-500 group-hover:scale-[1.06]'}`}
+                  whileHover={prefersReducedMotion ? undefined : activeTheme === 'editorial' ? { scale: 1.02 } : undefined}
+                  transition={prefersReducedMotion ? undefined : { duration: 0.6 }}
                 />
 
                 {/* Overlay */}

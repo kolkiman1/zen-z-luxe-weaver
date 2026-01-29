@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion';
 import { Truck, Shield, RefreshCw, Headphones } from 'lucide-react';
 import { useSectionContent } from '@/hooks/useSectionContent';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const icons = [Truck, Shield, RefreshCw, Headphones];
 
 const Features = () => {
   const { data: sectionContent } = useSectionContent();
+  const { activeTheme } = useTheme();
   const features = sectionContent?.features.items || [];
 
   return (
@@ -18,11 +20,11 @@ const Features = () => {
             return (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="surface-plate surface-motion rounded-2xl p-3 sm:p-4 md:p-5"
+                initial={activeTheme === 'brutalist' ? false : { opacity: 0, y: 20 }}
+                whileInView={activeTheme === 'brutalist' ? undefined : { opacity: 1, y: 0 }}
+                viewport={activeTheme === 'brutalist' ? undefined : { once: true }}
+                transition={activeTheme === 'brutalist' ? undefined : { delay: index * 0.1 }}
+                className="surface-plate surface-motion surface-hover rounded-2xl p-3 sm:p-4 md:p-5"
               >
                 <div className="flex flex-col items-center text-center">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-secondary flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
