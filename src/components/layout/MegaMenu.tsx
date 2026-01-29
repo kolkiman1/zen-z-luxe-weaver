@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { navCategories } from '@/lib/navigationData';
+import { useNavigationPromos } from '@/hooks/useNavigationPromos';
+import { defaultNavigationPromos } from '@/lib/navigationPromos';
 
 interface MegaMenuProps {
   isScrolled: boolean;
@@ -11,6 +13,8 @@ interface MegaMenuProps {
 
 const MegaMenu = ({ isScrolled, currentPath }: MegaMenuProps) => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const { data } = useNavigationPromos();
+  const promo = data?.artisan ?? defaultNavigationPromos.artisan;
 
   return (
     <nav className="hidden lg:flex items-center gap-6">
@@ -58,10 +62,10 @@ const MegaMenu = ({ isScrolled, currentPath }: MegaMenuProps) => {
                 transition={{ duration: 0.2 }}
                 className={`absolute left-1/2 -translate-x-1/2 top-full pt-4 z-50`}
               >
-                <div className={`min-w-[500px] rounded-xl border border-border/50 shadow-2xl overflow-hidden ${
+                <div className={`min-w-[680px] rounded-xl border border-border/50 shadow-2xl overflow-hidden ${
                   isScrolled ? 'bg-card' : 'bg-card/95 backdrop-blur-xl'
                 }`}>
-                  <div className="p-6 grid grid-cols-2 gap-8">
+                  <div className="p-6 grid grid-cols-3 gap-8">
                     {/* Subcategories */}
                     <div>
                       <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
@@ -122,6 +126,28 @@ const MegaMenu = ({ isScrolled, currentPath }: MegaMenuProps) => {
                         </div>
                       </div>
                     )}
+
+                    {/* Promo */}
+                    <div>
+                      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+                        Spotlight
+                      </h3>
+                      <Link to={promo.href} className="block rounded-lg border border-border/50 overflow-hidden hover:border-border transition-colors">
+                        <div className="h-28 bg-muted overflow-hidden">
+                          <img
+                            src={promo.image}
+                            alt={promo.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="p-4">
+                          <p className="text-[11px] tracking-[0.22em] uppercase text-muted-foreground">{promo.eyebrow}</p>
+                          <p className="mt-1 font-display text-base leading-tight">{promo.title}</p>
+                          <p className="mt-2 text-xs text-muted-foreground">{promo.description}</p>
+                        </div>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </motion.div>

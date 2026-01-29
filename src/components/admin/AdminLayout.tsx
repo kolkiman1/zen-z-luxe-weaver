@@ -53,6 +53,7 @@ const navItems: NavItem[] = [
   { name: 'Tracking', href: '/admin/tracking', icon: Activity },
   { name: 'SEO', href: '/admin/seo', icon: Search },
   { name: 'Themes', href: '/admin/themes', icon: Palette },
+  { name: 'Nav Promos', href: '/admin/navigation-promos', icon: Sparkles },
   { name: 'Section Media', href: '/admin/section-media', icon: Settings },
   { name: 'Section Content', href: '/admin/section-content', icon: Type },
   { name: 'Section Elements', href: '/admin/section-elements', icon: Sparkles },

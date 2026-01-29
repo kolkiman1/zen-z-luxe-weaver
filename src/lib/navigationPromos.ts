@@ -6,9 +6,10 @@ export type NavigationPromo = {
   image: string;
 };
 
-// NOTE: These are hard-coded for now.
-// Future: make configurable via backend site settings (per-theme promos).
-export const navigationPromos: Record<'artisan' | 'editorial' | 'brutalist', NavigationPromo> = {
+export type NavigationPromoThemeId = 'artisan' | 'editorial' | 'brutalist';
+
+// Built-in defaults (used as fallback + “reset” baseline).
+export const defaultNavigationPromos: Record<NavigationPromoThemeId, NavigationPromo> = {
   artisan: {
     eyebrow: 'Handpicked',
     title: 'Festive Edit',
@@ -31,3 +32,6 @@ export const navigationPromos: Record<'artisan' | 'editorial' | 'brutalist', Nav
     image: '/products/oxford-backpack-1.jpg',
   },
 };
+
+// Backwards-compat alias (so existing imports don't crash).
+export const navigationPromos = defaultNavigationPromos;

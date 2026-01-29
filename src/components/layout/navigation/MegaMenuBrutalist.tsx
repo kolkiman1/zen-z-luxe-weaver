@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { navCategories } from '@/lib/navigationData';
-import { navigationPromos } from '@/lib/navigationPromos';
+import { defaultNavigationPromos } from '@/lib/navigationPromos';
+import { useNavigationPromos } from '@/hooks/useNavigationPromos';
 
 type Props = {
   isScrolled: boolean;
@@ -12,7 +13,8 @@ type Props = {
 
 const MegaMenuBrutalist = ({ currentPath }: Props) => {
   const [active, setActive] = useState<string | null>(null);
-  const promo = navigationPromos.brutalist;
+  const { data } = useNavigationPromos();
+  const promo = data?.brutalist ?? defaultNavigationPromos.brutalist;
 
   return (
     <nav className="hidden lg:flex items-center gap-6">

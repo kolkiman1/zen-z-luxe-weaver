@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Home, User, LogOut, Settings, ShoppingBag, Package } from 'lucide-react';
 import { navCategories } from '@/lib/navigationData';
+import { useNavigationPromos } from '@/hooks/useNavigationPromos';
+import { defaultNavigationPromos } from '@/lib/navigationPromos';
 
 type MobileCategoryItem = {
   name: string;
@@ -30,6 +32,8 @@ interface MobileMenuProps {
 const MobileMenu = ({ isOpen, onClose, user, isAdmin, onSignOut }: MobileMenuProps) => {
   const location = useLocation();
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const { data } = useNavigationPromos();
+  const promo = data?.artisan ?? defaultNavigationPromos.artisan;
 
   const toggleCategory = (categoryName: string) => {
     setExpandedCategory(prev => prev === categoryName ? null : categoryName);
@@ -150,6 +154,20 @@ const MobileMenu = ({ isOpen, onClose, user, isAdmin, onSignOut }: MobileMenuPro
             
             {/* Divider */}
             <div className="mx-4 my-2 border-t border-border" />
+
+            {/* Promo */}
+            <div className="px-4 pb-2">
+              <Link to={promo.href} onClick={onClose} className="block rounded-xl border border-border/50 overflow-hidden">
+                <div className="h-28 bg-muted overflow-hidden">
+                  <img src={promo.image} alt={promo.title} loading="lazy" className="w-full h-full object-cover" />
+                </div>
+                <div className="p-4">
+                  <p className="text-[10px] tracking-[0.28em] uppercase text-muted-foreground">{promo.eyebrow}</p>
+                  <p className="mt-1 font-display text-base">{promo.title}</p>
+                  <p className="mt-2 text-xs text-muted-foreground">{promo.description}</p>
+                </div>
+              </Link>
+            </div>
             
             {/* User Section */}
             <div className="p-4 space-y-1">
