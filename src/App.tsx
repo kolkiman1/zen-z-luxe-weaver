@@ -14,9 +14,12 @@ import { NewsletterProvider } from "@/contexts/NewsletterContext";
 import { LoadingProvider } from "@/contexts/LoadingContext";
 import { PerformanceProvider } from "@/contexts/PerformanceContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { CompareProvider } from "@/contexts/CompareContext";
 import { TrackingScripts } from "@/components/TrackingScripts";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import PageTransition from "@/components/ui/PageTransition";
+import CompareModal from "@/components/compare/CompareModal";
+import CompareFloatingButton from "@/components/compare/CompareFloatingButton";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -138,16 +141,20 @@ const App = () => (
               <LoadingProvider>
                 <PerformanceProvider>
                   <ThemeProvider>
-                    <TooltipProvider>
-                      <TrackingScripts />
-                      <Toaster />
-                      <Sonner />
-                      <BrowserRouter>
-                        <Suspense fallback={<LoadingScreen />}>
-                          <AnimatedRoutes />
-                        </Suspense>
-                      </BrowserRouter>
-                    </TooltipProvider>
+                    <CompareProvider>
+                      <TooltipProvider>
+                        <TrackingScripts />
+                        <Toaster />
+                        <Sonner />
+                        <BrowserRouter>
+                          <CompareModal />
+                          <CompareFloatingButton />
+                          <Suspense fallback={<LoadingScreen />}>
+                            <AnimatedRoutes />
+                          </Suspense>
+                        </BrowserRouter>
+                      </TooltipProvider>
+                    </CompareProvider>
                   </ThemeProvider>
                 </PerformanceProvider>
               </LoadingProvider>

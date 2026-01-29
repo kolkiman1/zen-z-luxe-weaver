@@ -7,6 +7,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { usePerformanceOptional } from '@/contexts/PerformanceContext';
 import { Button } from '@/components/ui/button';
+import CompareToggleButton from '@/components/compare/CompareToggleButton';
 import QuickViewModal from './QuickViewModal';
 
 interface ProductCardProps {
@@ -104,6 +105,11 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
           }`}
         >
+          <CompareToggleButton
+            product={product}
+            variant="secondary"
+            className="w-7 h-7 sm:w-9 sm:h-9 rounded-full glass hover:bg-primary hover:text-primary-foreground transition-colors"
+          />
           <Button
             size="icon"
             variant="secondary"
