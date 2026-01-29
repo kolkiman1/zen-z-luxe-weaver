@@ -432,6 +432,39 @@
     transition-timing-function: var(--motion-ease-out);
   }
 
+  /* ==========================
+     Marketplace (Myntra-like) primitives
+     ========================== */
+  .market-toolbar {
+    @apply sticky top-[72px] z-20 rounded-2xl border border-border bg-card/85 backdrop-blur-xl px-3 py-3 sm:px-4;
+    box-shadow: var(--elev-inset), var(--elev-1);
+  }
+
+  /* Clickable “search input” used in headers (opens Search modal) */
+  .market-search {
+    @apply inline-flex h-11 items-center gap-3 rounded-full border border-border bg-secondary/60 px-4 text-left;
+    transition-property: transform, box-shadow, background-color, border-color;
+    transition-duration: var(--motion-fast);
+    transition-timing-function: var(--motion-ease-out);
+  }
+  .market-search:hover {
+    transform: translate3d(0, -1px, 0);
+    box-shadow: var(--elev-inset), var(--elev-1);
+  }
+  .market-search:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Editorial: cleaner, squared-off */
+  .market-search--square {
+    @apply rounded-lg bg-background/70;
+  }
+
+  /* Brutalist: hard edges, heavier border */
+  .market-search--brutalist {
+    @apply rounded-none border-2 bg-card;
+  }
+
   .btn-outline-gold {
     @apply border border-primary/50 text-primary bg-transparent
            hover:bg-primary hover:text-primary-foreground

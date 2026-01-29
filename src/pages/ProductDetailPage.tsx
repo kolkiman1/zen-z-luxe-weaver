@@ -176,9 +176,9 @@ const ProductDetailPage = () => {
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
-              className="space-y-4 sm:space-y-6"
+              className="space-y-4 sm:space-y-6 lg:sticky lg:top-28 lg:self-start"
             >
-              <div>
+              <div className="surface-panel rounded-2xl p-4 sm:p-6">
                 <p className="text-xs sm:text-sm text-muted-foreground uppercase tracking-wider mb-1 sm:mb-2">
                   {product.subcategory}
                 </p>
