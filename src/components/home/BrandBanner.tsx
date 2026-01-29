@@ -5,6 +5,7 @@ import { AnimatedButton } from '@/components/ui/animated-button';
 import { LazyBackground, LazyVideo } from '@/components/ui/lazy-background';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
 import { useSectionContent } from '@/hooks/useSectionContent';
+import SectionHeader from '@/components/home/SectionHeader';
 
 const BrandBanner = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -56,65 +57,40 @@ const BrandBanner = () => {
 
       {/* Content */}
       <div className="container-luxury relative z-10">
-        <div className="max-w-3xl mx-auto text-center px-2">
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-primary tracking-[0.2em] sm:tracking-[0.3em] uppercase text-xs sm:text-sm mb-3 sm:mb-4"
-          >
-            {content?.tagline || 'The Zen Zee Promise'}
-          </motion.p>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-4 sm:mb-6"
-          >
-            {content?.headline || 'Crafted with Passion,'}
-            <br />
-            <span className="text-gradient-gold">{content?.headlineHighlight || 'Designed for You'}</span>
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-foreground/70 text-sm sm:text-base md:text-lg mb-6 sm:mb-8 md:mb-10 leading-relaxed"
-          >
-            {content?.description || 'We believe luxury should be accessible. Every piece in our collection is carefully curated to bring you premium quality, timeless design, and exceptional value. Experience the difference of true craftsmanship.'}
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
-          >
-            <Link to="/about" className="w-full sm:w-auto">
-              <AnimatedButton 
-                className="btn-primary w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base"
-                glowColor="primary"
-                showArrow
-              >
-                Our Story
-              </AnimatedButton>
-            </Link>
-            <Link to="/category/all" className="w-full sm:w-auto">
-              <AnimatedButton 
-                variant="outline" 
-                className="btn-outline-gold w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base"
-                glowColor="gold"
-                showArrow
-              >
-                Explore Collection
-              </AnimatedButton>
-            </Link>
-          </motion.div>
+        <div className="max-w-3xl mx-auto px-2">
+          <div className="surface-float surface-motion surface-hover rounded-3xl px-5 sm:px-8 md:px-10 py-10 sm:py-12 text-center">
+            <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <SectionHeader
+                align="center"
+                tagline={content?.tagline || 'The Zen Zee Promise'}
+                headline={<>{content?.headline || 'Crafted with Passion,'}<br /></>}
+                headlineHighlight={content?.headlineHighlight || 'Designed for You'}
+                description={
+                  content?.description ||
+                  'We believe luxury should be accessible. Every piece in our collection is carefully curated to bring you premium quality, timeless design, and exceptional value. Experience the difference of true craftsmanship.'
+                }
+                actions={
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+                    <Link to="/about" className="w-full sm:w-auto">
+                      <AnimatedButton className="btn-primary w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base" glowColor="primary" showArrow>
+                        Our Story
+                      </AnimatedButton>
+                    </Link>
+                    <Link to="/category/all" className="w-full sm:w-auto">
+                      <AnimatedButton
+                        variant="outline"
+                        className="btn-outline-gold w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base"
+                        glowColor="gold"
+                        showArrow
+                      >
+                        Explore Collection
+                      </AnimatedButton>
+                    </Link>
+                  </div>
+                }
+              />
+            </motion.div>
+          </div>
         </div>
       </div>
 

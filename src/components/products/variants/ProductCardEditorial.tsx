@@ -45,7 +45,7 @@ const ProductCardEditorial = ({ product, index = 0 }: ProductCardProps) => {
   };
 
   const Content = () => (
-      <article className="group">
+      <article className="group surface-motion surface-hover rounded-xl">
         <div className="relative aspect-[4/5] overflow-hidden bg-secondary border border-border rounded-md">
         {!isImageLoaded && <div className="absolute inset-0 animate-pulse bg-muted" />}
         <img

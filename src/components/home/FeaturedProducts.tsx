@@ -7,9 +7,9 @@ import ThemedProductCard from '@/components/products/ThemedProductCard';
 import { useTheme } from '@/contexts/ThemeContext';
 import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 import { Button } from '@/components/ui/button';
-import { AnimatedButton } from '@/components/ui/animated-button';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
 import { useSectionContent } from '@/hooks/useSectionContent';
+import SectionHeader from '@/components/home/SectionHeader';
 
 const FeaturedProducts = () => {
   const { products: featuredProducts, loading } = useFeaturedProducts();
@@ -90,57 +90,40 @@ const FeaturedProducts = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 md:mb-10"
+            className="mb-6 md:mb-10"
           >
-            <div>
-              <motion.span
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="text-primary text-xs sm:text-sm font-medium uppercase tracking-widest mb-2 block"
-              >
-                {content?.tagline || 'Curated for You'}
-              </motion.span>
-              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 sm:mb-3">
-                {content?.headline || 'Featured'}{' '}
-                <span className="text-gradient-gold">{content?.headlineHighlight || 'Collection'}</span>
-              </h2>
-              <p className="text-muted-foreground text-sm sm:text-base max-w-lg">
-                {content?.description || 'Handpicked premium pieces that define luxury and elegance'}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              {/* Navigation Arrows */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                className="hidden md:flex items-center gap-2"
-              >
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => scroll('left')}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-border/50 hover:border-primary hover:bg-primary/10 micro-ring"
+            <SectionHeader
+              tagline={content?.tagline || 'Curated for You'}
+              headline={content?.headline || 'Featured'}
+              headlineHighlight={content?.headlineHighlight || 'Collection'}
+              description={content?.description || 'Handpicked premium pieces that define luxury and elegance'}
+              cta={{ label: 'View All', to: '/category/all', variant: 'ghost' }}
+              actions={
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  className="hidden md:flex items-center gap-2"
                 >
-                  <ChevronLeft size={18} />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => scroll('right')}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-border/50 hover:border-primary hover:bg-primary/10 micro-ring"
-                >
-                  <ChevronRight size={18} />
-                </Button>
-              </motion.div>
-              <Link to="/category/all">
-                <AnimatedButton variant="ghost" className="gap-2 text-sm sm:text-base" glowColor="gold" showArrow>
-                  View All
-                </AnimatedButton>
-              </Link>
-            </div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => scroll('left')}
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-border/50 hover:border-primary hover:bg-primary/10 micro-ring"
+                  >
+                    <ChevronLeft size={18} />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => scroll('right')}
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-border/50 hover:border-primary hover:bg-primary/10 micro-ring"
+                  >
+                    <ChevronRight size={18} />
+                  </Button>
+                </motion.div>
+              }
+            />
           </motion.div>
 
           {/* Products Row */}

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
 import { useSectionContent } from '@/hooks/useSectionContent';
 import { useTheme } from '@/contexts/ThemeContext';
+import SectionHeader from '@/components/home/SectionHeader';
 
 const Categories = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -58,61 +59,60 @@ const Categories = () => {
       )}
       
       <div className="container-luxury relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 md:mb-12"
-        >
-          <div className="text-center sm:text-left">
-            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 sm:mb-4">
-              {content?.headline || 'Shop by'} <span className="text-gradient-gold">{content?.headlineHighlight || 'Category'}</span>
-            </h2>
-            <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto sm:mx-0">
-              {content?.description || 'Explore our curated collections of premium fashion and accessories'}
-            </p>
-          </div>
-          
-          {/* Navigation Arrows - Desktop */}
-          <div className="hidden md:flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => scroll('left')}
-              className="w-10 h-10 rounded-full border-border/50 hover:border-primary hover:bg-primary/10 transition-all duration-300"
-            >
-              <ChevronLeft size={18} />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => scroll('right')}
-              className="w-10 h-10 rounded-full border-border/50 hover:border-primary hover:bg-primary/10 transition-all duration-300"
-            >
-              <ChevronRight size={18} />
-            </Button>
-          </div>
-        </motion.div>
+        <div className="surface-panel surface-motion rounded-3xl p-5 sm:p-6 md:p-8">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-6 md:mb-10"
+          >
+            <SectionHeader
+              align="left"
+              headline={content?.headline || 'Shop by'}
+              headlineHighlight={content?.headlineHighlight || 'Category'}
+              description={content?.description || 'Explore our curated collections of premium fashion and accessories'}
+              actions={
+                <div className="hidden md:flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => scroll('left')}
+                    className="w-10 h-10 rounded-full border-border/50 hover:border-primary hover:bg-primary/10 micro-ring"
+                  >
+                    <ChevronLeft size={18} />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => scroll('right')}
+                    className="w-10 h-10 rounded-full border-border/50 hover:border-primary hover:bg-primary/10 micro-ring"
+                  >
+                    <ChevronRight size={18} />
+                  </Button>
+                </div>
+              }
+            />
+          </motion.div>
 
-        {/* Categories Row */}
-        <div 
-          ref={scrollContainerRef}
-          className="flex flex-row gap-3 sm:gap-4 md:gap-6 overflow-x-auto pb-4 no-scrollbar scroll-smooth snap-x snap-mandatory"
-        >
-          {categories.map((category, index) => (
-            <motion.div
-              key={category.id}
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
-              className="flex-shrink-0 w-[200px] xs:w-[240px] sm:w-[280px] md:w-[300px] lg:flex-1 lg:min-w-[280px] lg:max-w-[320px] snap-start"
-            >
-              <Link
-                to={`/category/${category.slug}`}
-                className={`block relative group aspect-[3/4] overflow-hidden ${cardShape} ${activeTheme === 'editorial' ? 'bg-card border border-border' : ''}`}
+          {/* Categories Row */}
+          <div
+            ref={scrollContainerRef}
+            className="flex flex-row gap-3 sm:gap-4 md:gap-6 overflow-x-auto pb-4 no-scrollbar scroll-smooth snap-x snap-mandatory"
+          >
+            {categories.map((category, index) => (
+              <motion.div
+                key={category.id}
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                className="flex-shrink-0 w-[200px] xs:w-[240px] sm:w-[280px] md:w-[300px] lg:flex-1 lg:min-w-[280px] lg:max-w-[320px] snap-start"
               >
+                <Link
+                  to={`/category/${category.slug}`}
+                  className={`block relative group aspect-[3/4] overflow-hidden ${cardShape} ${activeTheme === 'editorial' ? 'bg-card border border-border' : ''} surface-motion surface-hover`}
+                >
                 {/* Image */}
                 <motion.img
                   src={category.image}
@@ -147,9 +147,10 @@ const Categories = () => {
 
                 {/* Animated Border */}
                 <motion.div className={`absolute inset-0 ${cardShape} transition-colors duration-300 ${borderStyle}`} />
-              </Link>
-            </motion.div>
-          ))}
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

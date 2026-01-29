@@ -1,13 +1,12 @@
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { useNewArrivals } from '@/hooks/useProducts';
 import ThemedProductCard from '@/components/products/ThemedProductCard';
 import { useTheme } from '@/contexts/ThemeContext';
-import { AnimatedButton } from '@/components/ui/animated-button';
 import { LazyBackground, LazyVideo } from '@/components/ui/lazy-background';
 import { useSectionMedia } from '@/hooks/useSectionMedia';
 import { useSectionContent } from '@/hooks/useSectionContent';
+import SectionHeader from '@/components/home/SectionHeader';
 
 const NewArrivals = () => {
   const { products: newArrivals, loading } = useNewArrivals();
@@ -54,22 +53,14 @@ const NewArrivals = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 md:mb-10"
+            className="mb-6 md:mb-10"
           >
-            <div>
-              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 sm:mb-3">
-                {content?.headline || 'New'}{' '}
-                <span className="text-gradient-gold">{content?.headlineHighlight || 'Arrivals'}</span>
-              </h2>
-              <p className="text-muted-foreground text-sm sm:text-base max-w-lg">
-                {content?.description || 'The latest additions to our premium collection'}
-              </p>
-            </div>
-            <Link to="/category/new-arrivals">
-              <AnimatedButton variant="ghost" className="gap-2 text-sm sm:text-base" glowColor="gold" showArrow>
-                Shop New
-              </AnimatedButton>
-            </Link>
+            <SectionHeader
+              headline={content?.headline || 'New'}
+              headlineHighlight={content?.headlineHighlight || 'Arrivals'}
+              description={content?.description || 'The latest additions to our premium collection'}
+              cta={{ label: 'Shop New', to: '/category/new-arrivals', variant: 'ghost' }}
+            />
           </motion.div>
 
           {/* Products Grid */}
