@@ -31,11 +31,11 @@ const HeroBrutalist = () => {
             <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-3 border border-border bg-card px-4 py-2"
+              className="inline-flex items-center gap-3 border-2 border-border surface-plate surface-motion px-4 py-2"
             >
-              <span className="text-xs tracking-[0.35em] uppercase">DROP</span>
+              <span className="text-xs tracking-[0.35em] uppercase text-chrome">DROP</span>
               <span className="h-4 w-px bg-border" />
-              <span className="text-xs text-muted-foreground tracking-[0.25em] uppercase">Bangladesh street luxury</span>
+              <span className="text-xs text-muted-foreground tracking-[0.25em] uppercase">Bangladesh Y2K chrome</span>
             </motion.div>
 
             <motion.h1

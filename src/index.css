@@ -239,7 +239,8 @@
     --popover: 0 0% 10%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 60 100% 50%;
+    /* Y2K Chrome + Pink */
+    --primary: 325 100% 62%;
     --primary-foreground: 0 0% 6%;
 
     --secondary: 0 0% 12%;
@@ -248,18 +249,19 @@
     --muted: 0 0% 14%;
     --muted-foreground: 0 0% 70%;
 
-    --accent: 195 100% 55%;
+    --accent: 320 100% 74%;
     --accent-foreground: 0 0% 6%;
 
     --border: 0 0% 22%;
     --input: 0 0% 22%;
-    --ring: 60 100% 50%;
+    --ring: 325 100% 62%;
 
     --radius: 0.1rem;
 
-    --gold: 60 100% 50%;
-    --gold-light: 60 100% 72%;
-    --gold-dark: 60 80% 40%;
+    /* “Gold” token repurposed as chrome highlight in this theme */
+    --gold: 0 0% 92%;
+    --gold-light: 0 0% 98%;
+    --gold-dark: 0 0% 78%;
     --charcoal: 0 0% 8%;
     --charcoal-light: 0 0% 12%;
     --beige: 0 0% 92%;
@@ -275,16 +277,22 @@
     --sidebar-border: 0 0% 18%;
     --sidebar-ring: 60 100% 50%;
 
-    /* Motion: snappy, punchy */
-    --motion-fast: 120ms;
-    --motion-medium: 200ms;
-    --motion-slow: 320ms;
-    --motion-distance: 18px;
+    /* Motion: performance-first (keep interactions snappy; avoid ambient loops) */
+    --motion-fast: 110ms;
+    --motion-medium: 160ms;
+    --motion-slow: 220ms;
+    --motion-distance: 12px;
 
     /* Elevation (hard, graphic) */
     --elev-1: 0 0 0 1px hsl(var(--border) / 1), 0 18px 44px -24px hsl(0 0% 0% / 0.85);
     --elev-2: 0 0 0 1px hsl(var(--border) / 1), 0 34px 86px -46px hsl(0 0% 0% / 0.9);
     --elev-inset: inset 0 1px 0 hsl(var(--foreground) / 0.06);
+  }
+
+  /* Performance-first: disable ambient hero overlay animation for Brutalist */
+  [data-theme="brutalist"] .hero-overlay-tech {
+    animation: none;
+    opacity: 0.2;
   }
 
   .dark {
@@ -522,11 +530,27 @@
     inset: 0;
     pointer-events: none;
     background-image:
-      linear-gradient(180deg, hsl(var(--border) / 0.12) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--border) / 0.10) 1px, transparent 1px);
-    background-size: 100% 6px, 36px 100%;
+      /* tighter scanlines */
+      linear-gradient(180deg, hsl(var(--border) / 0.14) 1px, transparent 1px),
+      /* thin vertical rhythm */
+      linear-gradient(90deg, hsl(var(--border) / 0.1) 1px, transparent 1px),
+      /* chrome-ish highlights */
+      radial-gradient(circle at 30% 18%, hsl(var(--gold) / 0.10), transparent 42%),
+      radial-gradient(circle at 72% 68%, hsl(var(--primary) / 0.10), transparent 48%);
+    background-size: 100% 5px, 28px 100%, 100% 100%, 100% 100%;
     mix-blend-mode: overlay;
     animation: scanline-drift var(--motion-slow) var(--motion-ease-in-out) infinite;
+  }
+
+  /* Chrome text (used by Brutalist header) */
+  .text-chrome {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      90deg,
+      hsl(var(--gold-light)),
+      hsl(var(--gold-dark)),
+      hsl(var(--gold-light))
+    );
   }
 
   @keyframes runway-shift {

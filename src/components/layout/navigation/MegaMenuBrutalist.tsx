@@ -56,7 +56,7 @@ const MegaMenuBrutalist = ({ currentPath }: Props) => {
                 transition={{ duration: 0.15 }}
                 className="absolute left-1/2 -translate-x-1/2 top-full pt-4 z-50"
               >
-                <div className="w-[960px] max-w-[92vw] bg-card border-2 border-border shadow-2xl">
+                <div className="w-[960px] max-w-[92vw] surface-panel surface-motion bg-card border-2 border-border shadow-2xl">
                   <div className="scanline" />
                   <div className="p-6 grid grid-cols-12 gap-6">
                     <div className="col-span-7">
