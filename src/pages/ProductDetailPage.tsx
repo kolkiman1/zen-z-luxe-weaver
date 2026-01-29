@@ -15,6 +15,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import ThemedPageFrame from '@/components/layout/ThemedPageFrame';
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -111,6 +112,7 @@ const ProductDetailPage = () => {
       <CartSidebar />
 
       <main className="pt-20 sm:pt-24 pb-12 sm:pb-16">
+        <ThemedPageFrame className="pb-12 sm:pb-16">
         <div className="container-luxury px-4 sm:px-6">
           {/* Breadcrumb */}
           <nav className="mb-4 sm:mb-8 overflow-x-auto">
@@ -353,6 +355,7 @@ const ProductDetailPage = () => {
             </section>
           )}
         </div>
+        </ThemedPageFrame>
       </main>
 
        <ThemedFooter />

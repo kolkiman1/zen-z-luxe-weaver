@@ -16,6 +16,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useRateLimiter } from '@/hooks/useRateLimiter';
+import ThemedPageFrame from '@/components/layout/ThemedPageFrame';
 
 interface DiscountCode {
   id: string;
@@ -478,6 +479,7 @@ const CheckoutPage = () => {
       <CartSidebar />
 
       <main className="pt-20 sm:pt-24 pb-12 sm:pb-16 min-h-screen">
+        <ThemedPageFrame className="pb-12 sm:pb-16">
         <div className="container-luxury px-4 sm:px-6">
           {/* Back Link */}
           <Link to="/category/all" className="inline-flex items-center gap-1.5 sm:gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 sm:mb-8">
@@ -1054,6 +1056,7 @@ const CheckoutPage = () => {
             </div>
           </div>
         </div>
+        </ThemedPageFrame>
       </main>
 
       <ThemedFooter />

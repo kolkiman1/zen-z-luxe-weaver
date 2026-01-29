@@ -65,6 +65,7 @@ import {
 import { toast } from 'sonner';
 import ChangePasswordCard from '@/components/account/ChangePasswordCard';
 import SessionsCard from '@/components/account/SessionsCard';
+import ThemedPageFrame from '@/components/layout/ThemedPageFrame';
 
 interface Order {
   id: string;
@@ -468,7 +469,8 @@ const UserDashboard = () => {
 
        <ThemedHeader />
 
-      <main className="pt-24 pb-16 min-h-screen">
+      <main className="pt-20 sm:pt-24 pb-12 sm:pb-16 min-h-screen">
+        <ThemedPageFrame className="pb-12 sm:pb-16">
         <div className="container-luxury">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -1180,6 +1182,7 @@ const UserDashboard = () => {
             </TabsContent>
           </Tabs>
         </div>
+        </ThemedPageFrame>
       </main>
 
        <ThemedFooter />

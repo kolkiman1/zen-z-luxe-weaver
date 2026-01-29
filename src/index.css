@@ -436,7 +436,7 @@
      Marketplace (Myntra-like) primitives
      ========================== */
   .market-toolbar {
-    @apply sticky top-[72px] z-20 rounded-2xl border border-border bg-card/85 backdrop-blur-xl px-3 py-3 sm:px-4;
+    @apply sticky top-16 sm:top-[72px] z-20 rounded-2xl border border-border bg-card/85 backdrop-blur-xl px-3 py-3 sm:px-4;
     box-shadow: var(--elev-inset), var(--elev-1);
   }
 

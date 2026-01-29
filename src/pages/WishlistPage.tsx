@@ -10,6 +10,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { formatPrice } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import ThemedPageFrame from '@/components/layout/ThemedPageFrame';
 
 const WishlistPage = () => {
   const { items, removeFromWishlist } = useWishlist();
@@ -33,7 +34,8 @@ const WishlistPage = () => {
       <ThemedHeader />
       <CartSidebar />
 
-      <main className="pt-24 pb-16 min-h-screen">
+      <main className="pt-20 sm:pt-24 pb-12 sm:pb-16 min-h-screen">
+        <ThemedPageFrame className="pb-12 sm:pb-16">
         <div className="container-luxury">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -116,6 +118,7 @@ const WishlistPage = () => {
             </div>
           )}
         </div>
+        </ThemedPageFrame>
       </main>
 
       <ThemedFooter />
