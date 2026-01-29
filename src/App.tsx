@@ -1,10 +1,12 @@
+import type { ReactNode } from "react";
 import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { AnimatePresence } from "framer-motion";
 import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -14,6 +16,7 @@ import { PerformanceProvider } from "@/contexts/PerformanceContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { TrackingScripts } from "@/components/TrackingScripts";
 import LoadingScreen from "@/components/ui/LoadingScreen";
+import PageTransition from "@/components/ui/PageTransition";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -65,6 +68,66 @@ const AdminThemes = lazy(() => import("./pages/admin/AdminThemes"));
 const AdminNavigationPromos = lazy(() => import("./pages/admin/AdminNavigationPromos"));
 const queryClient = new QueryClient();
 
+const AnimatedRoutes = () => {
+  const location = useLocation();
+  const withTransition = (node: ReactNode) => <PageTransition>{node}</PageTransition>;
+
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={withTransition(<Index />)} />
+        <Route path="/category/:slug" element={withTransition(<CategoryPage />)} />
+        <Route path="/product/:id" element={withTransition(<ProductDetailPage />)} />
+        <Route path="/wishlist" element={withTransition(<WishlistPage />)} />
+        <Route path="/checkout" element={withTransition(<CheckoutPage />)} />
+        <Route path="/payment-success" element={withTransition(<PaymentSuccessPage />)} />
+        <Route path="/auth" element={withTransition(<AuthPage />)} />
+        <Route path="/forgot-password" element={withTransition(<ForgotPasswordPage />)} />
+        <Route path="/orders" element={withTransition(<OrdersPage />)} />
+        <Route path="/orders/:orderId" element={withTransition(<OrderTrackingPage />)} />
+        <Route path="/track-order" element={withTransition(<OrderTrackingPage />)} />
+        <Route path="/dashboard" element={withTransition(<UserDashboard />)} />
+        {/* Info Pages */}
+        <Route path="/contact" element={withTransition(<ContactPage />)} />
+        <Route path="/faq" element={withTransition(<FAQPage />)} />
+        <Route path="/shipping" element={withTransition(<ShippingPage />)} />
+        <Route path="/returns" element={withTransition(<ReturnsPage />)} />
+        <Route path="/privacy" element={withTransition(<PrivacyPage />)} />
+        <Route path="/terms" element={withTransition(<TermsPage />)} />
+        <Route path="/size-guide" element={withTransition(<SizeGuidePage />)} />
+        <Route path="/about" element={withTransition(<AboutPage />)} />
+        {/* Admin Routes */}
+        <Route path="/admin" element={withTransition(<AdminDashboard />)} />
+        <Route path="/admin/products" element={withTransition(<AdminProducts />)} />
+        <Route path="/admin/inventory" element={withTransition(<AdminInventory />)} />
+        <Route path="/admin/orders" element={withTransition(<AdminOrders />)} />
+        <Route path="/admin/customers" element={withTransition(<AdminCustomers />)} />
+        <Route path="/admin/analytics" element={withTransition(<AdminAnalytics />)} />
+        <Route path="/admin/tracking" element={withTransition(<AdminTrackingAnalytics />)} />
+        <Route path="/admin/marketing" element={withTransition(<AdminMarketing />)} />
+        <Route path="/admin/themes" element={withTransition(<AdminThemes />)} />
+        <Route path="/admin/navigation-promos" element={withTransition(<AdminNavigationPromos />)} />
+        <Route path="/admin/inquiries" element={withTransition(<AdminInquiries />)} />
+        <Route path="/admin/users" element={withTransition(<AdminUsers />)} />
+        <Route path="/admin/announcements" element={withTransition(<AdminAnnouncements />)} />
+        <Route path="/admin/activity-logs" element={withTransition(<AdminActivityLogs />)} />
+        <Route path="/admin/seo" element={withTransition(<AdminSeoSettings />)} />
+        <Route path="/admin/section-media" element={withTransition(<AdminSectionMedia />)} />
+        <Route path="/admin/section-content" element={withTransition(<AdminSectionContent />)} />
+        <Route path="/admin/section-elements" element={withTransition(<AdminSectionElements />)} />
+        <Route path="/admin/category-banners" element={withTransition(<AdminCategoryBanners />)} />
+        <Route path="/admin/product-collections" element={withTransition(<AdminProductCollections />)} />
+        <Route path="/admin/section-materials" element={withTransition(<AdminSectionMaterials />)} />
+        <Route path="/admin/security" element={withTransition(<AdminSecurityDashboard />)} />
+        <Route path="/admin/email-templates" element={withTransition(<AdminEmailTemplates />)} />
+        <Route path="/admin/mobile" element={withTransition(<MobileAdminApp />)} />
+        <Route path="/admin/performance" element={withTransition(<AdminPerformance />)} />
+        <Route path="*" element={withTransition(<NotFound />)} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
@@ -81,56 +144,7 @@ const App = () => (
                       <Sonner />
                       <BrowserRouter>
                         <Suspense fallback={<LoadingScreen />}>
-                          <Routes>
-                            <Route path="/" element={<Index />} />
-                            <Route path="/category/:slug" element={<CategoryPage />} />
-                            <Route path="/product/:id" element={<ProductDetailPage />} />
-                            <Route path="/wishlist" element={<WishlistPage />} />
-                            <Route path="/checkout" element={<CheckoutPage />} />
-                            <Route path="/payment-success" element={<PaymentSuccessPage />} />
-                            <Route path="/auth" element={<AuthPage />} />
-                            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                            <Route path="/orders" element={<OrdersPage />} />
-                            <Route path="/orders/:orderId" element={<OrderTrackingPage />} />
-                            <Route path="/track-order" element={<OrderTrackingPage />} />
-                            <Route path="/dashboard" element={<UserDashboard />} />
-                            {/* Info Pages */}
-                            <Route path="/contact" element={<ContactPage />} />
-                            <Route path="/faq" element={<FAQPage />} />
-                            <Route path="/shipping" element={<ShippingPage />} />
-                            <Route path="/returns" element={<ReturnsPage />} />
-                            <Route path="/privacy" element={<PrivacyPage />} />
-                            <Route path="/terms" element={<TermsPage />} />
-                            <Route path="/size-guide" element={<SizeGuidePage />} />
-                            <Route path="/about" element={<AboutPage />} />
-                            {/* Admin Routes */}
-                            <Route path="/admin" element={<AdminDashboard />} />
-                            <Route path="/admin/products" element={<AdminProducts />} />
-                            <Route path="/admin/inventory" element={<AdminInventory />} />
-                            <Route path="/admin/orders" element={<AdminOrders />} />
-                            <Route path="/admin/customers" element={<AdminCustomers />} />
-                            <Route path="/admin/analytics" element={<AdminAnalytics />} />
-                            <Route path="/admin/tracking" element={<AdminTrackingAnalytics />} />
-                            <Route path="/admin/marketing" element={<AdminMarketing />} />
-                            <Route path="/admin/themes" element={<AdminThemes />} />
-                            <Route path="/admin/navigation-promos" element={<AdminNavigationPromos />} />
-                            <Route path="/admin/inquiries" element={<AdminInquiries />} />
-                            <Route path="/admin/users" element={<AdminUsers />} />
-                            <Route path="/admin/announcements" element={<AdminAnnouncements />} />
-                            <Route path="/admin/activity-logs" element={<AdminActivityLogs />} />
-                            <Route path="/admin/seo" element={<AdminSeoSettings />} />
-                            <Route path="/admin/section-media" element={<AdminSectionMedia />} />
-                            <Route path="/admin/section-content" element={<AdminSectionContent />} />
-                            <Route path="/admin/section-elements" element={<AdminSectionElements />} />
-                            <Route path="/admin/category-banners" element={<AdminCategoryBanners />} />
-                            <Route path="/admin/product-collections" element={<AdminProductCollections />} />
-                            <Route path="/admin/section-materials" element={<AdminSectionMaterials />} />
-                            <Route path="/admin/security" element={<AdminSecurityDashboard />} />
-                            <Route path="/admin/email-templates" element={<AdminEmailTemplates />} />
-                            <Route path="/admin/mobile" element={<MobileAdminApp />} />
-                            <Route path="/admin/performance" element={<AdminPerformance />} />
-                            <Route path="*" element={<NotFound />} />
-                          </Routes>
+                          <AnimatedRoutes />
                         </Suspense>
                       </BrowserRouter>
                     </TooltipProvider>
