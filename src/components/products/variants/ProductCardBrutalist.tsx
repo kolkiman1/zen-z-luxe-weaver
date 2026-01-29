@@ -46,7 +46,7 @@ const ProductCardBrutalist = ({ product, index = 0 }: ProductCardProps) => {
   };
 
   const Content = () => (
-    <article className="group border-2 border-border bg-card surface-motion surface-hover">
+    <article className="group relative border-2 border-border bg-card surface-motion surface-hover">
       <div className="relative aspect-square overflow-hidden">
         {!isImageLoaded && <div className="absolute inset-0 animate-pulse bg-muted" />}
         <img
@@ -61,12 +61,12 @@ const ProductCardBrutalist = ({ product, index = 0 }: ProductCardProps) => {
         <div className="absolute top-0 left-0 right-0 flex items-start justify-between p-2">
           <div className="flex flex-col gap-1">
             {product.isNew && (
-              <span className="px-2 py-1 text-[10px] font-bold uppercase tracking-widest bg-primary text-primary-foreground">
+              <span className="sticker sticker-primary px-2 py-1 text-[10px] font-black uppercase tracking-widest">
                 New
               </span>
             )}
             {product.originalPrice && (
-              <span className="px-2 py-1 text-[10px] font-bold uppercase tracking-widest bg-destructive text-destructive-foreground">
+              <span className="sticker px-2 py-1 text-[10px] font-black uppercase tracking-widest bg-destructive text-destructive-foreground">
                 Sale
               </span>
             )}
@@ -75,7 +75,7 @@ const ProductCardBrutalist = ({ product, index = 0 }: ProductCardProps) => {
             size="icon"
             variant="outline"
             onClick={handleToggleWishlist}
-            className={`h-9 w-9 rounded-none border-2 ${inWishlist ? 'bg-primary text-primary-foreground border-primary' : ''}`}
+            className={`h-9 w-9 rounded-none border-2 surface-plate ${inWishlist ? 'bg-primary text-primary-foreground border-primary' : ''}`}
           >
             <Heart className="w-4 h-4" fill={inWishlist ? 'currentColor' : 'none'} />
           </Button>
@@ -102,7 +102,7 @@ const ProductCardBrutalist = ({ product, index = 0 }: ProductCardProps) => {
       <div className="p-3 border-t-2 border-border">
         <div className="flex items-start justify-between gap-3">
           <h3 className="font-body font-black uppercase tracking-[-0.02em] text-base leading-tight line-clamp-2">{product.name}</h3>
-          <span className="text-primary font-black whitespace-nowrap">{formatPrice(product.price)}</span>
+          <span className="sticker sticker-chrome px-2 py-1 text-xs font-black whitespace-nowrap">{formatPrice(product.price)}</span>
         </div>
         <p className="mt-1 text-xs text-muted-foreground uppercase tracking-widest line-clamp-1">
           {product.subcategory}

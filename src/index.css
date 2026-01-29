@@ -508,6 +508,58 @@
   }
 
   /* ==========================
+     Brutalist Y2K utilities (performance-first)
+     ========================== */
+  [data-theme="brutalist"] .chrome-panel {
+    background: linear-gradient(
+      180deg,
+      hsl(var(--surface-2) / 0.92),
+      hsl(var(--surface-1) / 0.92)
+    );
+    border: 2px solid hsl(var(--surface-border) / 1);
+    box-shadow: var(--elev-inset), var(--elev-1);
+  }
+
+  [data-theme="brutalist"] .chrome-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    /* static specular streaks (no animation) */
+    background:
+      linear-gradient(125deg, transparent 0%, hsl(var(--gold-light) / 0.12) 12%, transparent 24%),
+      linear-gradient(320deg, transparent 0%, hsl(var(--primary) / 0.10) 10%, transparent 22%);
+    mix-blend-mode: screen;
+    opacity: 0.9;
+  }
+
+  [data-theme="brutalist"] .sticker {
+    border: 2px solid hsl(var(--border) / 1);
+    box-shadow: 0 0 0 1px hsl(var(--background) / 1), var(--elev-1);
+  }
+
+  [data-theme="brutalist"] .sticker-primary {
+    background: hsl(var(--primary) / 1);
+    color: hsl(var(--primary-foreground) / 1);
+  }
+
+  [data-theme="brutalist"] .sticker-chrome {
+    background: linear-gradient(90deg, hsl(var(--gold-light)), hsl(var(--gold-dark)), hsl(var(--gold-light)));
+    color: hsl(var(--background) / 1);
+  }
+
+  [data-theme="brutalist"] .badge-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.7rem;
+    border-radius: 0.35rem;
+    background: hsl(var(--surface-2) / 1);
+    border: 2px solid hsl(var(--border) / 1);
+    box-shadow: var(--elev-inset);
+  }
+
+  /* ==========================
      Hero overlays (theme-aware)
      ========================== */
   @keyframes scanline-drift {

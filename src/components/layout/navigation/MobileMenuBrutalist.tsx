@@ -54,7 +54,7 @@ const MobileMenuBrutalist = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
               <Link
                 to="/"
                 onClick={onClose}
-                className={`border-2 p-3 font-black uppercase tracking-tight micro-ring micro-lift ${
+                className={`border-2 p-3 font-black uppercase tracking-tight micro-ring micro-lift surface-motion surface-hover ${
                   location.pathname === '/' ? 'border-primary text-primary' : 'border-border text-foreground'
                 }`}
               >
@@ -63,7 +63,7 @@ const MobileMenuBrutalist = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
               <Link
                 to={promo.href}
                 onClick={onClose}
-                className="border-2 border-border p-3 font-black uppercase tracking-tight hover:border-primary transition-colors micro-ring micro-lift"
+                className="border-2 border-border p-3 font-black uppercase tracking-tight hover:border-primary transition-colors micro-ring micro-lift surface-motion surface-hover"
               >
                 {promo.eyebrow}
               </Link>
@@ -77,7 +77,7 @@ const MobileMenuBrutalist = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
                     key={c.name}
                     type="button"
                     onClick={() => setActive(c.name)}
-                    className={`border-2 p-3 text-left font-black uppercase tracking-tight transition-colors micro-ring micro-lift ${
+                    className={`border-2 p-3 text-left font-black uppercase tracking-tight transition-colors micro-ring micro-lift surface-motion surface-hover ${
                       isActive ? 'border-primary text-primary' : 'border-border text-foreground hover:border-primary'
                     }`}
                   >
@@ -87,7 +87,7 @@ const MobileMenuBrutalist = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
               })}
             </div>
 
-            <div className="border-2 border-border">
+            <div className="relative border-2 border-border chrome-panel">
               <div className="p-3 flex items-center justify-between">
                 <p className="text-sm font-black uppercase tracking-tight">{activeCategory.name}</p>
                 <Link to={activeCategory.href} onClick={onClose} className="text-xs font-black uppercase tracking-[0.18em] text-primary micro-ring">
@@ -100,7 +100,7 @@ const MobileMenuBrutalist = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
                     key={s.name}
                     to={s.href}
                     onClick={onClose}
-                    className="p-3 border-r-2 border-b-2 border-border last:border-r-0 text-sm font-black uppercase tracking-tight hover:text-primary transition-colors micro-ring micro-lift"
+                    className="p-3 border-r-2 border-b-2 border-border last:border-r-0 text-sm font-black uppercase tracking-tight hover:text-primary transition-colors micro-ring micro-lift surface-motion surface-hover"
                   >
                     {s.name}
                   </Link>
@@ -108,7 +108,7 @@ const MobileMenuBrutalist = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
               </div>
             </div>
 
-            <Link to={promo.href} onClick={onClose} className="border-2 border-border hover:border-primary transition-colors micro-ring micro-lift">
+            <Link to={promo.href} onClick={onClose} className="relative border-2 border-border hover:border-primary transition-colors micro-ring micro-lift surface-motion surface-hover chrome-panel">
               <div className="h-28 bg-muted overflow-hidden">
                 <img src={promo.image} alt={promo.title} loading="lazy" className="w-full h-full object-cover" />
               </div>
