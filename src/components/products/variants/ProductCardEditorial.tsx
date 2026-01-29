@@ -59,7 +59,9 @@ const ProductCardEditorial = ({ product, index = 0 }: ProductCardProps) => {
         />
 
           <div
-            className={`absolute inset-x-3 bottom-3 flex items-center gap-2 transition-all duration-200 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
+            className={`absolute inset-x-3 bottom-3 flex items-center gap-2 transition-all duration-200
+              opacity-100 translate-y-0 sm:opacity-0 sm:translate-y-2
+              ${isHovered ? 'sm:opacity-100 sm:translate-y-0' : ''}`}
           >
           <Button
             onClick={handleAddToCart}

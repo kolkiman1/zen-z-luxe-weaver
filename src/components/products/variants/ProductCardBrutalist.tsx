@@ -89,7 +89,9 @@ const ProductCardBrutalist = ({ product, index = 0 }: ProductCardProps) => {
         </div>
 
         <div
-          className={`absolute inset-x-2 bottom-2 grid grid-cols-2 gap-2 transition-all duration-150 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
+          className={`absolute inset-x-2 bottom-2 grid grid-cols-2 gap-2 transition-all duration-150
+            opacity-100 translate-y-0 sm:opacity-0 sm:translate-y-2
+            ${isHovered ? 'sm:opacity-100 sm:translate-y-0' : ''}`}
         >
           <Button onClick={handleAddToCart} className="btn-primary rounded-none h-10 text-xs font-bold uppercase tracking-widest">
             <ShoppingBag className="w-4 h-4" />
