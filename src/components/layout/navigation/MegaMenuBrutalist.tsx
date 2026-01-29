@@ -20,7 +20,7 @@ const MegaMenuBrutalist = ({ currentPath }: Props) => {
     <nav className="hidden lg:flex items-center gap-6">
       <Link
         to="/"
-        className={`text-sm font-body font-black uppercase tracking-tight transition-colors ${
+        className={`text-sm font-body font-black uppercase tracking-tight micro-ring ${
           currentPath === '/' ? 'text-primary' : 'text-foreground hover:text-primary'
         }`}
       >
@@ -36,7 +36,7 @@ const MegaMenuBrutalist = ({ currentPath }: Props) => {
         >
           <Link
             to={category.href}
-            className={`flex items-center gap-1 text-sm font-body font-black uppercase tracking-tight transition-colors ${
+            className={`flex items-center gap-1 text-sm font-body font-black uppercase tracking-tight micro-ring ${
               currentPath.includes(category.href) ? 'text-primary' : 'text-foreground hover:text-primary'
             }`}
           >
@@ -56,7 +56,8 @@ const MegaMenuBrutalist = ({ currentPath }: Props) => {
                 transition={{ duration: 0.15 }}
                 className="absolute left-1/2 -translate-x-1/2 top-full pt-4 z-50"
               >
-                <div className="w-[920px] max-w-[92vw] bg-card border-2 border-border shadow-2xl">
+                <div className="w-[960px] max-w-[92vw] bg-card border-2 border-border shadow-2xl">
+                  <div className="scanline" />
                   <div className="p-6 grid grid-cols-12 gap-6">
                     <div className="col-span-7">
                       <div className="flex items-center justify-between">
@@ -71,7 +72,7 @@ const MegaMenuBrutalist = ({ currentPath }: Props) => {
                           <Link
                             key={sub.name}
                             to={sub.href}
-                            className="border-2 border-border p-3 hover:border-primary transition-colors"
+                            className="border-2 border-border p-3 hover:border-primary micro-ring micro-lift"
                           >
                             <p className="text-sm font-black uppercase tracking-tight">{sub.name}</p>
                           </Link>
@@ -81,7 +82,7 @@ const MegaMenuBrutalist = ({ currentPath }: Props) => {
 
                     <div className="col-span-5">
                       <p className="text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">PROMO</p>
-                      <Link to={promo.href} className="mt-4 block border-2 border-border hover:border-primary transition-colors">
+                      <Link to={promo.href} className="mt-4 block border-2 border-border hover:border-primary transition-colors micro-ring micro-lift">
                         <div className="h-40 bg-muted overflow-hidden">
                           <img
                             src={promo.image}

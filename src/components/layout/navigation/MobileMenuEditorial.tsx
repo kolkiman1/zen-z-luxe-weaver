@@ -33,7 +33,7 @@ const MobileMenuEditorial = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-40 lg:hidden"
+          className="fixed inset-0 z-50 lg:hidden"
         >
           <motion.button
             type="button"
@@ -57,7 +57,7 @@ const MobileMenuEditorial = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
               <button
                 type="button"
                 onClick={onClose}
-                className="h-11 w-11 grid place-items-center border border-border"
+                  className="h-11 w-11 grid place-items-center border border-border bg-card micro-ring micro-lift"
               >
                 <X size={18} />
               </button>
@@ -68,7 +68,7 @@ const MobileMenuEditorial = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
                 <Link
                   to="/"
                   onClick={onClose}
-                  className={`block py-3 text-sm min-h-11 ${location.pathname === '/' ? 'text-primary' : 'text-foreground/80'}`}
+                  className={`block py-3 text-sm min-h-11 micro-ring ${location.pathname === '/' ? 'text-primary' : 'text-foreground/80 hover:text-foreground'}`}
                 >
                   Home
                 </Link>
@@ -80,7 +80,7 @@ const MobileMenuEditorial = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
                         key={c.name}
                         type="button"
                         onClick={() => setActive(c.name)}
-                        className={`w-full flex items-center justify-between py-3 text-sm min-h-11 transition-colors ${
+                        className={`w-full flex items-center justify-between py-3 text-sm min-h-11 micro-ring ${
                           isActive ? 'text-primary' : 'text-foreground/80 hover:text-foreground'
                         }`}
                       >
@@ -100,7 +100,7 @@ const MobileMenuEditorial = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
                       key={s.name}
                       to={s.href}
                       onClick={onClose}
-                      className="border border-border/60 p-3 text-sm text-foreground/80 hover:text-primary hover:border-border transition-colors"
+                      className="border border-border/60 p-3 text-sm text-foreground/80 hover:text-primary hover:border-border transition-colors micro-ring micro-lift"
                     >
                       {s.name}
                     </Link>
@@ -117,7 +117,7 @@ const MobileMenuEditorial = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
                 )}
 
                 <div className="mt-6 border-t border-border/60 pt-4">
-                  <Link to={promo.href} onClick={onClose} className="block border border-border/60">
+                  <Link to={promo.href} onClick={onClose} className="block border border-border micro-ring micro-lift">
                     <div className="h-28 bg-muted overflow-hidden">
                       <img src={promo.image} alt={promo.title} loading="lazy" className="w-full h-full object-cover" />
                     </div>
