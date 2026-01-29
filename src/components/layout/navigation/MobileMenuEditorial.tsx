@@ -45,7 +45,7 @@ const MobileMenuEditorial = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -18, opacity: 0 }}
             transition={{ duration: 0.18 }}
-            className="absolute inset-x-0 top-0 bg-card border-b border-border shadow-2xl"
+            className="absolute inset-x-0 top-0 max-h-[100dvh] overflow-y-auto overscroll-contain bg-card border-b border-border shadow-2xl"
           >
             <div className="px-5 pt-5 pb-4 flex items-center justify-between">
               <div className="leading-none">
@@ -55,18 +55,18 @@ const MobileMenuEditorial = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
               <button
                 type="button"
                 onClick={onClose}
-                className="h-10 w-10 grid place-items-center border border-border"
+                className="h-11 w-11 grid place-items-center border border-border"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <div className="px-5 pb-6 grid grid-cols-12 gap-4">
+            <div className="px-5 pb-6 [padding-bottom:calc(1.5rem+env(safe-area-inset-bottom))] grid grid-cols-12 gap-4">
               <div className="col-span-5">
                 <Link
                   to="/"
                   onClick={onClose}
-                  className={`block py-3 text-sm ${location.pathname === '/' ? 'text-primary' : 'text-foreground/80'}`}
+                  className={`block py-3 text-sm min-h-11 ${location.pathname === '/' ? 'text-primary' : 'text-foreground/80'}`}
                 >
                   Home
                 </Link>
@@ -78,7 +78,7 @@ const MobileMenuEditorial = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
                         key={c.name}
                         type="button"
                         onClick={() => setActive(c.name)}
-                        className={`w-full flex items-center justify-between py-3 text-sm transition-colors ${
+                        className={`w-full flex items-center justify-between py-3 text-sm min-h-11 transition-colors ${
                           isActive ? 'text-primary' : 'text-foreground/80 hover:text-foreground'
                         }`}
                       >
