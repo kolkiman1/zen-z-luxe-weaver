@@ -101,9 +101,9 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
 
         {/* Quick Actions - CSS only in performance mode */}
         <div
-          className={`absolute top-2 right-2 sm:top-3 sm:right-3 flex flex-col gap-1 sm:gap-2 transition-all duration-200 ${
-            isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
-          }`}
+          className={`absolute top-2 right-2 sm:top-3 sm:right-3 flex flex-col gap-1 sm:gap-2 transition-all duration-200
+            opacity-100 translate-x-0 sm:opacity-0 sm:translate-x-2
+            ${isHovered ? 'sm:opacity-100 sm:translate-x-0' : ''}`}
         >
           <CompareToggleButton
             product={product}
@@ -132,9 +132,9 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
 
         {/* Add to Cart Button */}
         <div
-          className={`absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4 transition-all duration-300 ${
-            isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
+          className={`absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4 transition-all duration-300
+            opacity-100 translate-y-0 sm:opacity-0 sm:translate-y-4
+            ${isHovered ? 'sm:opacity-100 sm:translate-y-0' : ''}`}
         >
           <Button
             onClick={handleAddToCart}
