@@ -541,7 +541,8 @@
   }
 
   /* ==========================
-     Brutalist Y2K utilities (performance-first)
+     Trend Pop utilities (theme id: brutalist)
+     (kept class names for backwards-compat with existing components)
      ========================== */
   [data-theme="brutalist"] .chrome-panel {
     background: linear-gradient(
@@ -549,7 +550,7 @@
       hsl(var(--surface-2) / 0.92),
       hsl(var(--surface-1) / 0.92)
     );
-    border: 2px solid hsl(var(--surface-border) / 1);
+    border: 1px solid hsl(var(--surface-border) / 1);
     box-shadow: var(--elev-inset), var(--elev-1);
   }
 
@@ -560,8 +561,8 @@
     pointer-events: none;
     /* static specular streaks (no animation) */
     background:
-      linear-gradient(125deg, transparent 0%, hsl(var(--gold-light) / 0.12) 12%, transparent 24%),
-      linear-gradient(320deg, transparent 0%, hsl(var(--primary) / 0.10) 10%, transparent 22%);
+      linear-gradient(125deg, transparent 0%, hsl(var(--accent) / 0.10) 12%, transparent 24%),
+      linear-gradient(320deg, transparent 0%, hsl(var(--primary) / 0.12) 10%, transparent 22%);
     mix-blend-mode: screen;
     opacity: 0.9;
   }
