@@ -47,7 +47,7 @@ const MobileMenu = ({ isOpen, onClose, user, isAdmin, onSignOut }: MobileMenuPro
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-40 lg:hidden"
+          className="fixed inset-0 z-50 lg:hidden"
         >
           {/* Backdrop */}
           <motion.div
@@ -67,7 +67,7 @@ const MobileMenu = ({ isOpen, onClose, user, isAdmin, onSignOut }: MobileMenuPro
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
           >
             {/* Header */}
-            <div className="sticky top-0 bg-card/95 backdrop-blur-sm border-b border-border p-6 pt-20">
+            <div className="sticky top-0 bg-card border-b border-border p-6 pt-20">
               <h2 className="font-display text-xl">
                 <span className="text-primary">Zen</span> Zee
               </h2>
@@ -87,7 +87,7 @@ const MobileMenu = ({ isOpen, onClose, user, isAdmin, onSignOut }: MobileMenuPro
                     <div className="rounded-lg overflow-hidden">
                       <button
                         onClick={() => toggleCategory(category.name)}
-                        className={`w-full flex items-center justify-between p-3 rounded-lg transition-all ${
+                        className={`w-full flex items-center justify-between p-3 rounded-lg micro-ring micro-lift ${
                           location.pathname.includes(category.href)
                             ? 'bg-primary/10 text-primary'
                             : 'hover:bg-muted'
@@ -115,7 +115,7 @@ const MobileMenu = ({ isOpen, onClose, user, isAdmin, onSignOut }: MobileMenuPro
                               <Link
                                 to={category.href}
                                 onClick={onClose}
-                                className="block p-2 pl-4 text-sm text-primary font-medium hover:bg-primary/5 rounded-md transition-colors"
+                                className="block p-2 pl-4 text-sm text-primary font-medium hover:bg-primary/5 rounded-md micro-ring"
                               >
                                 View All {category.name}
                               </Link>
@@ -124,7 +124,7 @@ const MobileMenu = ({ isOpen, onClose, user, isAdmin, onSignOut }: MobileMenuPro
                                   key={sub.name}
                                   to={sub.href}
                                   onClick={onClose}
-                                  className="block p-2 pl-4 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+                                  className="block p-2 pl-4 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md micro-ring"
                                 >
                                   {sub.name}
                                 </Link>
@@ -138,7 +138,7 @@ const MobileMenu = ({ isOpen, onClose, user, isAdmin, onSignOut }: MobileMenuPro
                     <Link
                       to={category.href}
                       onClick={onClose}
-                      className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
+                      className={`flex items-center gap-3 p-3 rounded-lg micro-ring micro-lift ${
                         location.pathname === category.href
                           ? 'bg-primary/10 text-primary'
                           : 'hover:bg-muted'
@@ -157,7 +157,7 @@ const MobileMenu = ({ isOpen, onClose, user, isAdmin, onSignOut }: MobileMenuPro
 
             {/* Promo */}
             <div className="px-4 pb-2">
-              <Link to={promo.href} onClick={onClose} className="block rounded-xl border border-border/50 overflow-hidden">
+              <Link to={promo.href} onClick={onClose} className="block rounded-xl border border-border overflow-hidden micro-ring micro-lift">
                 <div className="h-28 bg-muted overflow-hidden">
                   <img src={promo.image} alt={promo.title} loading="lazy" className="w-full h-full object-cover" />
                 </div>

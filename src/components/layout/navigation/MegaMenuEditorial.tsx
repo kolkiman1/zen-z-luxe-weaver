@@ -20,7 +20,7 @@ const MegaMenuEditorial = ({ isScrolled, currentPath }: Props) => {
     <nav className="hidden lg:flex items-center gap-7">
       <Link
         to="/"
-        className={`text-xs font-body tracking-[0.22em] uppercase transition-colors ${
+        className={`text-xs font-body tracking-[0.22em] uppercase micro-ring ${
           currentPath === '/' ? 'text-primary' : 'text-foreground/70 hover:text-foreground'
         }`}
       >
@@ -36,7 +36,7 @@ const MegaMenuEditorial = ({ isScrolled, currentPath }: Props) => {
         >
           <Link
             to={category.href}
-            className={`flex items-center gap-1 text-xs font-body tracking-[0.22em] uppercase transition-colors ${
+            className={`flex items-center gap-1 text-xs font-body tracking-[0.22em] uppercase micro-ring ${
               currentPath.includes(category.href) ? 'text-primary' : 'text-foreground/70 hover:text-foreground'
             }`}
           >
@@ -57,10 +57,9 @@ const MegaMenuEditorial = ({ isScrolled, currentPath }: Props) => {
                 className="absolute left-1/2 -translate-x-1/2 top-full pt-5 z-50"
               >
                 <div
-                  className={`w-[860px] max-w-[90vw] border border-border/60 shadow-2xl overflow-hidden ${
-                    isScrolled ? 'bg-card' : 'bg-card/95 backdrop-blur-xl'
-                  }`}
+                  className="w-[900px] max-w-[92vw] border border-border shadow-2xl overflow-hidden bg-card"
                 >
+                  <div className="scanline" />
                   <div className="p-7 grid grid-cols-12 gap-8">
                     <div className="col-span-5">
                       <p className="text-[11px] tracking-[0.22em] uppercase text-muted-foreground">Shop</p>
@@ -69,7 +68,7 @@ const MegaMenuEditorial = ({ isScrolled, currentPath }: Props) => {
                           <li key={sub.name}>
                             <Link
                               to={sub.href}
-                              className="block text-sm text-foreground/80 hover:text-primary transition-colors"
+                              className="block text-sm text-foreground/80 hover:text-primary micro-ring"
                             >
                               {sub.name}
                             </Link>
@@ -77,7 +76,7 @@ const MegaMenuEditorial = ({ isScrolled, currentPath }: Props) => {
                         ))}
                       </ul>
                       <div className="mt-5 pt-4 border-t border-border/50">
-                        <Link to={category.href} className="text-sm text-primary hover:underline">
+                        <Link to={category.href} className="text-sm text-primary hover:underline micro-ring">
                           View all {category.name} →
                         </Link>
                       </div>
@@ -93,7 +92,8 @@ const MegaMenuEditorial = ({ isScrolled, currentPath }: Props) => {
                                 src={p.image}
                                 alt={p.name}
                                 loading="lazy"
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                className="w-full h-full object-cover group-hover:scale-[1.06] transition-transform"
+                                style={{ transitionDuration: 'var(--motion-medium)', transitionTimingFunction: 'var(--motion-ease-out)' }}
                               />
                             </div>
                             <div>
@@ -111,7 +111,7 @@ const MegaMenuEditorial = ({ isScrolled, currentPath }: Props) => {
                       <p className="text-[11px] tracking-[0.22em] uppercase text-muted-foreground">Editor’s pick</p>
                       <Link
                         to={promo.href}
-                        className="mt-4 block border border-border/60 hover:border-border transition-colors"
+                        className="mt-4 block border border-border hover:border-border transition-colors micro-ring"
                       >
                         <div className="aspect-[4/5] bg-muted overflow-hidden">
                           <img
