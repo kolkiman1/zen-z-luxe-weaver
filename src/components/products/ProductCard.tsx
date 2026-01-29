@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, ShoppingBag, Eye } from 'lucide-react';
+import { Heart, ShoppingBag, Eye, MoreHorizontal } from 'lucide-react';
 import { Product, formatPrice } from '@/lib/data';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
@@ -9,6 +9,7 @@ import { usePerformanceOptional } from '@/contexts/PerformanceContext';
 import { Button } from '@/components/ui/button';
 import CompareToggleButton from '@/components/compare/CompareToggleButton';
 import QuickViewModal from './QuickViewModal';
+import MobileMoreActionsSheet from '@/components/products/MobileMoreActionsSheet';
 
 interface ProductCardProps {
   product: Product;
@@ -101,9 +102,9 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
 
         {/* Quick Actions - CSS only in performance mode */}
         <div
-          className={`absolute top-2 right-2 sm:top-3 sm:right-3 flex flex-col gap-1 sm:gap-2 transition-all duration-200
-            opacity-100 translate-x-0 sm:opacity-0 sm:translate-x-2
-            ${isHovered ? 'sm:opacity-100 sm:translate-x-0' : ''}`}
+          className={`absolute top-2 right-2 sm:top-3 sm:right-3 hidden sm:flex flex-col gap-2 transition-all duration-200 ${
+            isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
+          }`}
         >
           <CompareToggleButton
             product={product}
@@ -131,18 +132,47 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
         </div>
 
         {/* Add to Cart Button */}
+        {/* Mobile actions: primary + more menu */}
+        <div className="absolute bottom-2 left-2 right-2 flex gap-2 sm:hidden">
+          <Button
+            onClick={handleAddToCart}
+            className="flex-1 btn-primary h-11 gap-2"
+          >
+            <ShoppingBag className="h-4 w-4" />
+            <span>Add</span>
+          </Button>
+
+          <MobileMoreActionsSheet
+            theme="artisan"
+            product={product}
+            inWishlist={inWishlist}
+            onToggleWishlist={handleToggleWishlist}
+            onQuickView={handleQuickView}
+            trigger={
+              <Button
+                type="button"
+                variant="secondary"
+                className="h-11 w-11 glass"
+                aria-label="More actions"
+              >
+                <MoreHorizontal className="h-5 w-5" />
+              </Button>
+            }
+          />
+        </div>
+
+        {/* Desktop add-to-cart hover reveal */}
         <div
-          className={`absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4 transition-all duration-300
-            opacity-100 translate-y-0 sm:opacity-0 sm:translate-y-4
-            ${isHovered ? 'sm:opacity-100 sm:translate-y-0' : ''}`}
+          className={`absolute bottom-0 left-0 right-0 p-3 md:p-4 hidden sm:block transition-all duration-300 ${
+            isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}
         >
           <Button
             onClick={handleAddToCart}
-            className="w-full btn-primary py-3 sm:py-4 md:py-5 gap-1 sm:gap-2 text-xs sm:text-sm"
+            className="w-full btn-primary py-4 md:py-5 gap-2 text-sm"
           >
-            <ShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span className="hidden xs:inline">Add to Cart</span>
-            <span className="xs:hidden">Add</span>
+            <ShoppingBag className="w-4 h-4" />
+            <span>Add to Cart</span>
           </Button>
         </div>
 

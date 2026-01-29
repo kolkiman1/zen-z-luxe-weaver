@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Heart, Eye, ShoppingBag } from 'lucide-react';
+import { Heart, Eye, ShoppingBag, MoreHorizontal } from 'lucide-react';
 import type { Product } from '@/lib/data';
 import { formatPrice } from '@/lib/data';
 import { useCart } from '@/contexts/CartContext';
@@ -10,6 +10,7 @@ import { usePerformanceOptional } from '@/contexts/PerformanceContext';
 import { Button } from '@/components/ui/button';
 import CompareToggleButton from '@/components/compare/CompareToggleButton';
 import QuickViewModal from '@/components/products/QuickViewModal';
+import MobileMoreActionsSheet from '@/components/products/MobileMoreActionsSheet';
 
 interface ProductCardProps {
   product: Product;
@@ -58,27 +59,57 @@ const ProductCardEditorial = ({ product, index = 0 }: ProductCardProps) => {
           decoding="async"
         />
 
+          {/* Mobile actions: primary + more menu */}
+          <div className="absolute inset-x-3 bottom-3 flex items-center gap-2 sm:hidden">
+            <Button
+              onClick={handleAddToCart}
+              className="flex-1 btn-primary h-10 rounded-full text-xs tracking-wide"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span className="ml-2">Add</span>
+            </Button>
+
+            <MobileMoreActionsSheet
+              theme="editorial"
+              product={product}
+              inWishlist={inWishlist}
+              onToggleWishlist={handleToggleWishlist}
+              onQuickView={handleQuickView}
+              trigger={
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-10 w-10 rounded-full"
+                  aria-label="More actions"
+                >
+                  <MoreHorizontal className="h-5 w-5" />
+                </Button>
+              }
+            />
+          </div>
+
+          {/* Desktop actions: hover reveal */}
           <div
-            className={`absolute inset-x-3 bottom-3 grid grid-cols-4 items-center gap-2 sm:flex sm:items-center transition-all duration-200
-              opacity-100 translate-y-0 sm:opacity-0 sm:translate-y-2
-              ${isHovered ? 'sm:opacity-100 sm:translate-y-0' : ''}`}
+            className={`absolute inset-x-3 bottom-3 hidden sm:flex items-center gap-2 transition-all duration-200 ${
+              isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+            }`}
           >
           <Button
             onClick={handleAddToCart}
-              className="col-span-2 w-full btn-primary h-10 rounded-full text-xs tracking-wide sm:flex-1"
+              className="flex-1 btn-primary h-10 rounded-full text-xs tracking-wide"
           >
             <ShoppingBag className="w-4 h-4" />
             <span className="ml-2">Add</span>
           </Button>
           <CompareToggleButton
             product={product}
-             className="h-10 w-full sm:w-10 rounded-full"
+              className="h-10 w-10 rounded-full"
           />
           <Button
             size="icon"
             variant="outline"
             onClick={handleToggleWishlist}
-              className={`h-10 w-full sm:w-10 rounded-full ${inWishlist ? 'bg-primary text-primary-foreground border-primary' : ''}`}
+              className={`h-10 w-10 rounded-full ${inWishlist ? 'bg-primary text-primary-foreground border-primary' : ''}`}
           >
             <Heart className="w-4 h-4" fill={inWishlist ? 'currentColor' : 'none'} />
           </Button>
@@ -86,7 +117,7 @@ const ProductCardEditorial = ({ product, index = 0 }: ProductCardProps) => {
             size="icon"
             variant="outline"
             onClick={handleQuickView}
-              className="h-10 w-full sm:w-10 rounded-full"
+              className="h-10 w-10 rounded-full"
           >
             <Eye className="w-4 h-4" />
           </Button>
