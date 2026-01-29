@@ -75,6 +75,14 @@
     --font-display: 'Space Grotesk', sans-serif;
     --font-body: 'Inter', sans-serif;
 
+    /* Motion (theme-aware) */
+    --motion-fast: 160ms;
+    --motion-medium: 260ms;
+    --motion-slow: 420ms;
+    --motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --motion-distance: 14px;
+
     /* Sidebar - Luxury Dark */
     --sidebar-background: 0 0% 5%;
     --sidebar-foreground: 40 6% 90%;
@@ -137,6 +145,12 @@
     --sidebar-accent-foreground: 0 0% 10%;
     --sidebar-border: 40 10% 84%;
     --sidebar-ring: 0 0% 8%;
+
+    /* Motion: controlled, premium */
+    --motion-fast: 170ms;
+    --motion-medium: 280ms;
+    --motion-slow: 460ms;
+    --motion-distance: 12px;
   }
 
   /* Artisan Boutique (warm earth palette, softer radius) */
@@ -185,6 +199,12 @@
     --sidebar-accent-foreground: 25 25% 12%;
     --sidebar-border: 34 14% 82%;
     --sidebar-ring: 28 45% 38%;
+
+    /* Motion: softer, slightly slower */
+    --motion-fast: 190ms;
+    --motion-medium: 320ms;
+    --motion-slow: 520ms;
+    --motion-distance: 16px;
   }
 
   /* Brutalist Streetwear (stark, sharp, minimal radius) */
@@ -233,6 +253,12 @@
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 0 0% 18%;
     --sidebar-ring: 60 100% 50%;
+
+    /* Motion: snappy, punchy */
+    --motion-fast: 120ms;
+    --motion-medium: 200ms;
+    --motion-slow: 320ms;
+    --motion-distance: 18px;
   }
 
   .dark {
@@ -265,6 +291,22 @@
 
   html {
     scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root,
+    [data-theme="editorial"],
+    [data-theme="artisan"],
+    [data-theme="brutalist"] {
+      --motion-fast: 1ms;
+      --motion-medium: 1ms;
+      --motion-slow: 1ms;
+      --motion-distance: 0px;
+    }
+
+    html {
+      scroll-behavior: auto;
+    }
   }
 
   body {
