@@ -22,6 +22,8 @@ const HeroEditorial = () => {
         />
       </div>
 
+      <div className="hero-overlay-runway" />
+
       {/* runway lines */}
       <div
         className="absolute inset-0 pointer-events-none"

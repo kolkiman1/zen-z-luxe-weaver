@@ -83,6 +83,17 @@
     --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
     --motion-distance: 14px;
 
+    /* Surface system (theme-aware) */
+    --surface-0: var(--background);
+    --surface-1: var(--card);
+    --surface-2: var(--popover);
+    --surface-border: var(--border);
+
+    /* Elevation (theme-aware, overrideable via ThemePack) */
+    --elev-1: 0 10px 30px -18px hsl(0 0% 0% / 0.65);
+    --elev-2: 0 22px 60px -28px hsl(0 0% 0% / 0.75);
+    --elev-inset: inset 0 1px 0 hsl(var(--foreground) / 0.04);
+
     /* Sidebar - Luxury Dark */
     --sidebar-background: 0 0% 5%;
     --sidebar-foreground: 40 6% 90%;
@@ -151,6 +162,11 @@
     --motion-medium: 280ms;
     --motion-slow: 460ms;
     --motion-distance: 12px;
+
+    /* Elevation (lighter, paper-like) */
+    --elev-1: 0 14px 40px -26px hsl(0 0% 0% / 0.18);
+    --elev-2: 0 30px 70px -42px hsl(0 0% 0% / 0.22);
+    --elev-inset: inset 0 1px 0 hsl(var(--foreground) / 0.06);
   }
 
   /* Artisan Boutique (warm earth palette, softer radius) */
@@ -205,6 +221,11 @@
     --motion-medium: 320ms;
     --motion-slow: 520ms;
     --motion-distance: 16px;
+
+    /* Elevation (warm, gentle) */
+    --elev-1: 0 16px 44px -28px hsl(24 18% 10% / 0.18);
+    --elev-2: 0 36px 86px -52px hsl(24 18% 10% / 0.2);
+    --elev-inset: inset 0 1px 0 hsl(var(--foreground) / 0.08);
   }
 
   /* Brutalist Streetwear (stark, sharp, minimal radius) */
@@ -259,6 +280,11 @@
     --motion-medium: 200ms;
     --motion-slow: 320ms;
     --motion-distance: 18px;
+
+    /* Elevation (hard, graphic) */
+    --elev-1: 0 0 0 1px hsl(var(--border) / 1), 0 18px 44px -24px hsl(0 0% 0% / 0.85);
+    --elev-2: 0 0 0 1px hsl(var(--border) / 1), 0 34px 86px -46px hsl(0 0% 0% / 0.9);
+    --elev-inset: inset 0 1px 0 hsl(var(--foreground) / 0.06);
   }
 
   .dark {
@@ -306,6 +332,12 @@
 
     html {
       scroll-behavior: auto;
+    }
+
+    .hero-overlay-tech,
+    .hero-overlay-runway,
+    .hero-overlay-artisan {
+      animation: none !important;
     }
   }
 
@@ -428,6 +460,124 @@
       hsl(var(--border) / 1),
       hsl(var(--border) / 0)
     );
+  }
+
+  /* ==========================
+     Surface system utilities
+     ========================== */
+  .surface-panel {
+    background: hsl(var(--surface-1) / 1);
+    border: 1px solid hsl(var(--surface-border) / 0.9);
+    box-shadow: var(--elev-inset), var(--elev-1);
+  }
+
+  .surface-plate {
+    background: hsl(var(--surface-2) / 1);
+    border: 1px solid hsl(var(--surface-border) / 0.7);
+    box-shadow: var(--elev-inset);
+  }
+
+  .surface-float {
+    background: hsl(var(--surface-1) / 1);
+    border: 1px solid hsl(var(--surface-border) / 0.9);
+    box-shadow: var(--elev-inset), var(--elev-2);
+  }
+
+  .surface-motion {
+    transition-property: transform, box-shadow, background-color, border-color, opacity;
+    transition-duration: var(--motion-medium);
+    transition-timing-function: var(--motion-ease-out);
+    will-change: transform;
+  }
+
+  /* ==========================
+     Hero overlays (theme-aware)
+     ========================== */
+  @keyframes scanline-drift {
+    0% {
+      background-position: 0 0, 0 0;
+      opacity: 0.18;
+    }
+    50% {
+      background-position: 0 12px, 24px 0;
+      opacity: 0.22;
+    }
+    100% {
+      background-position: 0 0, 0 0;
+      opacity: 0.18;
+    }
+  }
+
+  .hero-overlay-tech {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(180deg, hsl(var(--border) / 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.10) 1px, transparent 1px);
+    background-size: 100% 8px, 48px 100%;
+    mix-blend-mode: overlay;
+    animation: scanline-drift var(--motion-slow) var(--motion-ease-in-out) infinite;
+  }
+
+  @keyframes runway-shift {
+    0% {
+      transform: translate3d(0, 0, 0);
+      opacity: 0.14;
+    }
+    50% {
+      transform: translate3d(0, 6px, 0);
+      opacity: 0.18;
+    }
+    100% {
+      transform: translate3d(0, 0, 0);
+      opacity: 0.14;
+    }
+  }
+
+  .hero-overlay-runway {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(90deg, transparent 0%, hsl(var(--border) / 0.55) 50%, transparent 100%),
+      repeating-linear-gradient(
+        90deg,
+        transparent 0 18px,
+        hsl(var(--border) / 0.22) 18px 19px,
+        transparent 19px 36px
+      );
+    background-size: 100% 1px, 100% 100%;
+    background-position: 0 62%, 0 0;
+    opacity: 0.16;
+    animation: runway-shift var(--motion-slow) var(--motion-ease-in-out) infinite;
+  }
+
+  @keyframes artisan-breathe {
+    0% {
+      transform: translate3d(0, 0, 0);
+      opacity: 0.22;
+    }
+    50% {
+      transform: translate3d(0, -4px, 0);
+      opacity: 0.26;
+    }
+    100% {
+      transform: translate3d(0, 0, 0);
+      opacity: 0.22;
+    }
+  }
+
+  .hero-overlay-artisan {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle at 8% 18%, hsl(var(--accent) / 0.22) 0%, transparent 46%),
+      radial-gradient(circle at 86% 76%, hsl(var(--primary) / 0.16) 0%, transparent 52%),
+      linear-gradient(180deg, hsl(var(--foreground) / 0.04), transparent 30%, hsl(var(--foreground) / 0.04));
+    opacity: 0.24;
+    animation: artisan-breathe var(--motion-slow) var(--motion-ease-in-out) infinite;
   }
 
   /* Product Card Hover */

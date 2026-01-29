@@ -48,45 +48,43 @@ const NewArrivals = () => {
       )}
 
       <div className="container-luxury relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 md:mb-12"
-        >
-          <div>
-            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 sm:mb-3">
-              {content?.headline || 'New'} <span className="text-gradient-gold">{content?.headlineHighlight || 'Arrivals'}</span>
-            </h2>
-            <p className="text-muted-foreground text-sm sm:text-base max-w-lg">
-              {content?.description || 'The latest additions to our premium collection'}
-            </p>
-          </div>
-          <Link to="/category/new-arrivals">
-            <AnimatedButton 
-              variant="ghost" 
-              className="gap-2 text-sm sm:text-base"
-              glowColor="gold"
-              showArrow
-            >
-              Shop New
-            </AnimatedButton>
-          </Link>
-        </motion.div>
+        <div className="surface-panel surface-motion rounded-3xl p-5 sm:p-6 md:p-8">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 md:mb-10"
+          >
+            <div>
+              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2 sm:mb-3">
+                {content?.headline || 'New'}{' '}
+                <span className="text-gradient-gold">{content?.headlineHighlight || 'Arrivals'}</span>
+              </h2>
+              <p className="text-muted-foreground text-sm sm:text-base max-w-lg">
+                {content?.description || 'The latest additions to our premium collection'}
+              </p>
+            </div>
+            <Link to="/category/new-arrivals">
+              <AnimatedButton variant="ghost" className="gap-2 text-sm sm:text-base" glowColor="gold" showArrow>
+                Shop New
+              </AnimatedButton>
+            </Link>
+          </motion.div>
 
-        {/* Products Grid */}
-        {loading ? (
-          <div className="flex justify-center items-center py-12 sm:py-16">
-            <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-primary" />
-          </div>
-        ) : (
-          <div className={gridClass}>
-            {newArrivals.slice(0, 4).map((product, index) => (
-              <ThemedProductCard key={product.id} product={product} index={index} />
-            ))}
-          </div>
-        )}
+          {/* Products Grid */}
+          {loading ? (
+            <div className="flex justify-center items-center py-12 sm:py-16">
+              <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <div className={gridClass}>
+              {newArrivals.slice(0, 4).map((product, index) => (
+                <ThemedProductCard key={product.id} product={product} index={index} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

@@ -11,6 +11,7 @@ const HeroBrutalist = () => {
   return (
     <header className="relative min-h-screen bg-background text-foreground overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
+        <div className="hero-overlay-tech" />
         <div
           className="absolute inset-0"
           style={{
