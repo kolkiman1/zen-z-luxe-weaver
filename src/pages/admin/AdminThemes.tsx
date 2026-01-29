@@ -153,6 +153,21 @@ const AdminThemes = () => {
     }
   };
 
+  const handleRestoreDefaults = async () => {
+    try {
+      await updateTheme.mutateAsync({
+        activeTheme,
+        themePack: defaultThemePack,
+      } as any);
+      themePreviewStorage.disable();
+      setSelected(activeTheme);
+      toast.success('Defaults restored', { description: 'Theme tokens were reset to the built-in defaults and applied.' });
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to restore defaults');
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -248,6 +263,15 @@ const AdminThemes = () => {
                     disabled={isLoading}
                   >
                     Import
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => void handleRestoreDefaults()}
+                    disabled={isLoading || updateTheme.isPending}
+                  >
+                    Restore defaults
                   </Button>
 
                   <Button
