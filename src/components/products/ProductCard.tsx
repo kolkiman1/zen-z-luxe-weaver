@@ -153,7 +153,7 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
         <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider line-clamp-1">
           {product.subcategory}
         </p>
-        <h3 className="font-display text-sm sm:text-base md:text-lg font-medium line-clamp-1 group-hover:text-primary transition-colors">
+        <h3 className="font-body text-sm sm:text-base md:text-lg font-medium line-clamp-1 group-hover:text-primary transition-colors">
           {product.name}
         </h3>
         <div className="flex items-center gap-1 sm:gap-2">

@@ -100,8 +100,8 @@ const ProductCardBrutalist = ({ product, index = 0 }: ProductCardProps) => {
 
       <div className="p-3 border-t-2 border-border">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="font-display text-lg leading-tight line-clamp-2">{product.name}</h3>
-          <span className="text-primary font-bold whitespace-nowrap">{formatPrice(product.price)}</span>
+          <h3 className="font-body font-black uppercase tracking-[-0.02em] text-base leading-tight line-clamp-2">{product.name}</h3>
+          <span className="text-primary font-black whitespace-nowrap">{formatPrice(product.price)}</span>
         </div>
         <p className="mt-1 text-xs text-muted-foreground uppercase tracking-widest line-clamp-1">
           {product.subcategory}

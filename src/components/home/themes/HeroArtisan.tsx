@@ -31,6 +31,12 @@ const HeroArtisan = () => {
         }}
       />
 
+      {/* artisan frame */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute left-6 top-24 h-40 w-40 rounded-[2.25rem] border border-border/60 bg-card/20 backdrop-blur-sm" />
+        <div className="absolute right-8 bottom-20 h-52 w-52 rounded-[2.75rem] border border-border/60 bg-card/20 backdrop-blur-sm" />
+      </div>
+
       <div className="relative z-10 container-luxury min-h-screen pt-28 md:pt-32 pb-16">
         <div className="grid lg:grid-cols-2 gap-10 items-center min-h-[calc(100vh-11rem)]">
           <motion.div
@@ -43,7 +49,7 @@ const HeroArtisan = () => {
               <span className="text-xs tracking-[0.22em] uppercase text-muted-foreground">Handpicked drops</span>
             </div>
 
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.05]">
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.02] tracking-[-0.03em]">
               {content.headingLine1}{' '}
               <span className="text-gradient-gold">{content.headingLine2}</span>
             </h1>

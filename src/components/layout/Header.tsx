@@ -86,12 +86,12 @@ const Header = () => {
               >
                 <span className="font-display text-xl sm:text-2xl lg:text-3xl tracking-tight relative">
                   <motion.span
-                    className="inline-block bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent font-bold"
+                    className="inline-block bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent font-semibold"
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5 }}
                   >
-                    Gen
+                    Zen
                   </motion.span>
                   <motion.span
                     className="inline-block text-foreground group-hover:text-foreground/80 transition-colors duration-300"
@@ -99,19 +99,19 @@ const Header = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
                   >
-                    -zee
+                    Zee
                   </motion.span>
                   <motion.span
                     className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-gradient-to-r from-primary/0 via-primary to-primary/0 origin-center scale-x-0 group-hover:scale-x-100 transition-transform duration-500"
                   />
                 </span>
-                <motion.span
-                  className="hidden sm:block text-[9px] lg:text-[10px] tracking-[0.25em] uppercase text-muted-foreground/60 font-medium mt-0.5"
+                  <motion.span
+                  className="hidden sm:block text-[9px] lg:text-[10px] tracking-[0.28em] uppercase text-muted-foreground/60 font-medium mt-0.5"
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                  Wear the Trend
+                  Premium for the Next Gen
                 </motion.span>
               </motion.div>
             </Link>

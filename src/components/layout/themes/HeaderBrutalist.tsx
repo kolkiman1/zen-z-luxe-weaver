@@ -70,9 +70,9 @@ const HeaderBrutalist = () => {
               </motion.button>
 
               <Link to="/" className="flex items-baseline gap-2">
-                <span className="font-body font-black uppercase tracking-tight text-lg">Zen</span>
-                <span className="font-body font-black uppercase tracking-tight text-lg text-primary">Zee</span>
-                <span className="hidden sm:inline text-[10px] uppercase tracking-[0.25em] text-muted-foreground ml-2">BRUTAL</span>
+                <span className="font-display font-bold uppercase tracking-[-0.03em] text-lg">ZEN</span>
+                <span className="font-display font-bold uppercase tracking-[-0.03em] text-lg text-primary">ZEE</span>
+                <span className="hidden sm:inline text-[10px] uppercase tracking-[0.28em] text-muted-foreground ml-2">STREET/TECH</span>
               </Link>
             </div>
 

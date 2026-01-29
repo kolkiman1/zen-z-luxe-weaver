@@ -81,9 +81,9 @@ const HeaderEditorial = () => {
             <div className="flex justify-center">
               <Link to="/" className="group">
                 <div className="text-center leading-none">
-                  <span className="font-display text-xl md:text-2xl tracking-tight">Zen Zee</span>
-                  <span className="block text-[10px] tracking-[0.24em] uppercase text-muted-foreground mt-1">
-                    Editorial
+                  <span className="font-display text-xl md:text-2xl tracking-[-0.02em]">ZEN ZEE</span>
+                  <span className="block text-[10px] tracking-[0.32em] uppercase text-muted-foreground mt-1">
+                    Runway Edit
                   </span>
                 </div>
               </Link>
