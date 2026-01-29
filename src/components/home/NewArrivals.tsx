@@ -47,7 +47,7 @@ const NewArrivals = () => {
       )}
 
       <div className="container-luxury relative z-10">
-        <div className="surface-panel surface-motion rounded-3xl p-5 sm:p-6 md:p-8">
+        <div className="surface-panel surface-motion chrome-panel rounded-3xl p-5 sm:p-6 md:p-8">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -55,6 +55,10 @@ const NewArrivals = () => {
             viewport={{ once: true }}
             className="mb-6 md:mb-10"
           >
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <span className="sticker">NEW DROP</span>
+              <span className="sticker sticker-chrome">CHROME EDIT</span>
+            </div>
             <SectionHeader
               headline={content?.headline || 'New'}
               headlineHighlight={content?.headlineHighlight || 'Arrivals'}
