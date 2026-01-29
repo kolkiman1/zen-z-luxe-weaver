@@ -12,9 +12,9 @@ type Props = {
 };
 
 const ThemedMobileMenu = (props: Props) => {
-  const { activeTheme } = useTheme();
-  if (activeTheme === 'editorial') return <MobileMenuEditorial {...props} />;
-  if (activeTheme === 'brutalist') return <MobileMenuBrutalist {...props} />;
+  const { theme } = useTheme();
+  if (theme === 'editorial') return <MobileMenuEditorial {...props} />;
+  if (theme === 'brutalist') return <MobileMenuBrutalist {...props} />;
   return <MobileMenu {...props} />;
 };
 

@@ -4,9 +4,9 @@ import HeaderEditorial from '@/components/layout/themes/HeaderEditorial';
 import HeaderBrutalist from '@/components/layout/themes/HeaderBrutalist';
 
 const ThemedHeader = () => {
-  const { activeTheme } = useTheme();
-  if (activeTheme === 'editorial') return <HeaderEditorial />;
-  if (activeTheme === 'brutalist') return <HeaderBrutalist />;
+  const { theme } = useTheme();
+  if (theme === 'editorial') return <HeaderEditorial />;
+  if (theme === 'brutalist') return <HeaderBrutalist />;
   return <Header />;
 };
 

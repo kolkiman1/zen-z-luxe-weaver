@@ -12,7 +12,7 @@ type PageTransitionProps = {
 const PageTransition = ({ children }: PageTransitionProps) => {
   const reducedMotion = useReducedMotion();
   const performance = usePerformanceOptional();
-  const { activeTheme } = useTheme();
+  const { theme } = useTheme();
 
   const disableAnimations = Boolean(
     reducedMotion ||
@@ -23,7 +23,7 @@ const PageTransition = ({ children }: PageTransitionProps) => {
 
   if (disableAnimations) return <>{children}</>;
 
-  const preset = getThemePageMotion(activeTheme);
+  const preset = getThemePageMotion(theme);
 
   return (
     <motion.div

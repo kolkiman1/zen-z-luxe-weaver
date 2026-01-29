@@ -17,7 +17,7 @@ interface ProductCollectionProps {
 const ProductCollection = ({ collection }: ProductCollectionProps) => {
   const { products, loading } = useProducts();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { activeTheme } = useTheme();
+  const { theme } = useTheme();
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -50,9 +50,9 @@ const ProductCollection = ({ collection }: ProductCollectionProps) => {
   if (!collection.enabled || filteredProducts.length === 0) return null;
 
   const gridClass =
-    activeTheme === 'editorial'
+    theme === 'editorial'
       ? 'grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-7 md:gap-10'
-      : activeTheme === 'brutalist'
+      : theme === 'brutalist'
         ? 'grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5'
         : 'grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6';
 

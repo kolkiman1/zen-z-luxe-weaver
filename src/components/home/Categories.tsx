@@ -11,15 +11,15 @@ import SectionHeader from '@/components/home/SectionHeader';
 
 const Categories = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { activeTheme } = useTheme();
+  const { theme } = useTheme();
   const prefersReducedMotion = useReducedMotion();
   const { data: sectionMedia } = useSectionMedia();
   const { data: sectionContent } = useSectionContent();
   const categoriesMedia = sectionMedia?.categories;
   const content = sectionContent?.categories;
 
-  const cardShape = activeTheme === 'brutalist' ? 'rounded-none' : 'rounded-lg sm:rounded-xl';
-  const borderStyle = activeTheme === 'brutalist' ? 'border-2 border-border' : 'border border-primary/0 group-hover:border-primary/50';
+  const cardShape = theme === 'brutalist' ? 'rounded-none' : 'rounded-lg sm:rounded-xl';
+  const borderStyle = theme === 'brutalist' ? 'border-2 border-border' : 'border border-primary/0 group-hover:border-primary/50';
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -112,14 +112,14 @@ const Categories = () => {
               >
                 <Link
                   to={`/category/${category.slug}`}
-                  className={`block relative group aspect-[3/4] overflow-hidden ${cardShape} ${activeTheme === 'editorial' ? 'bg-card border border-border' : ''} surface-motion surface-hover`}
+                  className={`block relative group aspect-[3/4] overflow-hidden ${cardShape} ${theme === 'editorial' ? 'bg-card border border-border' : ''} surface-motion surface-hover`}
                 >
                 {/* Image */}
                 <motion.img
                   src={category.image}
                   alt={category.name}
-                  className={`w-full h-full object-cover transition-transform ${activeTheme === 'brutalist' ? 'duration-150 group-hover:scale-[1.03]' : 'duration-500 group-hover:scale-[1.06]'}`}
-                  whileHover={prefersReducedMotion ? undefined : activeTheme === 'editorial' ? { scale: 1.02 } : undefined}
+                  className={`w-full h-full object-cover transition-transform ${theme === 'brutalist' ? 'duration-150 group-hover:scale-[1.03]' : 'duration-500 group-hover:scale-[1.06]'}`}
+                  whileHover={prefersReducedMotion ? undefined : theme === 'editorial' ? { scale: 1.02 } : undefined}
                   transition={prefersReducedMotion ? undefined : { duration: 0.6 }}
                 />
 

@@ -5,9 +5,9 @@ import HeroEditorial from '@/components/home/themes/HeroEditorial';
 import HeroBrutalist from '@/components/home/themes/HeroBrutalist';
 
 const ThemeHero = () => {
-  const { activeTheme } = useTheme();
+  const { theme } = useTheme();
 
-  switch (activeTheme) {
+  switch (theme) {
     case 'artisan':
       return <HeroArtisan />;
     case 'brutalist':
