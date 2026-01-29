@@ -45,7 +45,7 @@ const ProductCardBrutalist = ({ product, index = 0 }: ProductCardProps) => {
   };
 
   const Content = () => (
-    <article className="group border-2 border-border bg-card">
+    <article className="group border-2 border-border bg-card surface-motion surface-hover">
       <div className="relative aspect-square overflow-hidden">
         {!isImageLoaded && <div className="absolute inset-0 animate-pulse bg-muted" />}
         <img

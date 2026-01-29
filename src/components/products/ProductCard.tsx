@@ -194,7 +194,9 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
           onMouseLeave={() => setIsHovered(false)}
         >
           <Link to={`/product/${product.slug || product.id}`} className="block group">
-            {renderContent()}
+            <div className="surface-motion surface-hover rounded-2xl">
+              {renderContent()}
+            </div>
           </Link>
         </div>
       ) : (
@@ -207,7 +209,9 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
           onMouseLeave={() => setIsHovered(false)}
         >
           <Link to={`/product/${product.slug || product.id}`} className="block group">
-            {renderContent()}
+            <div className="surface-motion surface-hover rounded-2xl">
+              {renderContent()}
+            </div>
           </Link>
         </motion.div>
       )}
