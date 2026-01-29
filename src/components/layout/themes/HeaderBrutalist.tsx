@@ -69,10 +69,12 @@ const HeaderBrutalist = () => {
                 {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
               </motion.button>
 
-              <Link to="/" className="flex items-baseline gap-2">
-                <span className="font-display font-bold uppercase tracking-[-0.03em] text-lg text-chrome">ZEN</span>
-                <span className="font-display font-bold uppercase tracking-[-0.03em] text-lg text-primary">ZEE</span>
-                <span className="hidden sm:inline text-[10px] uppercase tracking-[0.28em] text-muted-foreground ml-2">Y2K/CHROME</span>
+              <Link to="/" className="relative inline-flex items-center">
+                <span className="relative badge-chip">
+                  <span className="font-display font-bold uppercase tracking-[-0.03em] text-lg text-chrome">ZEN</span>
+                  <span className="font-display font-bold uppercase tracking-[-0.03em] text-lg text-primary">ZEE</span>
+                  <span className="hidden sm:inline text-[10px] uppercase tracking-[0.28em] text-muted-foreground">Y2K/CHROME</span>
+                </span>
               </Link>
             </div>
 
@@ -81,10 +83,10 @@ const HeaderBrutalist = () => {
             </div>
 
             <div className="flex items-center gap-1">
-              <Button variant="outline" size="icon" onClick={() => setIsSearchOpen(true)} className="h-9 w-9 rounded-none border-2">
+              <Button variant="outline" size="icon" onClick={() => setIsSearchOpen(true)} className="h-9 w-9 rounded-none border-2 surface-plate">
                 <Search size={18} />
               </Button>
-              <Button variant="outline" size="icon" onClick={() => setIsWishlistOpen(true)} className="relative h-9 w-9 rounded-none border-2">
+              <Button variant="outline" size="icon" onClick={() => setIsWishlistOpen(true)} className="relative h-9 w-9 rounded-none border-2 surface-plate">
                 <Heart size={18} />
                 {wishlistItems.length > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[11px] font-black rounded-none flex items-center justify-center">
@@ -92,7 +94,7 @@ const HeaderBrutalist = () => {
                   </span>
                 )}
               </Button>
-              <Button variant="outline" size="icon" onClick={() => setIsCartOpen(true)} className="relative h-9 w-9 rounded-none border-2">
+              <Button variant="outline" size="icon" onClick={() => setIsCartOpen(true)} className="relative h-9 w-9 rounded-none border-2 surface-plate">
                 <ShoppingBag size={18} />
                 {totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[11px] font-black rounded-none flex items-center justify-center">
@@ -104,7 +106,7 @@ const HeaderBrutalist = () => {
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" className="hidden sm:flex h-9 w-9 rounded-none border-2">
+                    <Button variant="outline" size="icon" className="hidden sm:flex h-9 w-9 rounded-none border-2 surface-plate">
                       <User size={18} />
                     </Button>
                   </DropdownMenuTrigger>
@@ -143,7 +145,7 @@ const HeaderBrutalist = () => {
                 </DropdownMenu>
               ) : (
                 <Link to="/auth" className="hidden sm:block">
-                  <Button variant="outline" size="icon" className="h-9 w-9 rounded-none border-2">
+                  <Button variant="outline" size="icon" className="h-9 w-9 rounded-none border-2 surface-plate">
                     <User size={18} />
                   </Button>
                 </Link>
