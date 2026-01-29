@@ -5,7 +5,7 @@ import { Heart, ShoppingBag, Minus, Plus, Check, Truck, RefreshCw, Shield, Loade
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
-import ProductCard from '@/components/products/ProductCard';
+import ThemedProductCard from '@/components/products/ThemedProductCard';
 import ImageZoomViewer from '@/components/products/ImageZoomViewer';
 import { formatPrice } from '@/lib/data';
 import { useProduct, useRelatedProducts } from '@/hooks/useProducts';
@@ -347,7 +347,7 @@ const ProductDetailPage = () => {
               <h2 className="font-display text-xl sm:text-2xl md:text-3xl mb-4 sm:mb-6 lg:mb-8">You May Also Like</h2>
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
                 {relatedProducts.map((product, index) => (
-                  <ProductCard key={product.id} product={product} index={index} />
+                    <ThemedProductCard key={product.id} product={product} index={index} />
                 ))}
               </div>
             </section>

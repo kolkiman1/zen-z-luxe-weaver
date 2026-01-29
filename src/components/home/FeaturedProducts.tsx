@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useFeaturedProducts } from '@/hooks/useProducts';
-import ProductCard from '@/components/products/ProductCard';
+import ThemedProductCard from '@/components/products/ThemedProductCard';
+import { useTheme } from '@/contexts/ThemeContext';
 import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 import { Button } from '@/components/ui/button';
 import { AnimatedButton } from '@/components/ui/animated-button';
@@ -13,10 +14,18 @@ import { useSectionContent } from '@/hooks/useSectionContent';
 const FeaturedProducts = () => {
   const { products: featuredProducts, loading } = useFeaturedProducts();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { activeTheme } = useTheme();
   const { data: sectionMedia } = useSectionMedia();
   const { data: sectionContent } = useSectionContent();
   const featuredMedia = sectionMedia?.featuredProducts;
   const content = sectionContent?.featuredProducts;
+
+  const itemWidthClass =
+    activeTheme === 'editorial'
+      ? 'flex-shrink-0 w-[220px] sm:w-[300px] md:w-[320px] lg:w-[340px]'
+      : activeTheme === 'brutalist'
+        ? 'flex-shrink-0 w-[200px] sm:w-[260px] md:w-[280px] lg:w-[300px]'
+        : 'flex-shrink-0 w-[200px] sm:w-[260px] md:w-[280px] lg:w-[300px]';
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -146,7 +155,7 @@ const FeaturedProducts = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: index * 0.05 }}
-                className="flex-shrink-0 w-[200px] sm:w-[260px] md:w-[280px] lg:w-[300px]"
+                className={itemWidthClass}
               >
                 <ProductCardSkeleton />
               </motion.div>
@@ -172,9 +181,9 @@ const FeaturedProducts = () => {
                   duration: 0.4,
                   ease: "easeOut"
                 }}
-                className="flex-shrink-0 w-[200px] sm:w-[260px] md:w-[280px] lg:w-[300px] snap-start transition-transform duration-300 ease-out hover:-translate-y-2 will-change-transform"
+                className={`${itemWidthClass} snap-start transition-transform duration-300 ease-out hover:-translate-y-2 will-change-transform`}
               >
-                <ProductCard product={product} index={index} />
+                <ThemedProductCard product={product} index={index} />
               </motion.div>
             ))}
           </motion.div>

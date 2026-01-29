@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useProducts } from '@/hooks/useProducts';
-import ProductCard from '@/components/products/ProductCard';
+import ThemedProductCard from '@/components/products/ThemedProductCard';
+import { useTheme } from '@/contexts/ThemeContext';
 import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
 import { Button } from '@/components/ui/button';
 import { AnimatedButton } from '@/components/ui/animated-button';
@@ -16,6 +17,7 @@ interface ProductCollectionProps {
 const ProductCollection = ({ collection }: ProductCollectionProps) => {
   const { products, loading } = useProducts();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { activeTheme } = useTheme();
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -46,6 +48,13 @@ const ProductCollection = ({ collection }: ProductCollectionProps) => {
   }).slice(0, collection.maxProducts);
 
   if (!collection.enabled || filteredProducts.length === 0) return null;
+
+  const gridClass =
+    activeTheme === 'editorial'
+      ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-10'
+      : activeTheme === 'brutalist'
+        ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4'
+        : 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6';
 
   return (
     <section className="section-padding bg-background relative overflow-hidden">
@@ -108,7 +117,7 @@ const ProductCollection = ({ collection }: ProductCollectionProps) => {
         {loading ? (
           <div className={collection.displayStyle === 'carousel' 
             ? "flex flex-row gap-4 sm:gap-6 overflow-x-auto pb-4 no-scrollbar"
-            : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
+            : gridClass
           }>
             {[...Array(4)].map((_, index) => (
               <motion.div
@@ -139,7 +148,7 @@ const ProductCollection = ({ collection }: ProductCollectionProps) => {
                 transition={{ delay: index * 0.05, duration: 0.4 }}
                 className="flex-shrink-0 w-[200px] sm:w-[260px] md:w-[280px] snap-start"
               >
-                <ProductCard product={product} index={index} />
+                <ThemedProductCard product={product} index={index} />
               </motion.div>
             ))}
           </motion.div>
@@ -148,7 +157,7 @@ const ProductCollection = ({ collection }: ProductCollectionProps) => {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
+            className={gridClass}
           >
             {filteredProducts.map((product, index) => (
               <motion.div
@@ -158,7 +167,7 @@ const ProductCollection = ({ collection }: ProductCollectionProps) => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.05, duration: 0.4 }}
               >
-                <ProductCard product={product} index={index} />
+                <ThemedProductCard product={product} index={index} />
               </motion.div>
             ))}
           </motion.div>

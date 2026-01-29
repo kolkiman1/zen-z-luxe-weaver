@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -36,6 +36,7 @@ const AdminThemes = () => {
   const { data: themeSettings, isLoading } = useThemeSettings();
   const updateTheme = useUpdateThemeSettings();
   const [selected, setSelected] = useState<ThemeId>('editorial');
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (themeSettings?.activeTheme) setSelected(themeSettings.activeTheme);
@@ -44,6 +45,74 @@ const AdminThemes = () => {
   const activeTheme = themeSettings?.activeTheme ?? 'editorial';
 
   const selectedMeta = useMemo(() => themes.find(t => t.id === selected), [selected]);
+
+  const exportThemeJson = (settings: { activeTheme: ThemeId }) => {
+    const payload = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      theme: settings,
+    };
+    return JSON.stringify(payload, null, 2);
+  };
+
+  const downloadTheme = () => {
+    try {
+      const json = exportThemeJson({ activeTheme: selected });
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `theme-${selected}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success('Theme exported', { description: 'Downloaded a theme JSON file.' });
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to export theme');
+    }
+  };
+
+  const copyThemeJson = async () => {
+    try {
+      const json = exportThemeJson({ activeTheme: selected });
+      await navigator.clipboard.writeText(json);
+      toast.success('Copied', { description: 'Theme JSON copied to clipboard.' });
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to copy');
+    }
+  };
+
+  const validateImportedTheme = (obj: unknown): ThemeId | null => {
+    if (!obj || typeof obj !== 'object') return null;
+    // Accept either raw ThemeSettings or the exported wrapper.
+    const maybeAny = obj as any;
+    const themeObj = maybeAny?.theme ?? maybeAny;
+    const id = themeObj?.activeTheme;
+    return id && ['artisan', 'editorial', 'brutalist'].includes(id) ? (id as ThemeId) : null;
+  };
+
+  const handleImportFile = async (file: File) => {
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const importedTheme = validateImportedTheme(parsed);
+      if (!importedTheme) {
+        toast.error('Invalid theme file', { description: 'Expected JSON with { activeTheme: "artisan"|"editorial"|"brutalist" }' });
+        return;
+      }
+
+      setSelected(importedTheme);
+      toast.success('Theme imported', { description: `Selected: ${themes.find(t => t.id === importedTheme)?.name ?? importedTheme}. Click Preview or Apply.` });
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to import theme');
+    } finally {
+      if (importInputRef.current) importInputRef.current.value = '';
+    }
+  };
 
   const handlePreview = () => {
     themePreviewStorage.enable(selected);
@@ -126,6 +195,43 @@ const AdminThemes = () => {
                   <Button variant="outline" onClick={handleStopPreview} disabled={isLoading}>
                     Stop Preview
                   </Button>
+
+                  <input
+                    ref={importInputRef}
+                    type="file"
+                    accept="application/json,.json"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void handleImportFile(file);
+                    }}
+                  />
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={downloadTheme}
+                    disabled={isLoading}
+                  >
+                    Export
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => void copyThemeJson()}
+                    disabled={isLoading}
+                  >
+                    Copy JSON
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => importInputRef.current?.click()}
+                    disabled={isLoading}
+                  >
+                    Import
+                  </Button>
+
                   <Button
                     variant="outline"
                     onClick={handleApply}

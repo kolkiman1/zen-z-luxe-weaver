@@ -1,0 +1,133 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Heart, Eye, ShoppingBag } from 'lucide-react';
+import type { Product } from '@/lib/data';
+import { formatPrice } from '@/lib/data';
+import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
+import { usePerformanceOptional } from '@/contexts/PerformanceContext';
+import { Button } from '@/components/ui/button';
+import QuickViewModal from '@/components/products/QuickViewModal';
+
+interface ProductCardProps {
+  product: Product;
+  index?: number;
+}
+
+const ProductCardEditorial = ({ product, index = 0 }: ProductCardProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+
+  const { addToCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const performance = usePerformanceOptional();
+  const isPerformanceMode = performance?.isPerformanceMode ?? false;
+  const inWishlist = isInWishlist(product.id);
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product, 1, product.sizes?.[0], product.colors?.[0]);
+  };
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product);
+  };
+
+  const handleQuickView = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsQuickViewOpen(true);
+  };
+
+  const Content = () => (
+    <article className="group">
+      <div className="relative aspect-[4/5] overflow-hidden bg-secondary border border-border rounded-none">
+        {!isImageLoaded && <div className="absolute inset-0 animate-pulse bg-muted" />}
+        <img
+          src={product.images[0]}
+          alt={product.name}
+          className={`w-full h-full object-cover transition-transform duration-500 ${isHovered ? 'scale-[1.03]' : 'scale-100'} ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+          onLoad={() => setIsImageLoaded(true)}
+          loading="lazy"
+          decoding="async"
+        />
+
+        <div
+          className={`absolute inset-x-3 bottom-3 flex items-center gap-2 transition-all duration-200 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
+        >
+          <Button
+            onClick={handleAddToCart}
+            className="flex-1 btn-primary h-10 rounded-none text-xs tracking-wide"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span className="ml-2">Add</span>
+          </Button>
+          <Button
+            size="icon"
+            variant="outline"
+            onClick={handleToggleWishlist}
+            className={`h-10 w-10 rounded-none ${inWishlist ? 'bg-primary text-primary-foreground border-primary' : ''}`}
+          >
+            <Heart className="w-4 h-4" fill={inWishlist ? 'currentColor' : 'none'} />
+          </Button>
+          <Button
+            size="icon"
+            variant="outline"
+            onClick={handleQuickView}
+            className="h-10 w-10 rounded-none"
+          >
+            <Eye className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+
+      <div className="pt-3">
+        <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground line-clamp-1">
+          {product.subcategory}
+        </p>
+        <h3 className="mt-1 font-display text-base leading-tight line-clamp-2">
+          {product.name}
+        </h3>
+        <div className="mt-2 flex items-baseline gap-2">
+          <span className="text-primary font-medium">{formatPrice(product.price)}</span>
+          {product.originalPrice && (
+            <span className="text-muted-foreground line-through text-sm">{formatPrice(product.originalPrice)}</span>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+
+  return (
+    <>
+      {isPerformanceMode ? (
+        <div onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+          <Link to={`/product/${product.slug || product.id}`} className="block">
+            <Content />
+          </Link>
+        </div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.06, duration: 0.4 }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <Link to={`/product/${product.slug || product.id}`} className="block">
+            <Content />
+          </Link>
+        </motion.div>
+      )}
+
+      <QuickViewModal product={product} isOpen={isQuickViewOpen} onClose={() => setIsQuickViewOpen(false)} />
+    </>
+  );
+};
+
+export default ProductCardEditorial;
