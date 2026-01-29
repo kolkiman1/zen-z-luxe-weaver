@@ -299,7 +299,7 @@ const AdminDashboard = () => {
                   transition={{ delay: 0.4 + index * 0.1 }}
                 >
                   <Link to={card.href}>
-                    <Card className={`${card.color} border cursor-pointer hover:scale-[1.02] transition-transform`}>
+                    <Card className={`${card.color} border cursor-pointer surface-motion surface-hover`}>
                       <CardContent className="flex items-center justify-between p-6">
                         <div>
                           <p className="text-sm text-muted-foreground">{card.title} Orders</p>
@@ -351,7 +351,7 @@ const AdminDashboard = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.7 + index * 0.05 }}
-                            className="flex items-center justify-between p-4 bg-secondary/30 hover:bg-secondary/50 rounded-xl transition-colors cursor-pointer group"
+                            className="flex items-center justify-between p-4 bg-secondary/30 hover:bg-secondary/50 rounded-xl transition-colors cursor-pointer group surface-motion surface-hover"
                           >
                             <div className="flex items-center gap-4">
                               <div className={`p-2 rounded-lg ${statusConfig.bg}`}>
@@ -404,7 +404,7 @@ const AdminDashboard = () => {
                 { label: 'Analytics', href: '/admin/analytics', icon: TrendingUp },
               ].map((action, index) => (
                 <Link key={action.label} to={action.href}>
-                  <Card className="border-border/50 hover:border-primary/50 hover:bg-secondary/30 transition-all cursor-pointer group">
+                  <Card className="border-border/50 hover:border-primary/50 hover:bg-secondary/30 transition-all cursor-pointer group surface-motion surface-hover">
                     <CardContent className="flex flex-col items-center justify-center p-6 text-center">
                       <div className="p-3 rounded-xl bg-primary/10 text-primary mb-3 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                         <action.icon size={24} />

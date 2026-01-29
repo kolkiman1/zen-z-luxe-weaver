@@ -142,7 +142,7 @@ const EmailStatusWidget = ({ orderId, limit = 10 }: EmailStatusWidgetProps) => {
             >
               <div className="border border-border rounded-lg overflow-hidden">
                 <CollapsibleTrigger className="w-full">
-                  <div className="flex items-center justify-between p-3 hover:bg-secondary/30 transition-colors">
+                  <div className="flex items-center justify-between p-3 hover:bg-secondary/30 transition-colors surface-motion surface-hover">
                     <div className="flex items-center gap-3">
                       {getStatusIcon(log.status)}
                       <div className="text-left">
