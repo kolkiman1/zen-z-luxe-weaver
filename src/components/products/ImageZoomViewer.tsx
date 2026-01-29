@@ -90,6 +90,38 @@ const ImageZoomViewer = ({ images, currentIndex, onIndexChange, alt }: ImageZoom
     }
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    // Mobile: when zoomed-in in fullscreen, allow finger-drag to pan.
+    // (When not zoomed, keep swipe navigation behavior.)
+    if (!isFullscreen || zoomLevel <= 1) return;
+    if (e.touches.length !== 1) return;
+
+    setIsDragging(true);
+    dragStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    positionStart.current = { ...position };
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isFullscreen || zoomLevel <= 1) return;
+    if (!isDragging) return;
+    if (e.touches.length !== 1) return;
+
+    // Prevent the dialog/page from scrolling while panning.
+    e.preventDefault();
+
+    const deltaX = e.touches[0].clientX - dragStart.current.x;
+    const deltaY = e.touches[0].clientY - dragStart.current.y;
+
+    setPosition({
+      x: positionStart.current.x + deltaX,
+      y: positionStart.current.y + deltaY,
+    });
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
   const handleMouseUp = () => {
     setIsDragging(false);
   };
@@ -362,13 +394,17 @@ const ImageZoomViewer = ({ images, currentIndex, onIndexChange, alt }: ImageZoom
 
             {/* Image Container */}
              <div className="w-full h-full max-w-5xl max-h-[80vh] mx-auto p-4 flex items-center justify-center">
-              <div
+                <div
                  ref={fullscreenPanRef}
-                className="relative w-full h-full overflow-hidden rounded-xl"
+                 className="relative w-full h-full overflow-hidden rounded-xl touch-none"
                 onMouseMove={handleMouseMove}
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
+                 onTouchStart={handleTouchStart}
+                 onTouchMove={handleTouchMove}
+                 onTouchEnd={handleTouchEnd}
+                 onTouchCancel={handleTouchEnd}
                 onDoubleClick={handleDoubleClick}
                 style={{ cursor: zoomLevel > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in' }}
                 {...swipeHandlers}
