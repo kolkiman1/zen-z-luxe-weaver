@@ -13,6 +13,8 @@ import { SEOHead } from '@/components/SEOHead';
 import { useRateLimiter } from '@/hooks/useRateLimiter';
 import { z } from 'zod';
 import ThemedPageFrame from '@/components/layout/ThemedPageFrame';
+import ThemedPageLayout from '@/components/layout/ThemedPageLayout';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const loginSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }),
@@ -35,6 +37,7 @@ const AuthPage = () => {
   const [showVerificationMessage, setShowVerificationMessage] = useState(false);
   
   const { user, signIn, signUp } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   
   // Rate limiting for login attempts (5 attempts per 15 minutes, 30 min lockout)
@@ -165,12 +168,56 @@ const AuthPage = () => {
 
       <main className="pt-20 sm:pt-24 pb-12 sm:pb-16 min-h-screen flex items-center justify-center">
         <ThemedPageFrame className="w-full">
-        <div className="container-luxury">
-          <div className="max-w-md mx-auto">
+          <ThemedPageLayout
+            className="w-full"
+            title={isLogin ? 'Sign In' : 'Create Account'}
+            subtitle={
+              isLogin
+                ? 'Access your orders, wishlist, and saved details.'
+                : 'Create an account for faster checkout and order tracking.'
+            }
+            stickyAside={false}
+            aside={
+              theme === 'brutalist' ? (
+                <div className="space-y-3">
+                  <p className="text-xs tracking-[0.35em] uppercase text-muted-foreground">Why an account?</p>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="border border-border p-3">Track orders</li>
+                    <li className="border border-border p-3">Save addresses</li>
+                    <li className="border border-border p-3">Wishlist + compare</li>
+                  </ul>
+                </div>
+              ) : theme === 'artisan' ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">Member benefits</p>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li>Order tracking</li>
+                    <li>Saved delivery details</li>
+                    <li>Wishlist</li>
+                  </ul>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-xs tracking-[0.32em] uppercase text-muted-foreground">Member benefits</p>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li>Faster checkout</li>
+                    <li>Order history</li>
+                    <li>Saved addresses</li>
+                  </ul>
+                </div>
+              )
+            }
+          >
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-card rounded-2xl border border-border p-8 md:p-10 shadow-xl"
+              className={
+                theme === 'brutalist'
+                  ? 'border-2 border-border bg-card p-6 sm:p-8'
+                  : theme === 'artisan'
+                    ? 'surface-panel rounded-3xl p-6 sm:p-8'
+                    : 'glass rounded-2xl border border-border p-6 sm:p-8'
+              }
             >
               {/* Email Verification Success Message */}
               {showVerificationMessage ? (
@@ -360,8 +407,7 @@ const AuthPage = () => {
                 </>
               )}
             </motion.div>
-          </div>
-        </div>
+          </ThemedPageLayout>
         </ThemedPageFrame>
       </main>
 
