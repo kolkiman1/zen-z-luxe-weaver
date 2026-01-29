@@ -27,6 +27,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { useGoogleAnalytics } from '@/hooks/useGoogleAnalytics';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+
+type GAConnectionStatus =
+  | 'not_configured'
+  | 'missing_property_id'
+  | 'checking'
+  | 'error'
+  | 'sample'
+  | 'connected';
 
 const AdminTrackingAnalytics = () => {
   const { seoSettings, trackingSettings, isLoading } = useSiteSettings();
@@ -40,6 +49,15 @@ const AdminTrackingAnalytics = () => {
   const isGTMConfigured = Boolean(trackingSettings?.googleTagManagerId);
   const isFBConfigured = Boolean(trackingSettings?.facebookPixelId);
 
+  const gaStatus: GAConnectionStatus = (() => {
+    if (!isGAConfigured) return 'not_configured';
+    if (!gaPropertyId) return 'missing_property_id';
+    if (analyticsLoading) return 'checking';
+    if (analyticsError) return 'error';
+    if (isSampleData) return 'sample';
+    return 'connected';
+  })();
+
   // Fetch analytics on mount and when GA is configured
   useEffect(() => {
     if (isGAConfigured) {
@@ -50,12 +68,86 @@ const AdminTrackingAnalytics = () => {
   const testConnection = async (type: string) => {
     setTestingConnection(type);
     if (type === 'Google Analytics 4') {
+      try {
+        if (!gaPropertyId) {
+          toast.error('Google Analytics Property ID is missing. Add it in Admin → Marketing → Tracking.');
+        } else {
+          const { data: responseData, error: invokeError } = await supabase.functions.invoke('google-analytics', {
+            body: {
+              propertyId: gaPropertyId,
+              startDate: '30daysAgo',
+              endDate: 'today',
+            },
+          });
+
+          if (invokeError) {
+            toast.error(`Google Analytics API error: ${invokeError.message}`);
+          } else if (responseData?.error) {
+            toast.error(`Google Analytics API error: ${responseData.message || responseData.error}`);
+          } else if (responseData?.sampleData) {
+            toast.warning('Google Analytics connected, but returning sample data (API not returning real data yet).');
+          } else {
+            toast.success('Google Analytics API connected — real data confirmed.');
+          }
+        }
+      } catch (err: any) {
+        toast.error(err?.message || 'Failed to test Google Analytics connection');
+      }
+
+      // Update the dashboard widgets after the test
       await refreshAnalytics();
     } else {
       await new Promise(resolve => setTimeout(resolve, 1500));
+      toast.success(`${type} connection verified successfully`);
     }
-    toast.success(`${type} connection verified successfully`);
     setTestingConnection(null);
+  };
+
+  const renderGAStatusBadge = () => {
+    switch (gaStatus) {
+      case 'not_configured':
+        return (
+          <Badge variant="outline" className="gap-1">
+            <XCircle size={14} />
+            Not configured
+          </Badge>
+        );
+      case 'missing_property_id':
+        return (
+          <Badge variant="secondary" className="gap-1">
+            <AlertCircle size={14} />
+            Missing Property ID
+          </Badge>
+        );
+      case 'checking':
+        return (
+          <Badge variant="secondary" className="gap-1">
+            <RefreshCw size={14} className="animate-spin" />
+            Checking…
+          </Badge>
+        );
+      case 'error':
+        return (
+          <Badge variant="destructive" className="gap-1">
+            <XCircle size={14} />
+            Error
+          </Badge>
+        );
+      case 'sample':
+        return (
+          <Badge variant="secondary" className="gap-1">
+            <AlertCircle size={14} />
+            Sample data
+          </Badge>
+        );
+      case 'connected':
+        return (
+          <Badge variant="default" className="gap-1">
+            <CheckCircle2 size={14} />
+            Real data
+          </Badge>
+        );
+    }
   };
 
   const trackingIntegrations = [
@@ -137,12 +229,34 @@ const AdminTrackingAnalytics = () => {
           <div>
             <h1 className="text-2xl font-display">Tracking & Analytics</h1>
             <p className="text-muted-foreground">Monitor your tracking integrations and view analytics data</p>
-            {isSampleData && isGAConfigured && (
-              <div className="flex items-center gap-2 mt-2 text-amber-500 text-sm">
-                <AlertCircle size={14} />
-                <span>Showing sample data. Add GOOGLE_ANALYTICS_SERVICE_ACCOUNT_KEY secret for real data.</span>
-              </div>
-            )}
+
+            {/* Connection test indicator */}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="text-sm text-muted-foreground">Google Analytics API:</span>
+              {renderGAStatusBadge()}
+              {gaStatus === 'error' && analyticsError && (
+                <span className="text-sm text-muted-foreground">{analyticsError}</span>
+              )}
+              {(gaStatus === 'sample' || gaStatus === 'missing_property_id') && (
+                <span className="text-sm text-muted-foreground">
+                  {gaStatus === 'missing_property_id'
+                    ? 'Enter the numeric Property ID in Admin → Marketing → Tracking.'
+                    : 'API is responding, but the dashboard is currently showing sample data.'}
+                </span>
+              )}
+              {isGAConfigured && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => testConnection('Google Analytics 4')}
+                  disabled={testingConnection === 'Google Analytics 4' || analyticsLoading}
+                  className="ml-auto"
+                >
+                  <RefreshCw size={14} className={`mr-2 ${(testingConnection === 'Google Analytics 4' || analyticsLoading) ? 'animate-spin' : ''}`} />
+                  Test
+                </Button>
+              )}
+            </div>
           </div>
           <Button
             variant="outline"
@@ -273,7 +387,19 @@ const AdminTrackingAnalytics = () => {
                             {integration.configured ? (
                               <>
                                 <CheckCircle2 size={14} className="text-green-500" />
-                                <span className="text-xs text-green-500">Connected</span>
+                            <span className="text-xs text-green-500">
+                              {integration.name === 'Google Analytics 4'
+                                ? (gaStatus === 'connected'
+                                    ? 'Connected (real data)'
+                                    : gaStatus === 'sample'
+                                      ? 'Connected (sample data)'
+                                      : gaStatus === 'missing_property_id'
+                                        ? 'Needs Property ID'
+                                        : gaStatus === 'error'
+                                          ? 'Error'
+                                          : 'Connected')
+                                : 'Connected'}
+                            </span>
                               </>
                             ) : (
                               <>
@@ -284,6 +410,13 @@ const AdminTrackingAnalytics = () => {
                           </div>
                         </div>
                       </div>
+
+                  {integration.name === 'Google Analytics 4' && integration.configured && gaStatus === 'error' && analyticsError && (
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      API error: {analyticsError}
+                    </div>
+                  )}
+
                       {integration.configured && (
                         <div className="flex gap-2">
                           <Button
