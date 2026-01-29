@@ -163,6 +163,15 @@ const HeaderBrutalist = () => {
               )}
             </div>
           </div>
+
+          {/* Mobile/Tablet: Myntra-like search row */}
+          <div className="lg:hidden pb-3 pt-2">
+            <HeaderSearchBar
+              onOpen={() => setIsSearchOpen(true)}
+              className="w-full"
+              variant="brutalist"
+            />
+          </div>
         </div>
       </motion.header>
 

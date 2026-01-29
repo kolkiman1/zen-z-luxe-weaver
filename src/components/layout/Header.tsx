@@ -244,6 +244,15 @@ const Header = () => {
               )}
             </div>
           </div>
+
+          {/* Mobile/Tablet: Myntra-like search row */}
+          <div className="lg:hidden pb-3 pt-2">
+            <HeaderSearchBar
+              onOpen={() => setIsSearchOpen(true)}
+              className="w-full"
+              variant="pill"
+            />
+          </div>
         </div>
       </motion.header>
 
