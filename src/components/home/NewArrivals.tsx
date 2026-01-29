@@ -18,10 +18,10 @@ const NewArrivals = () => {
 
   const gridClass =
     activeTheme === 'editorial'
-      ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10'
+      ? 'grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-7 md:gap-10'
       : activeTheme === 'brutalist'
-        ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4'
-        : 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8';
+        ? 'grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5'
+        : 'grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 md:gap-8';
 
   return (
     <section className="relative section-padding overflow-hidden">
@@ -75,7 +75,9 @@ const NewArrivals = () => {
           ) : (
             <div className={gridClass}>
               {newArrivals.slice(0, 4).map((product, index) => (
-                <ThemedProductCard key={product.id} product={product} index={index} />
+                <div key={product.id} className="w-full max-w-[26rem] mx-auto">
+                  <ThemedProductCard product={product} index={index} />
+                </div>
               ))}
             </div>
           )}
