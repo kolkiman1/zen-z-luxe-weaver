@@ -8,6 +8,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { usePerformanceOptional } from '@/contexts/PerformanceContext';
 import { Button } from '@/components/ui/button';
+import CompareToggleButton from '@/components/compare/CompareToggleButton';
 import QuickViewModal from '@/components/products/QuickViewModal';
 
 interface ProductCardProps {
@@ -71,14 +72,20 @@ const ProductCardBrutalist = ({ product, index = 0 }: ProductCardProps) => {
               </span>
             )}
           </div>
-          <Button
-            size="icon"
-            variant="outline"
-            onClick={handleToggleWishlist}
-            className={`h-9 w-9 rounded-none border-2 surface-plate ${inWishlist ? 'bg-primary text-primary-foreground border-primary' : ''}`}
-          >
-            <Heart className="w-4 h-4" fill={inWishlist ? 'currentColor' : 'none'} />
-          </Button>
+          <div className="flex items-center gap-2">
+            <CompareToggleButton
+              product={product}
+              className="h-9 w-9 rounded-none border-2 surface-plate"
+            />
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={handleToggleWishlist}
+              className={`h-9 w-9 rounded-none border-2 surface-plate ${inWishlist ? 'bg-primary text-primary-foreground border-primary' : ''}`}
+            >
+              <Heart className="w-4 h-4" fill={inWishlist ? 'currentColor' : 'none'} />
+            </Button>
+          </div>
         </div>
 
         <div

@@ -8,6 +8,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { usePerformanceOptional } from '@/contexts/PerformanceContext';
 import { Button } from '@/components/ui/button';
+import CompareToggleButton from '@/components/compare/CompareToggleButton';
 import QuickViewModal from '@/components/products/QuickViewModal';
 
 interface ProductCardProps {
@@ -67,6 +68,10 @@ const ProductCardEditorial = ({ product, index = 0 }: ProductCardProps) => {
             <ShoppingBag className="w-4 h-4" />
             <span className="ml-2">Add</span>
           </Button>
+          <CompareToggleButton
+            product={product}
+            className="h-10 w-10 rounded-full"
+          />
           <Button
             size="icon"
             variant="outline"
