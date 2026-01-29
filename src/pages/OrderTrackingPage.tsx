@@ -36,6 +36,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import ThemedPageFrame from '@/components/layout/ThemedPageFrame';
 
 interface OrderItem {
   id: string;
@@ -316,7 +317,8 @@ const OrderTrackingPage = () => {
           description="Track your order status using your order number and verification details."
         />
         <ThemedHeader />
-        <main className="pt-24 pb-16 min-h-screen bg-background">
+        <main className="pt-20 sm:pt-24 pb-12 sm:pb-16 min-h-screen bg-background">
+          <ThemedPageFrame className="py-10 sm:py-12">
           <div className="container-luxury py-12">
             <GuestOrderLookup 
               onOrderFound={handleGuestOrderFound}
@@ -337,6 +339,7 @@ const OrderTrackingPage = () => {
               </div>
             )}
           </div>
+          </ThemedPageFrame>
         </main>
         <ThemedFooter />
       </>
@@ -347,7 +350,7 @@ const OrderTrackingPage = () => {
     return (
       <>
         <ThemedHeader />
-        <main className="pt-24 pb-16 min-h-screen">
+        <main className="pt-20 sm:pt-24 pb-12 sm:pb-16 min-h-screen">
           <div className="container-luxury text-center py-16">
             <Package size={64} className="mx-auto text-muted-foreground mb-4" />
             <h2 className="font-display text-2xl mb-2">{error || 'Order not found'}</h2>
@@ -385,7 +388,8 @@ const OrderTrackingPage = () => {
 
         <ThemedHeader />
 
-      <main className="pt-24 pb-16 min-h-screen bg-background">
+      <main className="pt-20 sm:pt-24 pb-12 sm:pb-16 min-h-screen bg-background">
+        <ThemedPageFrame className="pb-12 sm:pb-16">
         <div className="container-luxury">
           {/* Back Button */}
           {user ? (
@@ -709,6 +713,7 @@ const OrderTrackingPage = () => {
             </div>
           </motion.div>
         </div>
+        </ThemedPageFrame>
       </main>
 
        <ThemedFooter />

@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/SEOHead';
 import { useRateLimiter } from '@/hooks/useRateLimiter';
 import { z } from 'zod';
+import ThemedPageFrame from '@/components/layout/ThemedPageFrame';
 
 const loginSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }),
@@ -162,7 +163,8 @@ const AuthPage = () => {
 
       <ThemedHeader />
 
-      <main className="pt-24 pb-16 min-h-screen flex items-center justify-center">
+      <main className="pt-20 sm:pt-24 pb-12 sm:pb-16 min-h-screen flex items-center justify-center">
+        <ThemedPageFrame className="w-full">
         <div className="container-luxury">
           <div className="max-w-md mx-auto">
             <motion.div
@@ -360,6 +362,7 @@ const AuthPage = () => {
             </motion.div>
           </div>
         </div>
+        </ThemedPageFrame>
       </main>
 
       <ThemedFooter />

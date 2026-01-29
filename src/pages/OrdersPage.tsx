@@ -9,6 +9,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
+import ThemedPageFrame from '@/components/layout/ThemedPageFrame';
 
 interface OrderItem {
   id: string;
@@ -95,7 +96,8 @@ const OrdersPage = () => {
 
       <ThemedHeader />
 
-      <main className="pt-24 pb-16 min-h-screen">
+      <main className="pt-20 sm:pt-24 pb-12 sm:pb-16 min-h-screen">
+        <ThemedPageFrame className="pb-12 sm:pb-16">
         <div className="container-luxury">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -199,6 +201,7 @@ const OrdersPage = () => {
             </div>
           )}
         </div>
+        </ThemedPageFrame>
       </main>
 
       <ThemedFooter />

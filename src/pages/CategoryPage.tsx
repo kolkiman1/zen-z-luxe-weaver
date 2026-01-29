@@ -14,6 +14,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
+import ThemedPageFrame from '@/components/layout/ThemedPageFrame';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -189,7 +190,8 @@ const CategoryPage = () => {
       <ThemedHeader />
       <CartSidebar />
 
-      <main className="pt-20 pb-16 min-h-screen">
+      <main className="pt-20 sm:pt-24 pb-12 sm:pb-16 min-h-screen">
+        <ThemedPageFrame className="pb-12 sm:pb-16">
         {/* Category Banner */}
         {banner?.url && (
           <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden mb-8">
@@ -379,6 +381,7 @@ const CategoryPage = () => {
             </div>
           </div>
         </div>
+        </ThemedPageFrame>
       </main>
 
       <ThemedFooter />
