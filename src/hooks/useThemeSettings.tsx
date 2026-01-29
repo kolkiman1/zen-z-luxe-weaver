@@ -14,15 +14,34 @@ const defaultThemeSettings: ThemeSettings = {
   themePack: defaultThemePack,
 };
 
+const withTimeout = async <T,>(promiseLike: PromiseLike<T>, ms: number): Promise<T> => {
+  let t: number | undefined;
+  const timeout = new Promise<T>((_resolve, reject) => {
+    t = window.setTimeout(() => reject(new Error(`Timeout after ${ms}ms`)), ms);
+  });
+  try {
+    const promise = Promise.resolve(promiseLike);
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (t) window.clearTimeout(t);
+  }
+};
+
 export const useThemeSettings = () => {
   return useQuery({
     queryKey: ['site-settings', 'theme'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('site_settings')
-        .select('value')
-        .eq('key', 'theme')
-        .maybeSingle();
+      // Prevent the admin Themes page from getting stuck if the request hangs.
+      const res = await withTimeout(
+        (supabase
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'theme')
+          .maybeSingle() as unknown as PromiseLike<{ data: any; error: any }>),
+        8000
+      );
+
+      const { data, error } = res;
 
       if (error) {
         console.error('Error fetching theme settings:', error);
@@ -43,6 +62,7 @@ export const useThemeSettings = () => {
       return defaultThemeSettings;
     },
     staleTime: 1000 * 60 * 5,
+    retry: 1,
   });
 };
 
