@@ -51,10 +51,10 @@ const ProductCollection = ({ collection }: ProductCollectionProps) => {
 
   const gridClass =
     activeTheme === 'editorial'
-      ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-10'
+      ? 'grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-7 md:gap-10'
       : activeTheme === 'brutalist'
-        ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4'
-        : 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6';
+        ? 'grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5'
+        : 'grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6';
 
   return (
     <section className="section-padding bg-background relative overflow-hidden">
@@ -167,7 +167,9 @@ const ProductCollection = ({ collection }: ProductCollectionProps) => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.05, duration: 0.4 }}
               >
-                <ThemedProductCard product={product} index={index} />
+                <div className="w-full max-w-[26rem] mx-auto">
+                  <ThemedProductCard product={product} index={index} />
+                </div>
               </motion.div>
             ))}
           </motion.div>

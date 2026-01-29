@@ -22,14 +22,14 @@ const FeaturedProducts = () => {
 
   const itemWidthClass =
     activeTheme === 'editorial'
-      ? 'flex-shrink-0 w-[220px] sm:w-[300px] md:w-[320px] lg:w-[340px]'
+      ? 'flex-shrink-0 w-[260px] sm:w-[340px] md:w-[380px] lg:w-[420px]'
       : activeTheme === 'brutalist'
-        ? 'flex-shrink-0 w-[200px] sm:w-[260px] md:w-[280px] lg:w-[300px]'
-        : 'flex-shrink-0 w-[200px] sm:w-[260px] md:w-[280px] lg:w-[300px]';
+        ? 'flex-shrink-0 w-[240px] sm:w-[320px] md:w-[360px] lg:w-[400px]'
+        : 'flex-shrink-0 w-[240px] sm:w-[320px] md:w-[360px] lg:w-[400px]';
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 340;
+      const scrollAmount = 420;
       scrollContainerRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth',
@@ -152,7 +152,7 @@ const FeaturedProducts = () => {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ staggerChildren: 0.1 }}
-              className="flex flex-row gap-4 sm:gap-6 md:gap-8 overflow-x-auto pb-4 no-scrollbar scroll-smooth snap-x snap-mandatory"
+               className="flex flex-row gap-5 sm:gap-7 md:gap-9 overflow-x-auto pb-5 no-scrollbar scroll-smooth snap-x snap-mandatory"
             >
               {featuredProducts.slice(0, 8).map((product, index) => (
                 <motion.div
@@ -161,7 +161,7 @@ const FeaturedProducts = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05, duration: 0.4, ease: 'easeOut' }}
-                  className={`${itemWidthClass} snap-start transition-transform duration-300 ease-out hover:-translate-y-2 will-change-transform`}
+                   className={`${itemWidthClass} snap-start transition-transform duration-300 ease-out hover:-translate-y-2 will-change-transform`}
                 >
                   <ThemedProductCard product={product} index={index} />
                 </motion.div>
