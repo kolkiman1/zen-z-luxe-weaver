@@ -83,7 +83,7 @@ const WishlistSidebar = ({ isOpen, onClose }: WishlistSidebarProps) => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex gap-3 sm:gap-4"
+                      className="surface-plate surface-motion surface-hover rounded-xl p-3 sm:p-4 flex gap-3 sm:gap-4"
                     >
                       {/* Product Image */}
                       <Link 

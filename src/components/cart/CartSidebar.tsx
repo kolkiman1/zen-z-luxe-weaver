@@ -65,7 +65,7 @@ const CartSidebar = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex gap-3 sm:gap-4"
+                      className="surface-plate surface-motion surface-hover rounded-xl p-3 sm:p-4 flex gap-3 sm:gap-4"
                     >
                       {/* Product Image */}
                       <div className="w-20 h-24 sm:w-24 sm:h-28 bg-secondary rounded-lg overflow-hidden flex-shrink-0">
@@ -107,7 +107,7 @@ const CartSidebar = () => {
                               onClick={() =>
                                 updateQuantity(item.product.id, item.quantity - 1)
                               }
-                              className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-muted transition-colors"
+                              className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-muted transition-colors surface-motion"
                             >
                               <Minus size={14} />
                             </button>
@@ -116,7 +116,7 @@ const CartSidebar = () => {
                               onClick={() =>
                                 updateQuantity(item.product.id, item.quantity + 1)
                               }
-                              className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-muted transition-colors"
+                              className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-muted transition-colors surface-motion"
                             >
                               <Plus size={14} />
                             </button>
