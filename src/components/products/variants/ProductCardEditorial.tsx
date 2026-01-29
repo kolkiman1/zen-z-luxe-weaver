@@ -45,8 +45,8 @@ const ProductCardEditorial = ({ product, index = 0 }: ProductCardProps) => {
   };
 
   const Content = () => (
-    <article className="group">
-      <div className="relative aspect-[4/5] overflow-hidden bg-secondary border border-border rounded-none">
+      <article className="group">
+        <div className="relative aspect-[4/5] overflow-hidden bg-secondary border border-border rounded-md">
         {!isImageLoaded && <div className="absolute inset-0 animate-pulse bg-muted" />}
         <img
           src={product.images[0]}
@@ -57,12 +57,12 @@ const ProductCardEditorial = ({ product, index = 0 }: ProductCardProps) => {
           decoding="async"
         />
 
-        <div
-          className={`absolute inset-x-3 bottom-3 flex items-center gap-2 transition-all duration-200 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
-        >
+          <div
+            className={`absolute inset-x-3 bottom-3 flex items-center gap-2 transition-all duration-200 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
+          >
           <Button
             onClick={handleAddToCart}
-            className="flex-1 btn-primary h-10 rounded-none text-xs tracking-wide"
+              className="flex-1 btn-primary h-10 rounded-full text-xs tracking-wide"
           >
             <ShoppingBag className="w-4 h-4" />
             <span className="ml-2">Add</span>
@@ -71,7 +71,7 @@ const ProductCardEditorial = ({ product, index = 0 }: ProductCardProps) => {
             size="icon"
             variant="outline"
             onClick={handleToggleWishlist}
-            className={`h-10 w-10 rounded-none ${inWishlist ? 'bg-primary text-primary-foreground border-primary' : ''}`}
+              className={`h-10 w-10 rounded-full ${inWishlist ? 'bg-primary text-primary-foreground border-primary' : ''}`}
           >
             <Heart className="w-4 h-4" fill={inWishlist ? 'currentColor' : 'none'} />
           </Button>
@@ -79,7 +79,7 @@ const ProductCardEditorial = ({ product, index = 0 }: ProductCardProps) => {
             size="icon"
             variant="outline"
             onClick={handleQuickView}
-            className="h-10 w-10 rounded-none"
+              className="h-10 w-10 rounded-full"
           >
             <Eye className="w-4 h-4" />
           </Button>
@@ -90,11 +90,13 @@ const ProductCardEditorial = ({ product, index = 0 }: ProductCardProps) => {
         <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground line-clamp-1">
           {product.subcategory}
         </p>
-        <h3 className="mt-1 font-display text-base leading-tight line-clamp-2">
+        <h3 className="mt-1 font-body font-medium text-base leading-tight line-clamp-2">
           {product.name}
         </h3>
         <div className="mt-2 flex items-baseline gap-2">
-          <span className="text-primary font-medium">{formatPrice(product.price)}</span>
+          <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-1 text-primary font-medium text-sm">
+            {formatPrice(product.price)}
+          </span>
           {product.originalPrice && (
             <span className="text-muted-foreground line-through text-sm">{formatPrice(product.originalPrice)}</span>
           )}

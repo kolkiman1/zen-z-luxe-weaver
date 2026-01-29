@@ -22,13 +22,24 @@ const HeroEditorial = () => {
         />
       </div>
 
+      {/* runway lines */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage:
+            'linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px), linear-gradient(hsl(var(--border)) 1px, transparent 1px)',
+          backgroundSize: '96px 96px',
+          opacity: 0.08,
+        }}
+      />
+
       <div className="relative z-10 container-luxury min-h-screen pt-28 md:pt-32 pb-16">
         <div className="grid lg:grid-cols-12 gap-10 items-end min-h-[calc(100vh-11rem)]">
           <div className="lg:col-span-7">
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-xs tracking-[0.35em] uppercase text-muted-foreground"
+              className="text-xs tracking-[0.42em] uppercase text-muted-foreground"
             >
               {content.badgePrefix} {content.badgeHighlight}
             </motion.p>
@@ -37,7 +48,7 @@ const HeroEditorial = () => {
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
-              className="mt-4 font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.92]"
+              className="mt-4 font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.9] tracking-[-0.03em]"
             >
               <span className="block">{content.headingLine1}</span>
               <span className="block mt-2 text-gradient-gold">{content.headingLine2}</span>

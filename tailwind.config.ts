@@ -22,7 +22,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["'Playfair Display'", "serif"],
+        display: ["'Space Grotesk'", "sans-serif"],
         body: ["'Inter'", "sans-serif"],
       },
       colors: {
