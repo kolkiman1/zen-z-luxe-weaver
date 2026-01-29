@@ -94,6 +94,26 @@ const ImageZoomViewer = ({ images, currentIndex, onIndexChange, alt }: ImageZoom
   };
 
   const handleWheel = (e: React.WheelEvent) => {
+    // In fullscreen, when zoomed-in, wheel/trackpad scroll should PAN (not zoom)
+    // Zoom remains on +/- buttons and keyboard shortcuts.
+    if (isFullscreen && zoomLevel > 1) {
+      e.preventDefault();
+
+      const PAN_SPEED = 1; // tweakable
+      const delta = e.deltaY * PAN_SPEED;
+
+      setPosition((prev) => {
+        // Shift + wheel pans horizontally; otherwise vertical pan.
+        if (e.shiftKey) {
+          return { ...prev, x: prev.x - delta };
+        }
+        return { ...prev, y: prev.y - delta };
+      });
+
+      return;
+    }
+
+    // Default behavior (inline / not zoomed): wheel zooms in/out
     e.preventDefault();
     if (e.deltaY < 0) {
       handleZoomIn();
