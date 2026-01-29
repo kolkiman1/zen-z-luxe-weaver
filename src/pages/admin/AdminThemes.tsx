@@ -37,6 +37,7 @@ const AdminThemes = () => {
   const { data: themeSettings, isLoading } = useThemeSettings();
   const updateTheme = useUpdateThemeSettings();
   const [selected, setSelected] = useState<ThemeId>('editorial');
+  const [previewStarted, setPreviewStarted] = useState(false);
   const importInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -119,6 +120,7 @@ const AdminThemes = () => {
         themePack: imported.themePack,
       } as any);
       themePreviewStorage.disable();
+      setPreviewStarted(false);
       setSelected(imported.activeTheme);
       toast.success('Theme pack imported & applied', { description: `Active theme is now: ${themes.find(t => t.id === imported.activeTheme)?.name ?? imported.activeTheme}` });
     } catch (e) {
@@ -131,13 +133,27 @@ const AdminThemes = () => {
 
   const handlePreview = () => {
     themePreviewStorage.enable(selected);
-    toast.success('Preview enabled', { description: `Previewing: ${selectedMeta?.name ?? selected}` });
+    setPreviewStarted(true);
+    window.open('/', '_blank', 'noopener,noreferrer');
+    toast.success('Preview enabled', { description: `Opened storefront preview for: ${selectedMeta?.name ?? selected}` });
   };
 
-  const handleStopPreview = () => {
-    themePreviewStorage.disable();
-    toast.message('Preview disabled');
-  };
+  // Auto-stop preview when leaving the Themes page or reloading.
+  useEffect(() => {
+    if (!previewStarted) return;
+
+    const stop = () => {
+      themePreviewStorage.disable();
+      setPreviewStarted(false);
+    };
+
+    const onBeforeUnload = () => stop();
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      stop();
+    };
+  }, [previewStarted]);
 
   const handleApply = async () => {
     try {
@@ -146,6 +162,7 @@ const AdminThemes = () => {
         themePack: themeSettings?.themePack ?? defaultThemePack,
       });
       themePreviewStorage.disable();
+      setPreviewStarted(false);
       toast.success('Theme applied', { description: `Active theme is now: ${selectedMeta?.name ?? selected}` });
     } catch (e) {
       console.error(e);
@@ -160,6 +177,7 @@ const AdminThemes = () => {
         themePack: defaultThemePack,
       } as any);
       themePreviewStorage.disable();
+      setPreviewStarted(false);
       setSelected(activeTheme);
       toast.success('Defaults restored', { description: 'Theme tokens were reset to the built-in defaults and applied.' });
     } catch (e) {
@@ -188,8 +206,8 @@ const AdminThemes = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Choose a theme, click <span className="font-medium text-foreground">Preview</span> to see it instantly (admin-only), then
-                  <span className="font-medium text-foreground"> Apply</span> to publish it for everyone.
+                  Choose a theme, then click <span className="font-medium text-foreground">Preview in new tab</span> to open the storefront with an
+                  admin-only preview applied. Preview automatically turns off when you leave this page.
                 </p>
 
                 <div className="grid grid-cols-1 gap-3">
@@ -223,10 +241,7 @@ const AdminThemes = () => {
 
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <Button onClick={handlePreview} disabled={isLoading} className="btn-primary">
-                    Preview
-                  </Button>
-                  <Button variant="outline" onClick={handleStopPreview} disabled={isLoading}>
-                    Stop Preview
+                    Preview in new tab
                   </Button>
 
                   <input
@@ -288,21 +303,15 @@ const AdminThemes = () => {
           </div>
 
           <div className="xl:col-span-7">
-            <Card className="border-border/50 overflow-hidden">
+            <Card className="border-border/50">
               <CardHeader>
-                <CardTitle className="flex items-center justify-between gap-3">
-                  <span>Live Preview</span>
-                  <span className="text-xs text-muted-foreground">Updates instantly when you click Preview</span>
-                </CardTitle>
+                <CardTitle>Preview</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="rounded-xl overflow-hidden border border-border/50 bg-card">
-                  <iframe
-                    title="Storefront Preview"
-                    src="/"
-                    className="w-full h-[680px]"
-                  />
-                </div>
+              <CardContent className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  Use <span className="font-medium text-foreground">Preview in new tab</span> to view the storefront with your selected theme before
+                  applying it for everyone.
+                </p>
               </CardContent>
             </Card>
           </div>
