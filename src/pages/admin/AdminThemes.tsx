@@ -18,18 +18,18 @@ type ThemeOption = {
 const themes: ThemeOption[] = [
   {
     id: 'artisan',
-    name: 'Artisan Boutique',
-    description: 'Warm, textured, boutique vibe with soft shapes and earthy tones.',
+    name: 'Heritage Premium',
+    description: 'Warm ivory palette, deep maroon primary, gold accents—premium heritage marketplace.',
   },
   {
     id: 'editorial',
-    name: 'Editorial Luxury',
-    description: 'High-fashion editorial layout with refined light palette and airy spacing.',
+    name: 'Luxe Marketplace',
+    description: 'Clean, bright, high-end marketplace UI with crisp structure and premium spacing.',
   },
   {
     id: 'brutalist',
-    name: 'Brutalist Streetwear',
-    description: 'Sharp, high-contrast, grid-forward styling with bold typography.',
+    name: 'Trend Pop (Pink)',
+    description: 'Myntra-like trend energy: pink primary, punchy accents, promo-forward marketplace styling.',
   },
 ];
 
