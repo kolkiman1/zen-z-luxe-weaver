@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { themePreviewStorage } from '@/contexts/ThemeContext';
 import { useThemeSettings, useUpdateThemeSettings, type ThemeId } from '@/hooks/useThemeSettings';
+import { defaultThemePack, isThemeId, type ThemePackV1 } from '@/lib/themePack';
 
 type ThemeOption = {
   id: ThemeId;
@@ -46,23 +47,27 @@ const AdminThemes = () => {
 
   const selectedMeta = useMemo(() => themes.find(t => t.id === selected), [selected]);
 
-  const exportThemeJson = (settings: { activeTheme: ThemeId }) => {
+  const exportThemeJson = () => {
+    const themePack = themeSettings?.themePack ?? defaultThemePack;
     const payload = {
       version: 1,
       exportedAt: new Date().toISOString(),
-      theme: settings,
+      theme: {
+        activeTheme: themeSettings?.activeTheme ?? selected,
+        themePack,
+      },
     };
     return JSON.stringify(payload, null, 2);
   };
 
   const downloadTheme = () => {
     try {
-      const json = exportThemeJson({ activeTheme: selected });
+      const json = exportThemeJson();
       const blob = new Blob([json], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `theme-${selected}.json`;
+      a.download = `theme-pack.json`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -76,7 +81,7 @@ const AdminThemes = () => {
 
   const copyThemeJson = async () => {
     try {
-      const json = exportThemeJson({ activeTheme: selected });
+      const json = exportThemeJson();
       await navigator.clipboard.writeText(json);
       toast.success('Copied', { description: 'Theme JSON copied to clipboard.' });
     } catch (e) {
@@ -85,27 +90,37 @@ const AdminThemes = () => {
     }
   };
 
-  const validateImportedTheme = (obj: unknown): ThemeId | null => {
+  const validateImportedTheme = (obj: unknown): { activeTheme: ThemeId; themePack: ThemePackV1 } | null => {
     if (!obj || typeof obj !== 'object') return null;
     // Accept either raw ThemeSettings or the exported wrapper.
     const maybeAny = obj as any;
     const themeObj = maybeAny?.theme ?? maybeAny;
     const id = themeObj?.activeTheme;
-    return id && ['artisan', 'editorial', 'brutalist'].includes(id) ? (id as ThemeId) : null;
+    const pack = themeObj?.themePack;
+    if (!isThemeId(id)) return null;
+    // If pack isn't provided, fall back to defaults.
+    const normalizedPack: ThemePackV1 = pack && typeof pack === 'object' ? pack : defaultThemePack;
+    return { activeTheme: id, themePack: normalizedPack };
   };
 
   const handleImportFile = async (file: File) => {
     try {
       const text = await file.text();
       const parsed = JSON.parse(text);
-      const importedTheme = validateImportedTheme(parsed);
-      if (!importedTheme) {
+      const imported = validateImportedTheme(parsed);
+      if (!imported) {
         toast.error('Invalid theme file', { description: 'Expected JSON with { activeTheme: "artisan"|"editorial"|"brutalist" }' });
         return;
       }
 
-      setSelected(importedTheme);
-      toast.success('Theme imported', { description: `Selected: ${themes.find(t => t.id === importedTheme)?.name ?? importedTheme}. Click Preview or Apply.` });
+      // Import + Apply (as requested): publish immediately.
+      await updateTheme.mutateAsync({
+        activeTheme: imported.activeTheme,
+        themePack: imported.themePack,
+      } as any);
+      themePreviewStorage.disable();
+      setSelected(imported.activeTheme);
+      toast.success('Theme pack imported & applied', { description: `Active theme is now: ${themes.find(t => t.id === imported.activeTheme)?.name ?? imported.activeTheme}` });
     } catch (e) {
       console.error(e);
       toast.error('Failed to import theme');
@@ -126,7 +141,10 @@ const AdminThemes = () => {
 
   const handleApply = async () => {
     try {
-      await updateTheme.mutateAsync({ activeTheme: selected });
+      await updateTheme.mutateAsync({
+        activeTheme: selected,
+        themePack: themeSettings?.themePack ?? defaultThemePack,
+      });
       themePreviewStorage.disable();
       toast.success('Theme applied', { description: `Active theme is now: ${selectedMeta?.name ?? selected}` });
     } catch (e) {

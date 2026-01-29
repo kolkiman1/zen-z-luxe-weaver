@@ -1,14 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { defaultThemePack, type ThemePackV1 } from '@/lib/themePack';
 
 export type ThemeId = 'artisan' | 'editorial' | 'brutalist';
 
 export interface ThemeSettings {
   activeTheme: ThemeId;
+  themePack: ThemePackV1;
 }
 
 const defaultThemeSettings: ThemeSettings = {
   activeTheme: 'editorial',
+  themePack: defaultThemePack,
 };
 
 export const useThemeSettings = () => {
@@ -27,7 +30,14 @@ export const useThemeSettings = () => {
       }
 
       if (data?.value) {
-        return { ...defaultThemeSettings, ...(data.value as unknown as Partial<ThemeSettings>) };
+        const stored = data.value as unknown as Partial<ThemeSettings>;
+        // Backwards compat: previously we stored only { activeTheme }
+        const merged: ThemeSettings = {
+          ...defaultThemeSettings,
+          ...stored,
+          themePack: (stored as any)?.themePack ?? defaultThemeSettings.themePack,
+        };
+        return merged;
       }
 
       return defaultThemeSettings;

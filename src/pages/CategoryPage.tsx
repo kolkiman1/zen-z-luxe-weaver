@@ -2,8 +2,8 @@ import { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SlidersHorizontal, Grid3X3, Grid2X2, X, Loader2, ChevronDown, ArrowUpDown } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import ThemedHeader from '@/components/layout/ThemedHeader';
+import ThemedFooter from '@/components/layout/ThemedFooter';
 import CartSidebar from '@/components/cart/CartSidebar';
 import ThemedProductCard from '@/components/products/ThemedProductCard';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -185,7 +185,7 @@ const CategoryPage = () => {
         url={`/category/${slug}`}
       />
 
-      <Header />
+      <ThemedHeader />
       <CartSidebar />
 
       <main className="pt-20 pb-16 min-h-screen">
@@ -378,7 +378,7 @@ const CategoryPage = () => {
         </div>
       </main>
 
-      <Footer />
+      <ThemedFooter />
     </>
   );
 };

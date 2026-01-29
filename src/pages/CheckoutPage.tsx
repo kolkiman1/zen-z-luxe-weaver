@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Truck, Shield, Loader2, AlertCircle, Tag, X, CheckCircle, MapPin, Zap, Banknote } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import ThemedHeader from '@/components/layout/ThemedHeader';
+import ThemedFooter from '@/components/layout/ThemedFooter';
 import CartSidebar from '@/components/cart/CartSidebar';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -445,7 +445,7 @@ const CheckoutPage = () => {
   if (items.length === 0) {
     return (
       <>
-        <Header />
+         <ThemedHeader />
         <main className="pt-24 pb-16 min-h-screen flex items-center justify-center">
           <div className="text-center">
             <h1 className="font-display text-3xl mb-4">Your cart is empty</h1>
@@ -455,7 +455,7 @@ const CheckoutPage = () => {
             </Link>
           </div>
         </main>
-        <Footer />
+         <ThemedFooter />
       </>
     );
   }
@@ -474,7 +474,7 @@ const CheckoutPage = () => {
         noIndex={true}
       />
 
-      <Header />
+      <ThemedHeader />
       <CartSidebar />
 
       <main className="pt-20 sm:pt-24 pb-12 sm:pb-16 min-h-screen">
@@ -1056,7 +1056,7 @@ const CheckoutPage = () => {
         </div>
       </main>
 
-      <Footer />
+      <ThemedFooter />
     </>
   );
 };

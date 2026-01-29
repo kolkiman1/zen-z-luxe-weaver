@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useThemeSettings, type ThemeId } from '@/hooks/useThemeSettings';
+import { defaultThemePack } from '@/lib/themePack';
 
 type ThemeContextValue = {
   activeTheme: ThemeId;
@@ -46,10 +47,32 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   const activeTheme = (data?.activeTheme ?? 'editorial') as ThemeId;
   const effectiveTheme = previewEnabled && previewTheme ? previewTheme : activeTheme;
+  const themePack = data?.themePack ?? defaultThemePack;
 
   useEffect(() => {
     document.documentElement.dataset.theme = effectiveTheme;
   }, [effectiveTheme]);
+
+  // Apply theme token overrides from backend (colors/typography/radius/shadows).
+  useEffect(() => {
+    const el = document.documentElement;
+    const tokens = themePack.themes[effectiveTheme] ?? {};
+    // Avoid token "leaks" when switching: set all keys from all themes.
+    const allKeys = new Set<string>();
+    (Object.values(themePack.themes) as Array<Record<string, string>>).forEach((t) => {
+      Object.keys(t || {}).forEach((k) => allKeys.add(k));
+    });
+
+    allKeys.forEach((k) => {
+      const v = tokens[k];
+      if (typeof v === 'string' && v.length > 0) {
+        el.style.setProperty(`--${k}`, v);
+      } else {
+        // If a key is missing in the current theme, clear it so CSS defaults apply.
+        el.style.removeProperty(`--${k}`);
+      }
+    });
+  }, [effectiveTheme, themePack]);
 
   const value = useMemo<ThemeContextValue>(
     () => ({
@@ -81,3 +104,4 @@ export const themePreviewStorage = {
     window.dispatchEvent(new Event('zz-theme-preview-change'));
   },
 };
+
