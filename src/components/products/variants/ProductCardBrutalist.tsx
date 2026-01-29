@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Heart, Eye, ShoppingBag } from 'lucide-react';
+import { Heart, Eye, ShoppingBag, MoreHorizontal } from 'lucide-react';
 import type { Product } from '@/lib/data';
 import { formatPrice } from '@/lib/data';
 import { useCart } from '@/contexts/CartContext';
@@ -10,6 +10,7 @@ import { usePerformanceOptional } from '@/contexts/PerformanceContext';
 import { Button } from '@/components/ui/button';
 import CompareToggleButton from '@/components/compare/CompareToggleButton';
 import QuickViewModal from '@/components/products/QuickViewModal';
+import MobileMoreActionsSheet from '@/components/products/MobileMoreActionsSheet';
 
 interface ProductCardProps {
   product: Product;
@@ -88,14 +89,44 @@ const ProductCardBrutalist = ({ product, index = 0 }: ProductCardProps) => {
           </div>
         </div>
 
+        {/* Mobile actions: primary + more menu */}
+        <div className="absolute inset-x-2 bottom-2 flex items-center gap-2 sm:hidden">
+          <Button
+            onClick={handleAddToCart}
+            className="btn-primary rounded-none h-10 flex-1 text-xs font-black uppercase tracking-widest"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span className="ml-2">Add</span>
+          </Button>
+
+          <MobileMoreActionsSheet
+            theme="brutalist"
+            product={product}
+            inWishlist={inWishlist}
+            onToggleWishlist={handleToggleWishlist}
+            onQuickView={handleQuickView}
+            trigger={
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-none h-10 w-10 border-2"
+                aria-label="More actions"
+              >
+                <MoreHorizontal className="h-5 w-5" />
+              </Button>
+            }
+          />
+        </div>
+
+        {/* Desktop actions: hover reveal */}
         <div
-          className={`absolute inset-x-2 bottom-2 grid grid-cols-2 gap-2 transition-all duration-150
-            opacity-100 translate-y-0 sm:opacity-0 sm:translate-y-2
-            ${isHovered ? 'sm:opacity-100 sm:translate-y-0' : ''}`}
+          className={`absolute inset-x-2 bottom-2 hidden sm:grid grid-cols-2 gap-2 transition-all duration-150 ${
+            isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+          }`}
         >
           <Button onClick={handleAddToCart} className="btn-primary rounded-none h-10 text-xs font-bold uppercase tracking-widest">
             <ShoppingBag className="w-4 h-4" />
-            <span className="ml-2 hidden sm:inline">Cart</span>
+            <span className="ml-2">Cart</span>
           </Button>
           <Button
             variant="outline"
@@ -103,7 +134,7 @@ const ProductCardBrutalist = ({ product, index = 0 }: ProductCardProps) => {
             className="rounded-none h-10 border-2 text-xs font-bold uppercase tracking-widest"
           >
             <Eye className="w-4 h-4" />
-            <span className="ml-2 hidden sm:inline">View</span>
+            <span className="ml-2">View</span>
           </Button>
         </div>
       </div>
