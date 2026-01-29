@@ -39,7 +39,8 @@ const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const { activeTheme } = useTheme();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [gridCols, setGridCols] = useState(3);
+  // Myntra-like: larger cards by default (2 cols desktop, optionally 3)
+  const [gridCols, setGridCols] = useState(2);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState([0, 100000]);
   const [sortBy, setSortBy] = useState('featured');
@@ -113,8 +114,8 @@ const CategoryPage = () => {
   const gridClass = useMemo(() => {
     const baseCols =
       gridCols === 2
-        ? 'grid-cols-1 sm:grid-cols-2'
-        : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+        ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-2'
+        : 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3';
 
     if (activeTheme === 'editorial') {
       return `grid ${baseCols} gap-10 md:gap-12`;
@@ -254,7 +255,8 @@ const CategoryPage = () => {
           )}
 
           {/* Toolbar */}
-          <div className="flex items-center justify-between gap-2 sm:gap-4 mb-6 sm:mb-8 pb-4 sm:pb-6 border-b border-border">
+          <div className="market-toolbar mb-6 sm:mb-8">
+            <div className="flex items-center justify-between gap-2 sm:gap-4">
             {/* Desktop Filter Button */}
             <Button
               variant="outline"
@@ -332,6 +334,7 @@ const CategoryPage = () => {
                   <Grid3X3 size={18} />
                 </button>
               </div>
+            </div>
             </div>
           </div>
 

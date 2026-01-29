@@ -19,6 +19,7 @@ import WishlistSidebar from '@/components/wishlist/WishlistSidebar';
 import ThemedMegaMenu from '@/components/layout/ThemedMegaMenu';
 import ThemedMobileMenu from '@/components/layout/ThemedMobileMenu';
 import { toast } from 'sonner';
+import HeaderSearchBar from '@/components/layout/HeaderSearchBar';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -62,73 +63,76 @@ const Header = () => {
         }`}
       >
         <div className="container-luxury">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-3">
             {/* Mobile Menu Button */}
-            <motion.button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 -ml-2 text-foreground hover:text-primary transition-colors rounded-lg hover:bg-muted/50"
-              whileTap={{ scale: 0.95 }}
-            >
-              <motion.div
-                animate={{ rotate: isMobileMenuOpen ? 90 : 0 }}
-                transition={{ duration: 0.2 }}
+            <div className="flex items-center gap-2">
+              <motion.button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden p-2 -ml-2 text-foreground hover:text-primary transition-colors rounded-lg hover:bg-muted/50"
+                whileTap={{ scale: 0.95 }}
+                aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
               >
-                {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-              </motion.div>
-            </motion.button>
+                <motion.div animate={{ rotate: isMobileMenuOpen ? 90 : 0 }} transition={{ duration: 0.2 }}>
+                  {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+                </motion.div>
+              </motion.button>
 
-            {/* Logo */}
-            <Link to="/" className="flex-shrink-0 group">
-              <motion.div
-                className="relative flex flex-col items-center lg:items-start"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span className="font-display text-xl sm:text-2xl lg:text-3xl tracking-tight relative">
-                  <motion.span
-                    className="inline-block bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent font-semibold"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    Zen
-                  </motion.span>
-                  <motion.span
-                    className="inline-block text-foreground group-hover:text-foreground/80 transition-colors duration-300"
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                  >
-                    Zee
-                  </motion.span>
-                  <motion.span
-                    className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-gradient-to-r from-primary/0 via-primary to-primary/0 origin-center scale-x-0 group-hover:scale-x-100 transition-transform duration-500"
-                  />
-                </span>
-                  <motion.span
-                  className="hidden sm:block text-[9px] lg:text-[10px] tracking-[0.28em] uppercase text-muted-foreground/60 font-medium mt-0.5"
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
+              {/* Logo */}
+              <Link to="/" className="flex-shrink-0 group">
+                <motion.div
+                  className="relative flex flex-col items-start"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  Premium for the Next Gen
-                </motion.span>
-              </motion.div>
-            </Link>
+                  <span className="font-display text-xl sm:text-2xl lg:text-3xl tracking-tight relative">
+                    <motion.span
+                      className="inline-block bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent font-semibold"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      Zen
+                    </motion.span>
+                    <motion.span
+                      className="inline-block text-foreground group-hover:text-foreground/80 transition-colors duration-300"
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.5, delay: 0.1 }}
+                    >
+                      Zee
+                    </motion.span>
+                    <motion.span className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-gradient-to-r from-primary/0 via-primary to-primary/0 origin-center scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
+                  </span>
+                  <motion.span
+                    className="hidden sm:block text-[9px] lg:text-[10px] tracking-[0.28em] uppercase text-muted-foreground/60 font-medium mt-0.5"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                  >
+                    Premium for the Next Gen
+                  </motion.span>
+                </motion.div>
+              </Link>
+            </div>
 
-            {/* Desktop Navigation with Mega Menu */}
-            <div className="hidden lg:block flex-1 flex justify-center">
+            {/* Desktop: nav + prominent marketplace search */}
+            <div className="hidden lg:flex flex-1 items-center gap-4 px-4">
               <ThemedMegaMenu isScrolled={isScrolled} currentPath={location.pathname} />
+              <HeaderSearchBar
+                onOpen={() => setIsSearchOpen(true)}
+                className="ml-auto w-full max-w-[560px]"
+                variant="pill"
+              />
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center justify-end gap-1 sm:gap-2">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsSearchOpen(true)}
-                  className="h-9 w-9 sm:h-10 sm:w-10 text-foreground hover:text-primary hover:bg-muted/50 rounded-full"
+                  className="lg:hidden h-9 w-9 sm:h-10 sm:w-10 text-foreground hover:text-primary hover:bg-muted/50 rounded-full"
                 >
                   <Search size={18} className="sm:w-5 sm:h-5" />
                 </Button>

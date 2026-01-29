@@ -19,6 +19,7 @@ import WishlistSidebar from '@/components/wishlist/WishlistSidebar';
 import ThemedMegaMenu from '@/components/layout/ThemedMegaMenu';
 import ThemedMobileMenu from '@/components/layout/ThemedMobileMenu';
 import { toast } from 'sonner';
+import HeaderSearchBar from '@/components/layout/HeaderSearchBar';
 
 const HeaderBrutalist = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -58,7 +59,7 @@ const HeaderBrutalist = () => {
         } bg-background border-b-2 border-border`}
       >
         <div className="container-luxury">
-          <div className="h-16 md:h-[72px] flex items-center justify-between gap-4">
+          <div className="h-16 md:h-[72px] flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <motion.button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -78,12 +79,22 @@ const HeaderBrutalist = () => {
               </Link>
             </div>
 
-            <div className="hidden lg:block flex-1 flex justify-center">
+            <div className="hidden lg:flex flex-1 items-center gap-4 px-4">
               <ThemedMegaMenu isScrolled={true} currentPath={location.pathname} />
+              <HeaderSearchBar
+                onOpen={() => setIsSearchOpen(true)}
+                className="ml-auto w-full max-w-[560px]"
+                variant="brutalist"
+              />
             </div>
 
             <div className="flex items-center gap-1">
-              <Button variant="outline" size="icon" onClick={() => setIsSearchOpen(true)} className="h-9 w-9 rounded-none border-2 surface-plate">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setIsSearchOpen(true)}
+                className="lg:hidden h-9 w-9 rounded-none border-2 surface-plate"
+              >
                 <Search size={18} />
               </Button>
               <Button variant="outline" size="icon" onClick={() => setIsWishlistOpen(true)} className="relative h-9 w-9 rounded-none border-2 surface-plate">

@@ -19,6 +19,7 @@ import WishlistSidebar from '@/components/wishlist/WishlistSidebar';
 import ThemedMegaMenu from '@/components/layout/ThemedMegaMenu';
 import ThemedMobileMenu from '@/components/layout/ThemedMobileMenu';
 import { toast } from 'sonner';
+import HeaderSearchBar from '@/components/layout/HeaderSearchBar';
 
 const HeaderEditorial = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -60,8 +61,8 @@ const HeaderEditorial = () => {
         }`}
       >
         <div className="container-luxury">
-          <div className="h-16 md:h-[72px] grid grid-cols-3 items-center">
-            {/* Left */}
+          <div className="h-16 md:h-[72px] flex items-center justify-between gap-3">
+            {/* Left (logo + mobile menu) */}
             <div className="flex items-center gap-2">
               <motion.button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -72,21 +73,24 @@ const HeaderEditorial = () => {
                 {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
               </motion.button>
 
-              <div className="hidden lg:block">
-                <ThemedMegaMenu isScrolled={isScrolled} currentPath={location.pathname} />
-              </div>
-            </div>
-
-            {/* Center logo */}
-            <div className="flex justify-center">
               <Link to="/" className="group">
-                <div className="text-center leading-none">
+                <div className="leading-none">
                   <span className="font-display text-xl md:text-2xl tracking-[-0.02em]">ZEN ZEE</span>
-                  <span className="block text-[10px] tracking-[0.32em] uppercase text-muted-foreground mt-1">
+                  <span className="hidden sm:block text-[10px] tracking-[0.32em] uppercase text-muted-foreground mt-1">
                     Runway Edit
                   </span>
                 </div>
               </Link>
+            </div>
+
+            {/* Desktop: nav + prominent search */}
+            <div className="hidden lg:flex flex-1 items-center gap-4 px-4">
+              <ThemedMegaMenu isScrolled={isScrolled} currentPath={location.pathname} />
+              <HeaderSearchBar
+                onOpen={() => setIsSearchOpen(true)}
+                className="ml-auto w-full max-w-[620px]"
+                variant="square"
+              />
             </div>
 
             {/* Right actions */}
@@ -95,7 +99,7 @@ const HeaderEditorial = () => {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSearchOpen(true)}
-                className="h-9 w-9 rounded-none"
+                className="lg:hidden h-9 w-9 rounded-none"
               >
                 <Search size={18} />
               </Button>
