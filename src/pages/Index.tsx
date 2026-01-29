@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CartSidebar from '@/components/cart/CartSidebar';
-import Hero from '@/components/home/Hero';
+import ThemeHero from '@/components/home/ThemeHero';
 import Categories from '@/components/home/Categories';
 import FeaturedProducts from '@/components/home/FeaturedProducts';
 import NewArrivals from '@/components/home/NewArrivals';
@@ -23,7 +23,7 @@ import { toast } from 'sonner';
 type StaticSectionId = Exclude<SectionId, 'collection'>;
 
 const sectionComponents: Record<StaticSectionId, React.ComponentType> = {
-  hero: Hero,
+  hero: ThemeHero,
   features: Features,
   videoShowcase: VideoShowcase,
   newArrivals: NewArrivals,
