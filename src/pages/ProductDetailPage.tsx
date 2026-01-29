@@ -16,6 +16,8 @@ import { useWishlist } from '@/contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import ThemedPageFrame from '@/components/layout/ThemedPageFrame';
+import ThemedPageLayout from '@/components/layout/ThemedPageLayout';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +26,7 @@ const ProductDetailPage = () => {
   const { data: seoSettings } = useSeoSettings();
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { theme } = useTheme();
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | undefined>();
@@ -113,248 +116,294 @@ const ProductDetailPage = () => {
 
       <main className="pt-20 sm:pt-24 pb-12 sm:pb-16">
         <ThemedPageFrame className="pb-12 sm:pb-16">
-        <div className="container-luxury px-4 sm:px-6">
-          {/* Breadcrumb */}
-          <nav className="mb-4 sm:mb-8 overflow-x-auto">
-            <ol className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
-              <li><Link to="/" className="hover:text-primary">Home</Link></li>
-              <li>/</li>
-              <li><Link to={`/category/${product.category}`} className="hover:text-primary capitalize">{product.category}</Link></li>
-              <li>/</li>
-              <li className="text-foreground truncate max-w-[150px] sm:max-w-none">{product.name}</li>
-            </ol>
-          </nav>
+          <ThemedPageLayout
+            title={product.name}
+            subtitle={product.subcategory}
+            meta={
+              <nav className="overflow-x-auto">
+                <ol className={theme === 'brutalist' ? 'flex items-center gap-2 text-xs tracking-[0.3em] uppercase text-muted-foreground whitespace-nowrap' : 'flex items-center gap-2 text-xs sm:text-sm text-muted-foreground whitespace-nowrap'}>
+                  <li>
+                    <Link to="/" className="hover:text-primary">
+                      Home
+                    </Link>
+                  </li>
+                  <li>/</li>
+                  <li>
+                    <Link to={`/category/${product.category}`} className="hover:text-primary capitalize">
+                      {product.category}
+                    </Link>
+                  </li>
+                  <li>/</li>
+                  <li className="text-foreground truncate max-w-[150px] sm:max-w-none">{product.name}</li>
+                </ol>
+              </nav>
+            }
+            aside={
+              <div className={theme === 'brutalist' ? 'space-y-4' : 'space-y-4'}>
+                <div className={theme === 'brutalist' ? 'border-2 border-border bg-card p-4' : 'surface-panel rounded-2xl p-4'}>
+                  <p className={theme === 'brutalist' ? 'text-xs tracking-[0.35em] uppercase text-muted-foreground' : 'text-xs uppercase tracking-wider text-muted-foreground'}>
+                    Price
+                  </p>
+                  <p className={theme === 'brutalist' ? 'mt-2 font-body font-black uppercase text-2xl' : 'mt-2 font-display text-2xl text-primary'}>
+                    {formatPrice(product.price)}
+                  </p>
+                  {product.originalPrice ? (
+                    <p className={theme === 'brutalist' ? 'mt-1 text-sm text-muted-foreground line-through' : 'mt-1 text-sm text-muted-foreground line-through'}>
+                      {formatPrice(product.originalPrice)}
+                    </p>
+                  ) : null}
+                </div>
 
-          <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-16">
-            {/* Image Gallery */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="space-y-3 sm:space-y-4"
-            >
-              {/* Main Image with Zoom */}
-              <div className="relative">
-                <ImageZoomViewer
-                  images={product.images}
-                  currentIndex={selectedImage}
-                  onIndexChange={setSelectedImage}
-                  alt={product.name}
-                />
+                <div className={theme === 'brutalist' ? 'border-2 border-border bg-card p-4' : 'surface-panel rounded-2xl p-4'}>
+                  {/* Size */}
+                  {product.sizes && product.sizes.length > 0 ? (
+                    <div>
+                      <p className={theme === 'brutalist' ? 'text-xs tracking-[0.35em] uppercase text-muted-foreground' : 'text-sm font-medium'}>
+                        Size
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {product.sizes.map((size) => (
+                          <button
+                            key={size}
+                            onClick={() => setSelectedSize(size)}
+                            className={
+                              theme === 'brutalist'
+                                ? `h-10 px-4 border-2 text-xs font-black uppercase tracking-wider transition-colors ${
+                                    selectedSize === size ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:border-primary'
+                                  }`
+                                : `h-10 px-4 rounded-lg border text-sm transition-colors ${
+                                    selectedSize === size ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:border-primary'
+                                  }`
+                            }
+                          >
+                            {size}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
 
-                {/* Badges */}
-                <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col gap-1.5 sm:gap-2 z-10 pointer-events-none">
-                  {product.isNew && (
-                    <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium rounded-full">
-                      NEW
-                    </span>
-                  )}
-                  {product.originalPrice && (
-                    <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-destructive text-destructive-foreground text-[10px] sm:text-xs font-medium rounded-full">
-                      SALE
-                    </span>
-                  )}
+                  {/* Color */}
+                  {product.colors && product.colors.length > 0 ? (
+                    <div className="mt-5">
+                      <p className={theme === 'brutalist' ? 'text-xs tracking-[0.35em] uppercase text-muted-foreground' : 'text-sm font-medium'}>
+                        Color <span className="text-muted-foreground">{selectedColor?.name ? `— ${selectedColor.name}` : ''}</span>
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {product.colors.map((color) => (
+                          <button
+                            key={color.name}
+                            onClick={() => setSelectedColor(color)}
+                            className={
+                              theme === 'brutalist'
+                                ? `h-10 px-3 border-2 text-xs font-black uppercase tracking-wider transition-colors ${
+                                    selectedColor?.name === color.name
+                                      ? 'bg-primary text-primary-foreground border-primary'
+                                      : 'border-border hover:border-primary'
+                                  }`
+                                : `h-10 px-3 rounded-lg border text-sm transition-colors ${
+                                    selectedColor?.name === color.name
+                                      ? 'bg-primary text-primary-foreground border-primary'
+                                      : 'border-border hover:border-primary'
+                                  }`
+                            }
+                          >
+                            {color.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Quantity */}
+                  <div className="mt-6">
+                    <p className={theme === 'brutalist' ? 'text-xs tracking-[0.35em] uppercase text-muted-foreground' : 'text-sm font-medium'}>
+                      Quantity
+                    </p>
+                    <div className={theme === 'brutalist' ? 'mt-3 inline-flex items-center border-2 border-border' : 'mt-3 inline-flex items-center border border-border rounded-lg'}>
+                      <button
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className={theme === 'brutalist' ? 'w-12 h-12 hover:bg-secondary' : 'w-12 h-12 hover:bg-secondary rounded-l-lg'}
+                      >
+                        <Minus size={16} className="mx-auto" />
+                      </button>
+                      <span className={theme === 'brutalist' ? 'w-12 text-center font-black' : 'w-12 text-center font-medium'}>
+                        {quantity}
+                      </span>
+                      <button
+                        onClick={() => setQuantity(quantity + 1)}
+                        className={theme === 'brutalist' ? 'w-12 h-12 hover:bg-secondary' : 'w-12 h-12 hover:bg-secondary rounded-r-lg'}
+                      >
+                        <Plus size={16} className="mx-auto" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="mt-6 grid grid-cols-[1fr_auto] gap-2">
+                    <Button
+                      onClick={handleAddToCart}
+                      className={theme === 'brutalist' ? 'btn-primary rounded-none h-12' : 'btn-primary h-12 rounded-full'}
+                      disabled={!product.inStock}
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        <ShoppingBag size={18} />
+                        {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+                      </span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => toggleWishlist(product)}
+                      className={
+                        theme === 'brutalist'
+                          ? `h-12 w-12 rounded-none border-2 ${inWishlist ? 'bg-primary text-primary-foreground border-primary' : ''}`
+                          : `h-12 w-12 rounded-full ${inWishlist ? 'bg-primary text-primary-foreground border-primary' : ''}`
+                      }
+                    >
+                      <Heart size={18} fill={inWishlist ? 'currentColor' : 'none'} />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className={theme === 'brutalist' ? 'border-2 border-border bg-card p-4' : 'surface-panel rounded-2xl p-4'}>
+                  <div className={theme === 'brutalist' ? 'grid grid-cols-1 gap-3' : 'grid grid-cols-3 gap-2'}>
+                    <div className={theme === 'brutalist' ? 'border border-border p-3' : 'text-center'}>
+                      <Truck size={18} className={theme === 'brutalist' ? 'text-primary' : 'mx-auto text-primary'} />
+                      <p className={theme === 'brutalist' ? 'mt-2 text-xs tracking-[0.3em] uppercase text-muted-foreground' : 'mt-1 text-[10px] sm:text-xs text-muted-foreground'}>
+                        Delivery
+                      </p>
+                    </div>
+                    <div className={theme === 'brutalist' ? 'border border-border p-3' : 'text-center'}>
+                      <RefreshCw size={18} className={theme === 'brutalist' ? 'text-primary' : 'mx-auto text-primary'} />
+                      <p className={theme === 'brutalist' ? 'mt-2 text-xs tracking-[0.3em] uppercase text-muted-foreground' : 'mt-1 text-[10px] sm:text-xs text-muted-foreground'}>
+                        Returns
+                      </p>
+                    </div>
+                    <div className={theme === 'brutalist' ? 'border border-border p-3' : 'text-center'}>
+                      <Shield size={18} className={theme === 'brutalist' ? 'text-primary' : 'mx-auto text-primary'} />
+                      <p className={theme === 'brutalist' ? 'mt-2 text-xs tracking-[0.3em] uppercase text-muted-foreground' : 'mt-1 text-[10px] sm:text-xs text-muted-foreground'}>
+                        Secure
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              {/* Thumbnails - Hidden on mobile, shown on sm+ */}
-              {product.images.length > 1 && (
-                <div className="hidden sm:flex gap-2 sm:gap-3 overflow-x-auto pb-1">
+            }
+          >
+            <div className={theme === 'brutalist' ? 'grid gap-6 lg:grid-cols-[96px_1fr]' : 'grid gap-6 lg:grid-cols-2 lg:gap-16'}>
+              {/* Thumbs rail for brutalist */}
+              {theme === 'brutalist' && product.images.length > 1 ? (
+                <div className="hidden lg:flex flex-col gap-3">
                   {product.images.map((img, index) => (
                     <button
-                      key={index}
+                      key={img + index}
                       onClick={() => setSelectedImage(index)}
-                      className={`flex-shrink-0 w-16 h-20 sm:w-20 sm:h-24 rounded-md sm:rounded-lg overflow-hidden border-2 transition-colors ${
-                        selectedImage === index ? 'border-primary' : 'border-transparent hover:border-border'
-                      }`}
+                      className={`border-2 overflow-hidden ${selectedImage === index ? 'border-primary' : 'border-border hover:border-primary'}`}
                     >
-                      <img src={img} alt="" className="w-full h-full object-cover" />
+                      <img src={img} alt="" className="h-24 w-full object-cover" />
                     </button>
                   ))}
                 </div>
-              )}
-            </motion.div>
+              ) : null}
 
-            {/* Product Info */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="space-y-4 sm:space-y-6 lg:sticky lg:top-28 lg:self-start"
-            >
-              <div className="surface-panel rounded-2xl p-4 sm:p-6">
-                <p className="text-xs sm:text-sm text-muted-foreground uppercase tracking-wider mb-1 sm:mb-2">
-                  {product.subcategory}
-                </p>
-                <h1 className="font-display text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-4">{product.name}</h1>
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <span className="text-xl sm:text-2xl font-display text-primary">
-                    {formatPrice(product.price)}
-                  </span>
-                  {product.originalPrice && (
-                    <span className="text-base sm:text-lg text-muted-foreground line-through">
-                      {formatPrice(product.originalPrice)}
-                    </span>
-                  )}
+              {/* Main image */}
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <div
+                  className={
+                    theme === 'brutalist'
+                      ? 'border-2 border-border bg-card'
+                      : theme === 'artisan'
+                        ? 'overflow-hidden rounded-3xl'
+                        : 'overflow-hidden rounded-2xl'
+                  }
+                >
+                  <ImageZoomViewer
+                    images={product.images}
+                    currentIndex={selectedImage}
+                    onIndexChange={setSelectedImage}
+                    alt={product.name}
+                  />
                 </div>
-              </div>
 
-              {/* Description - Parse for multi-line content */}
-              {product.description && (
-                <div className="space-y-2">
-                  {product.description.includes('\n') || product.description.includes('•') || product.description.includes('-') ? (
-                    <ul className="space-y-2">
-                      {product.description
-                        .split(/[\n•\-]/)
-                        .map(line => line.trim())
-                        .filter(line => line.length > 0)
-                        .map((line, index) => (
-                          <li key={index} className="flex items-start gap-2 text-foreground/70">
-                            <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                            <span>{line}</span>
+                {/* Mobile thumbs (non-brutalist shows below) */}
+                {theme !== 'brutalist' && product.images.length > 1 ? (
+                  <div className="mt-3 hidden sm:flex gap-2 overflow-x-auto pb-1">
+                    {product.images.map((img, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedImage(index)}
+                        className={`flex-shrink-0 w-20 h-24 overflow-hidden border-2 transition-colors ${
+                          theme === 'artisan' ? 'rounded-2xl' : 'rounded-lg'
+                        } ${selectedImage === index ? 'border-primary' : 'border-transparent hover:border-border'}`}
+                      >
+                        <img src={img} alt="" className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </motion.div>
+
+              {/* Description and details block (editorial/artisan) */}
+              {theme !== 'brutalist' ? (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                  {product.description ? (
+                    <div className={theme === 'artisan' ? 'surface-panel rounded-3xl p-5 sm:p-6' : 'bg-card/70 border border-border rounded-2xl p-5 sm:p-6'}>
+                      <h2 className="font-display text-xl">Details</h2>
+                      <div className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                        {product.description.includes('\n') || product.description.includes('•') || product.description.includes('-') ? (
+                          <ul className="space-y-2">
+                            {product.description
+                              .split(/[\n•\-]/)
+                              .map((line) => line.trim())
+                              .filter((line) => line.length > 0)
+                              .map((line, idx) => (
+                                <li key={idx} className="flex items-start gap-2">
+                                  <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary" />
+                                  <span>{line}</span>
+                                </li>
+                              ))}
+                          </ul>
+                        ) : (
+                          <p>{product.description}</p>
+                        )}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {product.details && product.details.length > 0 ? (
+                    <div className={theme === 'artisan' ? 'surface-panel rounded-3xl p-5 sm:p-6' : 'bg-card/70 border border-border rounded-2xl p-5 sm:p-6'}>
+                      <h2 className="font-display text-xl">Product Info</h2>
+                      <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                        {product.details.map((detail, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <Check size={16} className="mt-0.5 text-primary" />
+                            <span>{detail}</span>
                           </li>
                         ))}
-                    </ul>
-                  ) : (
-                    <p className="text-foreground/70 leading-relaxed">{product.description}</p>
-                  )}
-                </div>
+                      </ul>
+                    </div>
+                  ) : null}
+                </motion.div>
+              ) : (
+                <div className="hidden lg:block" />
               )}
+            </div>
 
-              {/* Size Selection */}
-              {product.sizes && product.sizes.length > 0 && (
-                <div>
-                  <h3 className="font-medium text-sm sm:text-base mb-2 sm:mb-3">Size</h3>
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {product.sizes.map((size) => (
-                      <button
-                        key={size}
-                        onClick={() => setSelectedSize(size)}
-                        className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md sm:rounded-lg border text-sm sm:text-base transition-all ${
-                          selectedSize === size
-                            ? 'border-primary bg-primary text-primary-foreground'
-                            : 'border-border hover:border-primary'
-                        }`}
-                      >
-                        {size}
-                      </button>
-                    ))}
-                  </div>
+            {/* Related Products */}
+            {relatedProducts.length > 0 && (
+              <section className="mt-12 sm:mt-16">
+                <h2 className={theme === 'brutalist' ? 'font-body font-black uppercase tracking-tight text-xl mb-4' : 'font-display text-2xl md:text-3xl mb-6'}>
+                  You May Also Like
+                </h2>
+                <div className={theme === 'brutalist' ? 'grid grid-cols-2 lg:grid-cols-4 gap-4' : 'grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6'}>
+                  {relatedProducts.map((p, index) => (
+                    <ThemedProductCard key={p.id} product={p} index={index} />
+                  ))}
                 </div>
-              )}
-
-              {/* Color Selection */}
-              {product.colors && product.colors.length > 0 && (
-                <div>
-                  <h3 className="font-medium text-sm sm:text-base mb-2 sm:mb-3">
-                    Color: <span className="text-muted-foreground">{selectedColor?.name}</span>
-                  </h3>
-                  <div className="flex gap-2 sm:gap-3">
-                    {product.colors.map((color) => (
-                      <button
-                        key={color.name}
-                        onClick={() => setSelectedColor(color)}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 transition-all flex items-center justify-center ${
-                          selectedColor?.name === color.name
-                            ? 'border-primary scale-110'
-                            : 'border-transparent'
-                        }`}
-                        style={{ backgroundColor: color.hex }}
-                      >
-                        {selectedColor?.name === color.name && (
-                          <Check size={14} className={`sm:w-4 sm:h-4 ${color.hex === '#FFFFFF' || color.hex === '#FFFDD0' ? 'text-background' : 'text-white'}`} />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Quantity */}
-              <div>
-                <h3 className="font-medium text-sm sm:text-base mb-2 sm:mb-3">Quantity</h3>
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <div className="flex items-center border border-border rounded-md sm:rounded-lg">
-                    <button
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center hover:bg-secondary transition-colors"
-                    >
-                      <Minus size={16} className="sm:w-[18px] sm:h-[18px]" />
-                    </button>
-                    <span className="w-10 sm:w-12 text-center font-medium text-sm sm:text-base">{quantity}</span>
-                    <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center hover:bg-secondary transition-colors"
-                    >
-                      <Plus size={16} className="sm:w-[18px] sm:h-[18px]" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-2 sm:gap-4 pt-3 sm:pt-4">
-                <Button
-                  onClick={handleAddToCart}
-                  className="flex-1 btn-primary py-5 sm:py-6 gap-2 text-sm sm:text-base"
-                  disabled={!product.inStock}
-                >
-                  <ShoppingBag size={18} className="sm:w-5 sm:h-5" />
-                  {product.inStock ? 'Add to Cart' : 'Out of Stock'}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => toggleWishlist(product)}
-                  className={`w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 ${inWishlist ? 'bg-primary text-primary-foreground border-primary' : ''}`}
-                >
-                  <Heart size={18} className="sm:w-5 sm:h-5" fill={inWishlist ? 'currentColor' : 'none'} />
-                </Button>
-              </div>
-
-              {/* Features */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-4 sm:pt-6 border-t border-border">
-                <div className="text-center">
-                  <Truck size={20} className="sm:w-6 sm:h-6 mx-auto mb-1 sm:mb-2 text-primary" />
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">Free Delivery</p>
-                </div>
-                <div className="text-center">
-                  <RefreshCw size={20} className="sm:w-6 sm:h-6 mx-auto mb-1 sm:mb-2 text-primary" />
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">7-Day Returns</p>
-                </div>
-                <div className="text-center">
-                  <Shield size={20} className="sm:w-6 sm:h-6 mx-auto mb-1 sm:mb-2 text-primary" />
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">Secure Payment</p>
-                </div>
-              </div>
-
-              {/* Details */}
-              {product.details && product.details.length > 0 && (
-                <div className="pt-4 sm:pt-6 border-t border-border">
-                  <h3 className="font-display text-base sm:text-lg mb-3 sm:mb-4">Product Details</h3>
-                  <ul className="space-y-1.5 sm:space-y-2">
-                    {product.details.map((detail, index) => (
-                      <li key={index} className="flex items-start gap-2 text-xs sm:text-sm text-foreground/80">
-                        <Check size={14} className="sm:w-4 sm:h-4 text-primary flex-shrink-0 mt-0.5" />
-                        {detail}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </motion.div>
-          </div>
-
-          {/* Related Products */}
-          {relatedProducts.length > 0 && (
-            <section className="mt-12 sm:mt-16 lg:mt-20">
-              <h2 className="font-display text-xl sm:text-2xl md:text-3xl mb-4 sm:mb-6 lg:mb-8">You May Also Like</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-                {relatedProducts.map((product, index) => (
-                    <ThemedProductCard key={product.id} product={product} index={index} />
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
+              </section>
+            )}
+          </ThemedPageLayout>
         </ThemedPageFrame>
       </main>
 

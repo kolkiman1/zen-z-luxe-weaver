@@ -17,6 +17,9 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useRateLimiter } from '@/hooks/useRateLimiter';
 import ThemedPageFrame from '@/components/layout/ThemedPageFrame';
+import ThemedPageLayout from '@/components/layout/ThemedPageLayout';
+import { useTheme } from '@/contexts/ThemeContext';
+import { cn } from '@/lib/utils';
 
 interface DiscountCode {
   id: string;
@@ -34,6 +37,7 @@ const BKASH_NUMBER = '01778763089';
 const CheckoutPage = () => {
   const { items, totalPrice, clearCart } = useCart();
   const { user, profile } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -480,36 +484,175 @@ const CheckoutPage = () => {
 
       <main className="pt-20 sm:pt-24 pb-12 sm:pb-16 min-h-screen">
         <ThemedPageFrame className="pb-12 sm:pb-16">
-        <div className="container-luxury px-4 sm:px-6">
-          {/* Back Link */}
-          <Link to="/category/all" className="inline-flex items-center gap-1.5 sm:gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 sm:mb-8">
-            <ChevronLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
-            Continue Shopping
-          </Link>
+          <ThemedPageLayout
+            title="Checkout"
+            subtitle={theme === 'brutalist' ? 'NO FLUFF. FAST CHECKOUT.' : 'Complete your purchase. Cash on Delivery available.'}
+            meta={
+              <Link
+                to="/category/all"
+                className={
+                  theme === 'brutalist'
+                    ? 'inline-flex items-center gap-2 text-xs tracking-[0.35em] uppercase text-muted-foreground hover:text-foreground'
+                    : 'inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground'
+                }
+              >
+                <ChevronLeft size={16} />
+                Continue Shopping
+              </Link>
+            }
+            aside={
+              <div
+                className={
+                  theme === 'brutalist'
+                    ? 'space-y-4'
+                    : theme === 'artisan'
+                      ? 'space-y-5'
+                      : 'space-y-5'
+                }
+              >
+                <div className={theme === 'brutalist' ? 'border-2 border-border bg-card p-4' : 'bg-card rounded-2xl border border-border p-5'}>
+                  <p className={theme === 'brutalist' ? 'text-xs tracking-[0.35em] uppercase text-muted-foreground' : 'text-xs tracking-[0.32em] uppercase text-muted-foreground'}>
+                    Order Summary
+                  </p>
+                  <div className="mt-4 space-y-4">
+                    {items.map((item) => (
+                      <div key={`${item.product.id}-${item.selectedSize}`} className="flex gap-3">
+                        <div className="relative">
+                          <img
+                            src={item.product.images[0]}
+                            alt={item.product.name}
+                            className={theme === 'brutalist' ? 'w-16 h-20 object-cover border border-border' : 'w-16 h-20 object-cover rounded-lg'}
+                          />
+                          <span
+                            className={
+                              theme === 'brutalist'
+                                ? 'absolute -top-2 -right-2 w-6 h-6 border-2 border-border bg-primary text-primary-foreground text-xs font-black flex items-center justify-center'
+                                : 'absolute -top-2 -right-2 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center'
+                            }
+                          >
+                            {item.quantity}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={theme === 'brutalist' ? 'text-xs font-black uppercase tracking-wider truncate' : 'text-sm font-medium truncate'}>
+                            {item.product.name}
+                          </p>
+                          {item.selectedSize && <p className="text-xs text-muted-foreground">Size: {item.selectedSize}</p>}
+                        </div>
+                        <p className={theme === 'brutalist' ? 'text-xs font-black uppercase' : 'text-sm'}>
+                          {formatPrice(item.product.price * item.quantity)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
 
-          <div className="grid lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
-            {/* Checkout Form */}
-            <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+                  {/* Discount */}
+                  <div className={theme === 'brutalist' ? 'mt-5 pt-5 border-t-2 border-border' : 'mt-5 pt-5 border-t border-border'}>
+                    {appliedDiscount ? (
+                      <div className={theme === 'brutalist' ? 'flex items-center justify-between border-2 border-border p-3' : 'flex items-center justify-between p-3 bg-primary/10 border border-primary/20 rounded-lg'}>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle size={16} className="text-primary" />
+                          <div>
+                            <p className={theme === 'brutalist' ? 'text-xs font-black uppercase tracking-wider text-primary' : 'text-sm font-medium text-primary'}>
+                              {appliedDiscount.code}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {appliedDiscount.type === 'percentage'
+                                ? `${appliedDiscount.value}% off`
+                                : `${formatPrice(appliedDiscount.value)} off`}
+                            </p>
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={removeDiscount} className={theme === 'brutalist' ? 'h-8 w-8 p-0' : 'h-8 w-8 p-0'}>
+                          <X size={14} />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <Tag size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                            <Input
+                              placeholder="Discount code"
+                              value={discountCode}
+                              onChange={(e) => setDiscountCode(e.target.value)}
+                              className={cn('pl-9', theme === 'brutalist' && 'rounded-none border-2')}
+                              onKeyDown={(e) => e.key === 'Enter' && applyDiscountCode()}
+                            />
+                          </div>
+                          <Button variant="outline" onClick={applyDiscountCode} disabled={isValidatingDiscount} className={theme === 'brutalist' ? 'rounded-none border-2' : ''}>
+                            {isValidatingDiscount ? <Loader2 className="animate-spin" size={16} /> : 'Apply'}
+                          </Button>
+                        </div>
+                        {discountError && <p className="text-xs text-destructive">{discountError}</p>}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Totals */}
+                  <div className={theme === 'brutalist' ? 'mt-5 space-y-3 border-t-2 border-border pt-4' : 'mt-5 space-y-3 border-t border-border pt-4'}>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span>{formatPrice(totalPrice)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Delivery</span>
+                      <span>{shippingCost === 0 ? <span className="text-primary">Free</span> : formatPrice(shippingCost)}</span>
+                    </div>
+                    {discountAmount > 0 && (
+                      <div className="flex justify-between text-sm text-primary">
+                        <span>Discount</span>
+                        <span>-{formatPrice(discountAmount)}</span>
+                      </div>
+                    )}
+                    <div className={theme === 'brutalist' ? 'flex justify-between pt-3 border-t-2 border-border font-black uppercase' : 'flex justify-between pt-3 border-t border-border font-medium'}>
+                      <span>Total</span>
+                      <span className="text-primary">{formatPrice(grandTotal)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {formData.city ? (
+                  <div className={theme === 'brutalist' ? 'border-2 border-border bg-card p-4' : 'bg-primary/5 border border-primary/20 rounded-2xl p-4'}>
+                    <div className="flex items-center gap-2">
+                      <MapPin size={16} className="text-primary" />
+                      <p className={theme === 'brutalist' ? 'text-xs font-black uppercase tracking-wider' : 'text-sm font-medium'}>
+                        {isDhakaCustomer ? 'Dhaka City' : 'Outside Dhaka'}
+                      </p>
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {isDhakaCustomer ? 'Standard or express delivery options.' : 'Advance delivery fee required.'}
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+            }
+          >
+            <div className={theme === 'brutalist' ? 'border-2 border-border bg-card p-4 sm:p-6' : theme === 'artisan' ? 'surface-panel rounded-3xl p-4 sm:p-6' : 'bg-card/70 border border-border rounded-2xl p-4 sm:p-6'}>
               {/* Progress Steps */}
-              <div className="flex items-center gap-2 sm:gap-4 mb-6 sm:mb-8 overflow-x-auto pb-2">
+              <div className={theme === 'brutalist' ? 'flex items-center gap-3 overflow-x-auto pb-2 border-b-2 border-border mb-6' : 'flex items-center gap-2 sm:gap-4 mb-6 overflow-x-auto pb-2'}>
                 {stepLabels.map((label, index) => {
                   const stepNumber = index + 1;
                   const isActive = step >= stepNumber;
                   return (
-                    <div key={stepNumber} className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                    <div key={stepNumber} className="flex items-center gap-2 flex-shrink-0">
                       <div
-                        className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium ${
-                          isActive
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-secondary text-muted-foreground'
-                        }`}
+                        className={
+                          theme === 'brutalist'
+                            ? `w-8 h-8 border-2 flex items-center justify-center text-xs font-black ${
+                                isActive ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground'
+                              }`
+                            : `w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium ${
+                                isActive ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'
+                              }`
+                        }
                       >
                         {stepNumber}
                       </div>
-                      <span className={`text-xs sm:text-sm whitespace-nowrap ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      <span className={theme === 'brutalist' ? `text-xs font-black uppercase tracking-wider ${isActive ? 'text-foreground' : 'text-muted-foreground'}` : `text-xs sm:text-sm whitespace-nowrap ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
                         {label}
                       </span>
-                      {index < stepLabels.length - 1 && <div className="w-4 sm:w-8 h-px bg-border" />}
+                      {index < stepLabels.length - 1 && <div className={theme === 'brutalist' ? 'w-8 h-px bg-border' : 'w-4 sm:w-8 h-px bg-border'} />}
                     </div>
                   );
                 })}
@@ -522,7 +665,9 @@ const CheckoutPage = () => {
                   animate={{ opacity: 1, x: 0 }}
                   className="space-y-4 sm:space-y-6"
                 >
-                  <h2 className="font-display text-xl sm:text-2xl">Shipping Information</h2>
+                  <h2 className={theme === 'brutalist' ? 'font-body font-black uppercase tracking-tight text-xl' : 'font-display text-xl sm:text-2xl'}>
+                    Shipping Information
+                  </h2>
 
                   {/* Guest checkout banner */}
                   {!user && (
@@ -689,7 +834,10 @@ const CheckoutPage = () => {
                     </div>
                   )}
 
-                  <Button onClick={handleContinueFromShipping} className="w-full btn-primary py-6">
+                   <Button
+                     onClick={handleContinueFromShipping}
+                     className={theme === 'brutalist' ? 'w-full btn-primary rounded-none h-12' : 'w-full btn-primary py-6'}
+                   >
                     {isDhakaCustomer ? 'Continue to Review' : 'Continue to Delivery Payment'}
                   </Button>
                 </motion.div>
@@ -702,7 +850,9 @@ const CheckoutPage = () => {
                   animate={{ opacity: 1, x: 0 }}
                   className="space-y-6"
                 >
-                  <h2 className="font-display text-2xl">Delivery Charge Payment</h2>
+                  <h2 className={theme === 'brutalist' ? 'font-body font-black uppercase tracking-tight text-xl' : 'font-display text-2xl'}>
+                    Delivery Charge Payment
+                  </h2>
                   
                   <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
                     <div className="flex items-start gap-3">
@@ -794,7 +944,7 @@ const CheckoutPage = () => {
                     </Button>
                     <Button onClick={() => {
                       if (validateDeliveryPaymentStep()) setStep(3);
-                    }} className="flex-1 btn-primary py-6">
+                    }} className={theme === 'brutalist' ? 'flex-1 btn-primary rounded-none h-12' : 'flex-1 btn-primary py-6'}>
                       Continue to Review
                     </Button>
                   </div>
@@ -808,16 +958,21 @@ const CheckoutPage = () => {
                   animate={{ opacity: 1, x: 0 }}
                   className="space-y-6"
                 >
-                  <h2 className="font-display text-2xl">Review Your Order</h2>
+                  <h2 className={theme === 'brutalist' ? 'font-body font-black uppercase tracking-tight text-xl' : 'font-display text-2xl'}>
+                    Review Your Order
+                  </h2>
 
                   {/* Order Items */}
                   <div className="space-y-4">
                     {items.map((item) => (
-                      <div key={`${item.product.id}-${item.selectedSize}-${item.selectedColor?.name}`} className="flex gap-4 p-4 bg-card rounded-lg">
+                      <div
+                        key={`${item.product.id}-${item.selectedSize}-${item.selectedColor?.name}`}
+                        className={theme === 'brutalist' ? 'flex gap-4 p-4 border-2 border-border bg-card' : 'flex gap-4 p-4 bg-card rounded-lg'}
+                      >
                         <img
                           src={item.product.images[0]}
                           alt={item.product.name}
-                          className="w-20 h-24 object-cover rounded-lg"
+                        className={theme === 'brutalist' ? 'w-20 h-24 object-cover border border-border' : 'w-20 h-24 object-cover rounded-lg'}
                         />
                         <div className="flex-1">
                           <h4 className="font-medium">{item.product.name}</h4>
@@ -919,7 +1074,7 @@ const CheckoutPage = () => {
                     </Button>
                     <Button 
                       onClick={handlePlaceOrder} 
-                      className="flex-1 btn-primary py-6"
+                      className={theme === 'brutalist' ? 'flex-1 btn-primary rounded-none h-12' : 'flex-1 btn-primary py-6'}
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
@@ -932,130 +1087,7 @@ const CheckoutPage = () => {
                 </motion.div>
               )}
             </div>
-
-            {/* Order Summary Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="bg-card rounded-xl border border-border p-6 sticky top-24">
-                <h3 className="font-display text-xl mb-6">Order Summary</h3>
-
-                <div className="space-y-4 mb-6">
-                  {items.map((item) => (
-                    <div key={`${item.product.id}-${item.selectedSize}`} className="flex gap-3">
-                      <div className="relative">
-                        <img
-                          src={item.product.images[0]}
-                          alt={item.product.name}
-                          className="w-16 h-20 object-cover rounded-lg"
-                        />
-                        <span className="absolute -top-2 -right-2 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                          {item.quantity}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{item.product.name}</p>
-                        {item.selectedSize && <p className="text-xs text-muted-foreground">Size: {item.selectedSize}</p>}
-                      </div>
-                      <p className="text-sm">{formatPrice(item.product.price * item.quantity)}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Discount Code Input */}
-                <div className="pt-4 border-t border-border">
-                  {appliedDiscount ? (
-                    <div className="flex items-center justify-between p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle size={16} className="text-primary" />
-                        <div>
-                          <p className="text-sm font-medium text-primary">{appliedDiscount.code}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {appliedDiscount.type === 'percentage' 
-                              ? `${appliedDiscount.value}% off` 
-                              : `${formatPrice(appliedDiscount.value)} off`}
-                          </p>
-                        </div>
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={removeDiscount}
-                        className="h-8 w-8 p-0"
-                      >
-                        <X size={14} />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="flex gap-2">
-                        <div className="relative flex-1">
-                          <Tag size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            placeholder="Discount code"
-                            value={discountCode}
-                            onChange={(e) => setDiscountCode(e.target.value)}
-                            className="pl-9"
-                            onKeyDown={(e) => e.key === 'Enter' && applyDiscountCode()}
-                          />
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          onClick={applyDiscountCode}
-                          disabled={isValidatingDiscount}
-                        >
-                          {isValidatingDiscount ? <Loader2 className="animate-spin" size={16} /> : 'Apply'}
-                        </Button>
-                      </div>
-                      {discountError && (
-                        <p className="text-xs text-destructive">{discountError}</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* Price Breakdown */}
-                <div className="space-y-3 pt-4 border-t border-border mt-4">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span>{formatPrice(totalPrice)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Delivery</span>
-                    <span>
-                      {shippingCost === 0 ? (
-                        <span className="text-green-500">Free</span>
-                      ) : (
-                        formatPrice(shippingCost)
-                      )}
-                    </span>
-                  </div>
-                  {discountAmount > 0 && (
-                    <div className="flex justify-between text-primary">
-                      <span>Discount</span>
-                      <span>-{formatPrice(discountAmount)}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex justify-between pt-4 mt-4 border-t border-border font-medium text-lg">
-                  <span>Total</span>
-                  <span className="text-primary">{formatPrice(grandTotal)}</span>
-                </div>
-
-                {/* Location Info */}
-                {formData.city && (
-                  <div className={`mt-4 p-3 rounded-lg text-sm ${isDhakaCustomer ? 'bg-green-500/10 text-green-600' : 'bg-amber-500/10 text-amber-600'}`}>
-                    <div className="flex items-center gap-2">
-                      <MapPin size={14} />
-                      <span className="font-medium">
-                        {isDhakaCustomer ? 'Dhaka City' : 'Outside Dhaka'}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+          </ThemedPageLayout>
         </ThemedPageFrame>
       </main>
 

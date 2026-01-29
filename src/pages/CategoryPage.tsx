@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import ThemedPageFrame from '@/components/layout/ThemedPageFrame';
+import ThemedPageLayout from '@/components/layout/ThemedPageLayout';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -128,8 +129,9 @@ const CategoryPage = () => {
 
     return `grid ${baseCols} gap-6 md:gap-8`;
   }, [theme, gridCols]);
+
   const FilterContent = () => (
-    <div className="space-y-6">
+    <div className={theme === 'brutalist' ? 'space-y-7' : 'space-y-6'}>
       {/* Clear Filters */}
       {(selectedSubcategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 100000) && (
         <Button
@@ -145,7 +147,9 @@ const CategoryPage = () => {
       {/* Subcategories */}
       {availableSubcategories.length > 0 && (
         <div>
-          <h3 className="font-display text-lg mb-4">Category</h3>
+          <h3 className={theme === 'brutalist' ? 'font-body font-black uppercase tracking-wider text-sm mb-4' : 'font-display text-lg mb-4'}>
+            Category
+          </h3>
           <div className="space-y-3 max-h-64 overflow-y-auto">
             {availableSubcategories.map((sub) => (
               <label key={sub} className="flex items-center gap-3 cursor-pointer">
@@ -162,7 +166,9 @@ const CategoryPage = () => {
 
       {/* Price Range */}
       <div>
-        <h3 className="font-display text-lg mb-4">Price Range</h3>
+        <h3 className={theme === 'brutalist' ? 'font-body font-black uppercase tracking-wider text-sm mb-4' : 'font-display text-lg mb-4'}>
+          Price Range
+        </h3>
         <Slider
           value={priceRange}
           onValueChange={setPriceRange}
@@ -192,195 +198,229 @@ const CategoryPage = () => {
 
       <main className="pt-20 sm:pt-24 pb-12 sm:pb-16 min-h-screen">
         <ThemedPageFrame className="pb-12 sm:pb-16">
-        {/* Category Banner */}
-        {banner?.url && (
-          <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden mb-8">
-            {banner.type === 'video' ? (
-              <video autoPlay loop muted playsInline className="w-full h-full object-cover">
-                <source src={banner.url} type="video/mp4" />
-              </video>
-            ) : (
-              <div 
-                className="w-full h-full bg-cover bg-center"
-                style={{ backgroundImage: `url('${banner.url}')` }}
-              />
-            )}
-            <div 
-              className="absolute inset-0 bg-background"
-              style={{ opacity: (banner.overlayOpacity || 60) / 100 }}
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-              <motion.h1 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-2"
-              >
-                {banner.headline || categoryName}
-              </motion.h1>
-              {banner.description && (
-                <motion.p 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl"
-                >
-                  {banner.description}
-                </motion.p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Default Header when no banner */}
-        {!banner?.url && (
-          <div className="container-luxury">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center mb-12 pt-4"
-            >
-              <h1 className="font-display text-4xl md:text-5xl mb-3">{categoryName}</h1>
-              <p className="text-muted-foreground">
-                {loading ? 'Loading...' : `${filteredProducts.length} ${filteredProducts.length === 1 ? 'product' : 'products'}`}
+          <ThemedPageLayout
+            title={categoryName}
+            subtitle={banner?.description || 'Browse the latest drops and essentials'}
+            meta={
+              <p className={theme === 'brutalist' ? 'text-xs tracking-[0.3em] uppercase text-muted-foreground' : 'text-sm text-muted-foreground'}>
+                {loading ? 'Loading…' : `${filteredProducts.length} ${filteredProducts.length === 1 ? 'product' : 'products'}`}
               </p>
-            </motion.div>
-          </div>
-        )}
-
-        <div className="container-luxury">
-
-          {/* Product count when banner is present */}
-          {banner?.url && (
-            <p className="text-center text-muted-foreground mb-6">
-              {loading ? 'Loading...' : `${filteredProducts.length} ${filteredProducts.length === 1 ? 'product' : 'products'}`}
-            </p>
-          )}
-
-          {/* Toolbar */}
-          <div className="market-toolbar mb-6 sm:mb-8">
-            <div className="flex items-center justify-between gap-2 sm:gap-4">
-            {/* Desktop Filter Button */}
-            <Button
-              variant="outline"
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className="hidden lg:flex gap-2"
-            >
-              <SlidersHorizontal size={18} />
-              Filters
-              {(selectedSubcategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 100000) && (
-                <span className="ml-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                  {selectedSubcategories.length + (priceRange[0] > 0 || priceRange[1] < 100000 ? 1 : 0)}
-                </span>
-              )}
-            </Button>
-
-            {/* Mobile Filter Sheet */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" className="lg:hidden gap-2">
-                  <SlidersHorizontal size={16} />
-                  <span className="hidden xs:inline">Filters</span>
-                  {(selectedSubcategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 100000) && (
-                    <span className="w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                      {selectedSubcategories.length + (priceRange[0] > 0 || priceRange[1] < 100000 ? 1 : 0)}
-                    </span>
-                  )}
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] sm:w-[350px]">
-                <SheetHeader>
-                  <SheetTitle className="font-display text-xl">Filters</SheetTitle>
-                </SheetHeader>
-                <div className="mt-6">
-                  <FilterContent />
+            }
+            hero={
+              banner?.url ? (
+                <div
+                  className={
+                    theme === 'brutalist'
+                      ? 'mb-6 border-2 border-border overflow-hidden'
+                      : theme === 'artisan'
+                        ? 'mb-10 overflow-hidden rounded-3xl'
+                        : 'mb-10 overflow-hidden rounded-2xl'
+                  }
+                >
+                  <div className="relative h-44 sm:h-56 md:h-72">
+                    {banner.type === 'video' ? (
+                      <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+                        <source src={banner.url} type="video/mp4" />
+                      </video>
+                    ) : (
+                      <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url('${banner.url}')` }} />
+                    )}
+                    <div
+                      className="absolute inset-0 bg-background"
+                      style={{ opacity: (banner.overlayOpacity || 60) / 100 }}
+                    />
+                    <div className={theme === 'brutalist' ? 'absolute inset-0 p-4 sm:p-6 flex items-end' : 'absolute inset-0 p-4 sm:p-6 flex items-end'}>
+                      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl">
+                        <p
+                          className={
+                            theme === 'brutalist'
+                              ? 'text-xs tracking-[0.35em] uppercase text-muted-foreground'
+                              : 'text-xs tracking-[0.25em] uppercase text-muted-foreground'
+                          }
+                        >
+                          {slug?.toUpperCase()}
+                        </p>
+                        <p className={theme === 'brutalist' ? 'mt-2 font-body font-black uppercase text-3xl sm:text-4xl' : 'mt-2 font-display text-3xl sm:text-4xl'}>
+                          {banner.headline || categoryName}
+                        </p>
+                      </motion.div>
+                    </div>
+                  </div>
                 </div>
-              </SheetContent>
-            </Sheet>
-
-            <div className="flex items-center gap-2 sm:gap-4">
-              {/* Sort Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-1 sm:gap-2 text-xs sm:text-sm">
-                    <ArrowUpDown size={16} className="hidden xs:block" />
-                    <span className="hidden sm:inline">{currentSortLabel}</span>
-                    <span className="sm:hidden">Sort</span>
-                    <ChevronDown size={14} />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 bg-card border-border">
-                  {sortOptions.map((option) => (
-                    <DropdownMenuItem
-                      key={option.value}
-                      onClick={() => setSortBy(option.value)}
-                      className={`cursor-pointer ${sortBy === option.value ? 'bg-primary/10 text-primary' : ''}`}
-                    >
-                      {option.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Grid Toggle */}
-              <div className="hidden md:flex items-center gap-1 bg-secondary rounded-lg p-1">
-                <button
-                  onClick={() => setGridCols(2)}
-                  className={`p-2 rounded transition-colors ${gridCols === 2 ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
-                >
-                  <Grid2X2 size={18} />
-                </button>
-                <button
-                  onClick={() => setGridCols(3)}
-                  className={`p-2 rounded transition-colors ${gridCols === 3 ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
-                >
-                  <Grid3X3 size={18} />
-                </button>
-              </div>
-            </div>
-            </div>
-          </div>
-
-          <div className="flex gap-8">
-            {/* Filters Sidebar - Desktop */}
-            <motion.aside
-              initial={false}
-              animate={{ width: isFilterOpen ? 280 : 0, opacity: isFilterOpen ? 1 : 0 }}
-              className="hidden lg:block overflow-hidden flex-shrink-0"
-            >
-              <div className="w-[280px] pr-8">
+              ) : null
+            }
+            aside={
+              theme === 'editorial' || theme === 'artisan' ? (
                 <FilterContent />
-              </div>
-            </motion.aside>
-
-            {/* Products Grid */}
-            <div className="flex-1">
-              {loading ? (
-                <div className="flex justify-center items-center py-16">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                </div>
-              ) : error ? (
-                <div className="text-center py-16">
-                  <h3 className="font-display text-xl mb-2">Error loading products</h3>
-                  <p className="text-muted-foreground">{error}</p>
-                </div>
-              ) : filteredProducts.length === 0 ? (
-                <div className="text-center py-16">
-                  <h3 className="font-display text-xl mb-2">No products found</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Try adjusting your filters or browse our other collections.
-                  </p>
-                  <Button onClick={clearFilters}>Clear Filters</Button>
-                </div>
               ) : (
-                <div className={gridClass}>
-                  {filteredProducts.map((product, index) => (
-                    <ThemedProductCard key={product.id} product={product} index={index} />
-                  ))}
+                <>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs tracking-[0.35em] uppercase text-muted-foreground">Filters</p>
+                    <Button variant="ghost" onClick={clearFilters} className="h-8 px-2 text-xs">
+                      Clear
+                    </Button>
+                  </div>
+                  <div className="mt-5">
+                    <FilterContent />
+                  </div>
+                </>
+              )
+            }
+          >
+            {/* Toolbar (theme-specific density) */}
+            <div
+              className={
+                theme === 'brutalist'
+                  ? 'mb-5 border-2 border-border bg-card p-3'
+                  : theme === 'artisan'
+                    ? 'mb-6 surface-panel rounded-3xl p-3 sm:p-4'
+                    : 'mb-6 bg-card/70 backdrop-blur rounded-2xl border border-border p-3 sm:p-4'
+              }
+            >
+              <div className="flex items-center justify-between gap-2 sm:gap-4">
+                {/* Desktop Filter Button (only for non-brutalist, brutalist uses always-on rail) */}
+                {theme !== 'brutalist' ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                    className="hidden lg:flex gap-2"
+                  >
+                    <SlidersHorizontal size={18} />
+                    Filters
+                    {(selectedSubcategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 100000) && (
+                      <span className="ml-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                        {selectedSubcategories.length + (priceRange[0] > 0 || priceRange[1] < 100000 ? 1 : 0)}
+                      </span>
+                    )}
+                  </Button>
+                ) : (
+                  <div className="hidden lg:block text-xs tracking-[0.35em] uppercase text-muted-foreground">Product Grid</div>
+                )}
+
+                {/* Mobile Filter Sheet */}
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" className="lg:hidden gap-2">
+                      <SlidersHorizontal size={16} />
+                      <span className="hidden xs:inline">Filters</span>
+                      {(selectedSubcategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 100000) && (
+                        <span className="w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                          {selectedSubcategories.length + (priceRange[0] > 0 || priceRange[1] < 100000 ? 1 : 0)}
+                        </span>
+                      )}
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-[300px] sm:w-[350px]">
+                    <SheetHeader>
+                      <SheetTitle className={theme === 'brutalist' ? 'font-body font-black uppercase tracking-wider' : 'font-display text-xl'}>
+                        Filters
+                      </SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6">
+                      <FilterContent />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+
+                <div className="flex items-center gap-2 sm:gap-4">
+                  {/* Sort Dropdown */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+                        <ArrowUpDown size={16} className="hidden xs:block" />
+                        <span className="hidden sm:inline">{currentSortLabel}</span>
+                        <span className="sm:hidden">Sort</span>
+                        <ChevronDown size={14} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 bg-card border-border">
+                      {sortOptions.map((option) => (
+                        <DropdownMenuItem
+                          key={option.value}
+                          onClick={() => setSortBy(option.value)}
+                          className={`cursor-pointer ${sortBy === option.value ? 'bg-primary/10 text-primary' : ''}`}
+                        >
+                          {option.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  {/* Grid Toggle */}
+                  <div
+                    className={
+                      theme === 'brutalist'
+                        ? 'hidden md:flex items-center gap-1 border-2 border-border bg-card p-1'
+                        : 'hidden md:flex items-center gap-1 bg-secondary rounded-lg p-1'
+                    }
+                  >
+                    <button
+                      onClick={() => setGridCols(2)}
+                      className={`p-2 transition-colors ${
+                        theme === 'brutalist' ? 'rounded-none' : 'rounded'
+                      } ${gridCols === 2 ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                    >
+                      <Grid2X2 size={18} />
+                    </button>
+                    <button
+                      onClick={() => setGridCols(3)}
+                      className={`p-2 transition-colors ${
+                        theme === 'brutalist' ? 'rounded-none' : 'rounded'
+                      } ${gridCols === 3 ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                    >
+                      <Grid3X3 size={18} />
+                    </button>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
-        </div>
+
+            {/* Collapsible desktop rail for non-brutalist */}
+            {theme !== 'brutalist' && (
+              <AnimatePresence initial={false}>
+                {isFilterOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="hidden lg:block overflow-hidden"
+                  >
+                    <div className={theme === 'artisan' ? 'mt-4 surface-panel rounded-3xl p-5' : 'mt-4 bg-card/70 border border-border rounded-2xl p-5'}>
+                      <FilterContent />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            )}
+
+            {/* Products */}
+            {loading ? (
+              <div className="flex justify-center items-center py-16">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : error ? (
+              <div className={theme === 'brutalist' ? 'border-2 border-border bg-card p-10 text-center' : 'text-center py-16'}>
+                <h3 className={theme === 'brutalist' ? 'font-body font-black uppercase text-lg mb-2' : 'font-display text-xl mb-2'}>
+                  Error loading products
+                </h3>
+                <p className="text-muted-foreground">{error}</p>
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className={theme === 'brutalist' ? 'border-2 border-border bg-card p-10 text-center' : 'text-center py-16'}>
+                <h3 className={theme === 'brutalist' ? 'font-body font-black uppercase text-lg mb-2' : 'font-display text-xl mb-2'}>
+                  No products found
+                </h3>
+                <p className="text-muted-foreground mb-6">Try adjusting your filters or browse our other collections.</p>
+                <Button onClick={clearFilters}>Clear Filters</Button>
+              </div>
+            ) : (
+              <div className={gridClass}>
+                {filteredProducts.map((product, index) => (
+                  <ThemedProductCard key={product.id} product={product} index={index} />
+                ))}
+              </div>
+            )}
+          </ThemedPageLayout>
         </ThemedPageFrame>
       </main>
 
