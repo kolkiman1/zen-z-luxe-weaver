@@ -371,7 +371,10 @@
   }
 
   .glass-hover {
-    @apply hover:bg-card/80 transition-all duration-300;
+    @apply hover:bg-card/80;
+    transition-property: background-color, border-color, box-shadow, transform, opacity;
+    transition-duration: var(--motion-medium);
+    transition-timing-function: var(--motion-ease-out);
   }
 
   /* Gold Gradient Text */
@@ -382,15 +385,49 @@
 
   /* Premium Button Styles */
   .btn-primary {
-    @apply bg-primary text-primary-foreground font-medium tracking-wide 
-           transition-all duration-300 hover:shadow-[0_4px_30px_hsl(38_45%_60%_/_0.25)]
-           hover:translate-y-[-2px] active:translate-y-0;
+    @apply bg-primary text-primary-foreground font-medium tracking-wide
+           hover:shadow-[var(--shadow-gold)] hover:-translate-y-[1px] active:translate-y-0;
+    transition-property: transform, box-shadow, background-color, border-color, color;
+    transition-duration: var(--motion-fast);
+    transition-timing-function: var(--motion-ease-out);
   }
 
   .btn-outline-gold {
     @apply border border-primary/50 text-primary bg-transparent
            hover:bg-primary hover:text-primary-foreground
-           transition-all duration-300;
+           transition-[transform,box-shadow,background-color,border-color,color];
+    transition-duration: var(--motion-fast);
+    transition-timing-function: var(--motion-ease-out);
+  }
+
+  /* Theme-aware micro-motion helpers (subtle, premium) */
+  .micro-lift {
+    @apply will-change-transform;
+    transition-property: transform, box-shadow;
+    transition-duration: var(--motion-fast);
+    transition-timing-function: var(--motion-ease-out);
+  }
+  .micro-lift:hover {
+    transform: translate3d(0, -1px, 0);
+  }
+
+  .micro-press {
+    @apply active:translate-y-0;
+  }
+
+  .micro-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background;
+  }
+
+  /* Thin “scanline” divider used for street-tech moments (theme aware) */
+  .scanline {
+    @apply h-px w-full;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--border) / 0),
+      hsl(var(--border) / 1),
+      hsl(var(--border) / 0)
+    );
   }
 
   /* Product Card Hover */
@@ -399,12 +436,16 @@
   }
 
   .product-card-image {
-    @apply transition-transform duration-700 ease-out group-hover:scale-105;
+    @apply transition-transform group-hover:scale-[1.03];
+    transition-duration: var(--motion-slow);
+    transition-timing-function: var(--motion-ease-out);
   }
 
   .product-card-overlay {
     @apply absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent
-           opacity-0 group-hover:opacity-100 transition-opacity duration-300;
+           opacity-0 group-hover:opacity-100 transition-opacity;
+    transition-duration: var(--motion-medium);
+    transition-timing-function: var(--motion-ease-out);
   }
 
   /* Luxury Underline Animation */
@@ -414,8 +455,10 @@
 
   .luxury-underline::after {
     content: '';
-    @apply absolute bottom-0 left-0 w-0 h-[1px] bg-primary
-           transition-all duration-300 ease-out;
+     @apply absolute bottom-0 left-0 w-0 h-[1px] bg-primary;
+     transition-property: width, transform, opacity;
+     transition-duration: var(--motion-fast);
+     transition-timing-function: var(--motion-ease-out);
   }
 
   .luxury-underline:hover::after {
@@ -429,9 +472,11 @@
 
   .animated-border::before {
     content: '';
-    @apply absolute inset-0 rounded-[inherit] p-[1px]
+     @apply absolute inset-0 rounded-[inherit] p-[1px]
            bg-gradient-to-r from-primary/50 via-primary to-primary/50
-           opacity-0 transition-opacity duration-300;
+           opacity-0 transition-opacity;
+     transition-duration: var(--motion-medium);
+     transition-timing-function: var(--motion-ease-out);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
