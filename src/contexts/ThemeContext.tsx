@@ -3,7 +3,16 @@ import { useThemeSettings, type ThemeId } from '@/hooks/useThemeSettings';
 import { defaultThemePack } from '@/lib/themePack';
 
 type ThemeContextValue = {
+  /**
+   * Theme selected globally (persisted in backend).
+   * Note: UI should typically use `theme` (effective theme).
+   */
   activeTheme: ThemeId;
+  /**
+   * Effective theme used for rendering.
+   * If admin preview is enabled, this may differ from `activeTheme`.
+   */
+  theme: ThemeId;
   previewTheme: ThemeId | null;
   isPreviewing: boolean;
 };
@@ -77,10 +86,11 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const value = useMemo<ThemeContextValue>(
     () => ({
       activeTheme,
+      theme: effectiveTheme,
       previewTheme: previewTheme,
       isPreviewing: Boolean(previewEnabled && previewTheme),
     }),
-    [activeTheme, previewEnabled, previewTheme]
+    [activeTheme, effectiveTheme, previewEnabled, previewTheme]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

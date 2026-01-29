@@ -10,16 +10,16 @@ import SectionHeader from '@/components/home/SectionHeader';
 
 const NewArrivals = () => {
   const { products: newArrivals, loading } = useNewArrivals();
-  const { activeTheme } = useTheme();
+  const { theme } = useTheme();
   const { data: sectionMedia } = useSectionMedia();
   const { data: sectionContent } = useSectionContent();
   const newArrivalsMedia = sectionMedia?.newArrivals;
   const content = sectionContent?.newArrivals;
 
   const gridClass =
-    activeTheme === 'editorial'
+    theme === 'editorial'
       ? 'grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-7 md:gap-10'
-      : activeTheme === 'brutalist'
+      : theme === 'brutalist'
         ? 'grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5'
         : 'grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 md:gap-8';
 

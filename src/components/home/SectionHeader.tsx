@@ -27,20 +27,20 @@ const SectionHeader = ({
   cta,
   actions,
 }: SectionHeaderProps) => {
-  const { activeTheme } = useTheme();
+  const { theme } = useTheme();
 
   const isCenter = align === 'center';
   const wrapperClass = isCenter ? 'text-center' : 'text-center sm:text-left';
   const descriptionClass = isCenter ? 'max-w-xl mx-auto' : 'max-w-lg';
 
   const headlineClass =
-    activeTheme === 'brutalist'
+    theme === 'brutalist'
       ? 'font-body font-black uppercase tracking-[-0.02em]'
       : 'font-display';
 
   const ctaVariant = cta?.variant ?? 'ghost';
   const ctaClassName =
-    activeTheme === 'brutalist'
+    theme === 'brutalist'
       ? 'gap-2 text-sm sm:text-base uppercase tracking-[0.22em]'
       : 'gap-2 text-sm sm:text-base';
 

@@ -9,9 +9,9 @@ type Props = {
 };
 
 const ThemedMegaMenu = (props: Props) => {
-  const { activeTheme } = useTheme();
-  if (activeTheme === 'editorial') return <MegaMenuEditorial {...props} />;
-  if (activeTheme === 'brutalist') return <MegaMenuBrutalist {...props} />;
+  const { theme } = useTheme();
+  if (theme === 'editorial') return <MegaMenuEditorial {...props} />;
+  if (theme === 'brutalist') return <MegaMenuBrutalist {...props} />;
   return <MegaMenu {...props} />;
 };
 

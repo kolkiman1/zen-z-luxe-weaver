@@ -38,7 +38,7 @@ const subcategories: Record<string, string[]> = {
 
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { activeTheme } = useTheme();
+  const { theme } = useTheme();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   // Myntra-like: larger cards by default (2 cols desktop, optionally 3)
   const [gridCols, setGridCols] = useState(2);
@@ -118,16 +118,16 @@ const CategoryPage = () => {
         ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-2'
         : 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3';
 
-    if (activeTheme === 'editorial') {
+    if (theme === 'editorial') {
       return `grid ${baseCols} gap-10 md:gap-12`;
     }
 
-    if (activeTheme === 'brutalist') {
+    if (theme === 'brutalist') {
       return `grid ${baseCols} gap-4 md:gap-5`;
     }
 
     return `grid ${baseCols} gap-6 md:gap-8`;
-  }, [activeTheme, gridCols]);
+  }, [theme, gridCols]);
   const FilterContent = () => (
     <div className="space-y-6">
       {/* Clear Filters */}

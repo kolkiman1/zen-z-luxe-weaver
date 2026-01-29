@@ -14,16 +14,16 @@ import SectionHeader from '@/components/home/SectionHeader';
 const FeaturedProducts = () => {
   const { products: featuredProducts, loading } = useFeaturedProducts();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { activeTheme } = useTheme();
+  const { theme } = useTheme();
   const { data: sectionMedia } = useSectionMedia();
   const { data: sectionContent } = useSectionContent();
   const featuredMedia = sectionMedia?.featuredProducts;
   const content = sectionContent?.featuredProducts;
 
   const itemWidthClass =
-    activeTheme === 'editorial'
+    theme === 'editorial'
       ? 'flex-shrink-0 w-[260px] sm:w-[340px] md:w-[380px] lg:w-[420px]'
-      : activeTheme === 'brutalist'
+      : theme === 'brutalist'
         ? 'flex-shrink-0 w-[240px] sm:w-[320px] md:w-[360px] lg:w-[400px]'
         : 'flex-shrink-0 w-[240px] sm:w-[320px] md:w-[360px] lg:w-[400px]';
 

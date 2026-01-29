@@ -13,12 +13,12 @@ type Props = {
  * Visual-only: does not change page logic or layout semantics.
  */
 export default function ThemedPageFrame({ children, className }: Props) {
-  const { activeTheme } = useTheme();
+  const { theme } = useTheme();
 
   return (
     <div className={cn('relative', className)}>
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {activeTheme === 'brutalist' && (
+        {theme === 'brutalist' && (
           <>
             <div className="hero-overlay-tech" />
             <div
@@ -35,7 +35,7 @@ export default function ThemedPageFrame({ children, className }: Props) {
           </>
         )}
 
-        {activeTheme === 'editorial' && (
+        {theme === 'editorial' && (
           <>
             <div className="hero-overlay-runway" />
             <div
@@ -50,7 +50,7 @@ export default function ThemedPageFrame({ children, className }: Props) {
           </>
         )}
 
-        {activeTheme === 'artisan' && (
+        {theme === 'artisan' && (
           <>
             <div className="hero-overlay-artisan" />
             <div

@@ -12,9 +12,9 @@ interface ThemedProductCardProps {
 
 const ThemedProductCard = forwardRef<HTMLDivElement, ThemedProductCardProps>(
   ({ product, index = 0 }, ref) => {
-  const { activeTheme } = useTheme();
+  const { theme } = useTheme();
 
-  if (activeTheme === 'brutalist') {
+  if (theme === 'brutalist') {
     return (
       <div ref={ref}>
         <ProductCardBrutalist product={product} index={index} />
@@ -22,7 +22,7 @@ const ThemedProductCard = forwardRef<HTMLDivElement, ThemedProductCardProps>(
     );
   }
 
-  if (activeTheme === 'editorial') {
+  if (theme === 'editorial') {
     return (
       <div ref={ref}>
         <ProductCardEditorial product={product} index={index} />

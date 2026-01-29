@@ -7,7 +7,7 @@ const icons = [Truck, Shield, RefreshCw, Headphones];
 
 const Features = () => {
   const { data: sectionContent } = useSectionContent();
-  const { activeTheme } = useTheme();
+  const { theme } = useTheme();
   const features = sectionContent?.features.items || [];
 
   return (
@@ -20,10 +20,10 @@ const Features = () => {
             return (
               <motion.div
                 key={feature.title}
-                initial={activeTheme === 'brutalist' ? false : { opacity: 0, y: 20 }}
-                whileInView={activeTheme === 'brutalist' ? undefined : { opacity: 1, y: 0 }}
-                viewport={activeTheme === 'brutalist' ? undefined : { once: true }}
-                transition={activeTheme === 'brutalist' ? undefined : { delay: index * 0.1 }}
+                initial={theme === 'brutalist' ? false : { opacity: 0, y: 20 }}
+                whileInView={theme === 'brutalist' ? undefined : { opacity: 1, y: 0 }}
+                viewport={theme === 'brutalist' ? undefined : { once: true }}
+                transition={theme === 'brutalist' ? undefined : { delay: index * 0.1 }}
                 className="surface-plate surface-motion surface-hover rounded-2xl p-3 sm:p-4 md:p-5"
               >
                 <div className="flex flex-col items-center text-center">
