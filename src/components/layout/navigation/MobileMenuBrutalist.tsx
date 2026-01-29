@@ -3,7 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, User, LogOut, Settings, Package } from 'lucide-react';
 import { navCategories } from '@/lib/navigationData';
-import { navigationPromos } from '@/lib/navigationPromos';
+import { defaultNavigationPromos } from '@/lib/navigationPromos';
+import { useNavigationPromos } from '@/hooks/useNavigationPromos';
 
 type Props = {
   isOpen: boolean;
@@ -15,7 +16,8 @@ type Props = {
 
 const MobileMenuBrutalist = ({ isOpen, onClose, user, isAdmin, onSignOut }: Props) => {
   const location = useLocation();
-  const promo = navigationPromos.brutalist;
+  const { data } = useNavigationPromos();
+  const promo = data?.brutalist ?? defaultNavigationPromos.brutalist;
   const [active, setActive] = useState<string | null>(null);
 
   const activeCategory = useMemo(
