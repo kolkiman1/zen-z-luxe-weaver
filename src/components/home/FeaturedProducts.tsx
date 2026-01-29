@@ -84,7 +84,7 @@ const FeaturedProducts = () => {
       />
 
       <div className="container-luxury relative z-10">
-        <div className="surface-panel surface-motion rounded-3xl p-5 sm:p-6 md:p-8">
+        <div className="surface-panel surface-motion chrome-panel rounded-3xl p-5 sm:p-6 md:p-8">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -92,6 +92,10 @@ const FeaturedProducts = () => {
             viewport={{ once: true }}
             className="mb-6 md:mb-10"
           >
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <span className="sticker">FEATURED</span>
+              <span className="sticker sticker-chrome">CURATED</span>
+            </div>
             <SectionHeader
               tagline={content?.tagline || 'Curated for You'}
               headline={content?.headline || 'Featured'}
@@ -109,7 +113,7 @@ const FeaturedProducts = () => {
                     variant="outline"
                     size="icon"
                     onClick={() => scroll('left')}
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-border/50 hover:border-primary hover:bg-primary/10 micro-ring"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-border/50 hover:border-primary hover:bg-primary/10 micro-ring surface-hover"
                   >
                     <ChevronLeft size={18} />
                   </Button>
@@ -117,7 +121,7 @@ const FeaturedProducts = () => {
                     variant="outline"
                     size="icon"
                     onClick={() => scroll('right')}
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-border/50 hover:border-primary hover:bg-primary/10 micro-ring"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-border/50 hover:border-primary hover:bg-primary/10 micro-ring surface-hover"
                   >
                     <ChevronRight size={18} />
                   </Button>
