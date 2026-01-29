@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { RefreshCw, CheckCircle, XCircle, Clock, Mail, ArrowRight } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import ThemedHeader from '@/components/layout/ThemedHeader';
+import ThemedFooter from '@/components/layout/ThemedFooter';
 import CartSidebar from '@/components/cart/CartSidebar';
 import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
@@ -55,7 +55,7 @@ const ReturnsPage = () => {
         url="/returns"
       />
 
-      <Header />
+      <ThemedHeader />
       <CartSidebar />
 
       <main className="pt-24 pb-16 min-h-screen">
@@ -263,7 +263,7 @@ const ReturnsPage = () => {
         </div>
       </main>
 
-      <Footer />
+      <ThemedFooter />
     </>
   );
 };

@@ -24,8 +24,8 @@ import {
   Lock,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import ThemedHeader from '@/components/layout/ThemedHeader';
+import ThemedFooter from '@/components/layout/ThemedFooter';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 
@@ -447,11 +447,11 @@ const UserDashboard = () => {
   if (authLoading || loading) {
     return (
       <>
-        <Header />
+         <ThemedHeader />
         <main className="pt-24 pb-16 min-h-screen flex items-center justify-center">
           <Loader2 className="animate-spin text-primary" size={40} />
         </main>
-        <Footer />
+         <ThemedFooter />
       </>
     );
   }
@@ -466,7 +466,7 @@ const UserDashboard = () => {
         noIndex={true}
       />
 
-      <Header />
+       <ThemedHeader />
 
       <main className="pt-24 pb-16 min-h-screen">
         <div className="container-luxury">
@@ -1182,7 +1182,7 @@ const UserDashboard = () => {
         </div>
       </main>
 
-      <Footer />
+       <ThemedFooter />
     </>
   );
 };

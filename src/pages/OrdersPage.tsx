@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Package, ChevronRight, Loader2 } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import ThemedHeader from '@/components/layout/ThemedHeader';
+import ThemedFooter from '@/components/layout/ThemedFooter';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
@@ -76,11 +76,11 @@ const OrdersPage = () => {
   if (authLoading || loading) {
     return (
       <>
-        <Header />
+        <ThemedHeader />
         <main className="pt-24 pb-16 min-h-screen flex items-center justify-center">
           <Loader2 className="animate-spin text-primary" size={40} />
         </main>
-        <Footer />
+        <ThemedFooter />
       </>
     );
   }
@@ -93,7 +93,7 @@ const OrdersPage = () => {
         noIndex
       />
 
-      <Header />
+      <ThemedHeader />
 
       <main className="pt-24 pb-16 min-h-screen">
         <div className="container-luxury">
@@ -201,7 +201,7 @@ const OrdersPage = () => {
         </div>
       </main>
 
-      <Footer />
+      <ThemedFooter />
     </>
   );
 };

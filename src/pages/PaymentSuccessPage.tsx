@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle, Loader2, Package, AlertCircle } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import ThemedHeader from '@/components/layout/ThemedHeader';
+import ThemedFooter from '@/components/layout/ThemedFooter';
 import { Button } from '@/components/ui/button';
 import { SEOHead } from '@/components/SEOHead';
 import { supabase } from '@/integrations/supabase/client';
@@ -89,7 +89,7 @@ const PaymentSuccessPage = () => {
         noIndex={true}
       />
 
-      <Header />
+      <ThemedHeader />
 
       <main className="pt-24 pb-16 min-h-screen flex items-center justify-center">
         <div className="container-luxury">
@@ -182,7 +182,7 @@ const PaymentSuccessPage = () => {
         </div>
       </main>
 
-      <Footer />
+      <ThemedFooter />
     </>
   );
 };

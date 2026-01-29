@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, ShoppingBag, Minus, Plus, Check, Truck, RefreshCw, Shield, Loader2 } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import ThemedHeader from '@/components/layout/ThemedHeader';
+import ThemedFooter from '@/components/layout/ThemedFooter';
 import CartSidebar from '@/components/cart/CartSidebar';
 import ThemedProductCard from '@/components/products/ThemedProductCard';
 import ImageZoomViewer from '@/components/products/ImageZoomViewer';
@@ -41,11 +41,11 @@ const ProductDetailPage = () => {
   if (loading) {
     return (
       <>
-        <Header />
+         <ThemedHeader />
         <main className="pt-24 pb-16 min-h-screen flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </main>
-        <Footer />
+         <ThemedFooter />
       </>
     );
   }
@@ -53,7 +53,7 @@ const ProductDetailPage = () => {
   if (error || !product) {
     return (
       <>
-        <Header />
+       <ThemedHeader />
         <main className="pt-24 pb-16 min-h-screen flex items-center justify-center">
           <div className="text-center">
             <h1 className="font-display text-3xl mb-4">Product Not Found</h1>
@@ -62,7 +62,7 @@ const ProductDetailPage = () => {
             </Link>
           </div>
         </main>
-        <Footer />
+       <ThemedFooter />
       </>
     );
   }
@@ -107,7 +107,7 @@ const ProductDetailPage = () => {
         }}
       />
 
-      <Header />
+       <ThemedHeader />
       <CartSidebar />
 
       <main className="pt-20 sm:pt-24 pb-12 sm:pb-16">
@@ -355,7 +355,7 @@ const ProductDetailPage = () => {
         </div>
       </main>
 
-      <Footer />
+       <ThemedFooter />
     </>
   );
 };

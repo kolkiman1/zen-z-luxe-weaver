@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Ruler, Info } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import ThemedHeader from '@/components/layout/ThemedHeader';
+import ThemedFooter from '@/components/layout/ThemedFooter';
 import CartSidebar from '@/components/cart/CartSidebar';
 import { SEOHead } from '@/components/SEOHead';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -55,7 +55,7 @@ const SizeGuidePage = () => {
         url="/size-guide"
       />
 
-      <Header />
+      <ThemedHeader />
       <CartSidebar />
 
       <main className="pt-24 pb-16 min-h-screen">
@@ -260,7 +260,7 @@ const SizeGuidePage = () => {
         </div>
       </main>
 
-      <Footer />
+      <ThemedFooter />
     </>
   );
 };

@@ -16,8 +16,8 @@ import {
   PackageCheck,
   ShieldCheck
 } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import ThemedHeader from '@/components/layout/ThemedHeader';
+import ThemedFooter from '@/components/layout/ThemedFooter';
 import GuestOrderLookup from '@/components/orders/GuestOrderLookup';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -298,11 +298,11 @@ const OrderTrackingPage = () => {
   if (authLoading || loading) {
     return (
       <>
-        <Header />
+        <ThemedHeader />
         <main className="pt-24 pb-16 min-h-screen flex items-center justify-center">
           <Loader2 className="animate-spin text-primary" size={40} />
         </main>
-        <Footer />
+        <ThemedFooter />
       </>
     );
   }
@@ -315,7 +315,7 @@ const OrderTrackingPage = () => {
           title="Track Your Order"
           description="Track your order status using your order number and verification details."
         />
-        <Header />
+        <ThemedHeader />
         <main className="pt-24 pb-16 min-h-screen bg-background">
           <div className="container-luxury py-12">
             <GuestOrderLookup 
@@ -338,7 +338,7 @@ const OrderTrackingPage = () => {
             )}
           </div>
         </main>
-        <Footer />
+        <ThemedFooter />
       </>
     );
   }
@@ -346,7 +346,7 @@ const OrderTrackingPage = () => {
   if (error || !order) {
     return (
       <>
-        <Header />
+        <ThemedHeader />
         <main className="pt-24 pb-16 min-h-screen">
           <div className="container-luxury text-center py-16">
             <Package size={64} className="mx-auto text-muted-foreground mb-4" />
@@ -365,7 +365,7 @@ const OrderTrackingPage = () => {
             </div>
           </div>
         </main>
-        <Footer />
+        <ThemedFooter />
       </>
     );
   }
@@ -383,7 +383,7 @@ const OrderTrackingPage = () => {
         noIndex={true}
       />
 
-      <Header />
+        <ThemedHeader />
 
       <main className="pt-24 pb-16 min-h-screen bg-background">
         <div className="container-luxury">
@@ -711,7 +711,7 @@ const OrderTrackingPage = () => {
         </div>
       </main>
 
-      <Footer />
+       <ThemedFooter />
     </>
   );
 };

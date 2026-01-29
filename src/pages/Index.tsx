@@ -1,7 +1,7 @@
 import { useMemo, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import ThemedHeader from '@/components/layout/ThemedHeader';
+import ThemedFooter from '@/components/layout/ThemedFooter';
 import CartSidebar from '@/components/cart/CartSidebar';
 import ThemeHero from '@/components/home/ThemeHero';
 import Categories from '@/components/home/Categories';
@@ -76,7 +76,7 @@ const Index = () => {
       <SEOHead url="/" />
       
       <FloatingAnnouncementBar />
-      <Header />
+      <ThemedHeader />
       <CartSidebar />
 
       <main className="overflow-hidden">
@@ -124,7 +124,7 @@ const Index = () => {
         })}
       </main>
 
-      <Footer />
+      <ThemedFooter />
       <ProductChatbot />
       <AnnouncementPopup />
     </>

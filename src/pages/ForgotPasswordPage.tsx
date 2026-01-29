@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, ArrowLeft, CheckCircle } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import ThemedHeader from '@/components/layout/ThemedHeader';
+import ThemedFooter from '@/components/layout/ThemedFooter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -162,7 +162,7 @@ const ForgotPasswordPage = () => {
         url="/forgot-password"
       />
 
-      <Header />
+      <ThemedHeader />
 
       <main className="pt-24 pb-16 min-h-screen flex items-center justify-center">
         <div className="container-luxury">
@@ -339,7 +339,7 @@ const ForgotPasswordPage = () => {
         </div>
       </main>
 
-      <Footer />
+      <ThemedFooter />
     </>
   );
 };

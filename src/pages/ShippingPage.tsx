@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Truck, Clock, MapPin, Package, CheckCircle, AlertTriangle } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import ThemedHeader from '@/components/layout/ThemedHeader';
+import ThemedFooter from '@/components/layout/ThemedFooter';
 import CartSidebar from '@/components/cart/CartSidebar';
 import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
@@ -53,7 +53,7 @@ const ShippingPage = () => {
         url="/shipping"
       />
 
-      <Header />
+      <ThemedHeader />
       <CartSidebar />
 
       <main className="pt-24 pb-16 min-h-screen">
@@ -234,7 +234,7 @@ const ShippingPage = () => {
         </div>
       </main>
 
-      <Footer />
+      <ThemedFooter />
     </>
   );
 };

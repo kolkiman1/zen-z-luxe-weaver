@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, Trash2, ShoppingBag } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import ThemedHeader from '@/components/layout/ThemedHeader';
+import ThemedFooter from '@/components/layout/ThemedFooter';
 import CartSidebar from '@/components/cart/CartSidebar';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useCart } from '@/contexts/CartContext';
@@ -30,7 +30,7 @@ const WishlistPage = () => {
         url="/wishlist"
       />
 
-      <Header />
+      <ThemedHeader />
       <CartSidebar />
 
       <main className="pt-24 pb-16 min-h-screen">
@@ -118,7 +118,7 @@ const WishlistPage = () => {
         </div>
       </main>
 
-      <Footer />
+      <ThemedFooter />
     </>
   );
 };

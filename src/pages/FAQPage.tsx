@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { HelpCircle, Package, Truck, RefreshCw, CreditCard, Shield, MessageSquare } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import ThemedHeader from '@/components/layout/ThemedHeader';
+import ThemedFooter from '@/components/layout/ThemedFooter';
 import CartSidebar from '@/components/cart/CartSidebar';
 import { SEOHead } from '@/components/SEOHead';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -136,7 +136,7 @@ const FAQPage = () => {
         url="/faq"
       />
 
-      <Header />
+      <ThemedHeader />
       <CartSidebar />
 
       <main className="pt-24 pb-16 min-h-screen">
@@ -219,7 +219,7 @@ const FAQPage = () => {
         </div>
       </main>
 
-      <Footer />
+      <ThemedFooter />
     </>
   );
 };
