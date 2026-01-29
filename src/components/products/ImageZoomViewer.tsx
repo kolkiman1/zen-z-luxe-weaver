@@ -19,6 +19,7 @@ const ImageZoomViewer = ({ images, currentIndex, onIndexChange, alt }: ImageZoom
   const [isDragging, setIsDragging] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const imageRef = useRef<HTMLDivElement>(null);
+  const fullscreenPanRef = useRef<HTMLDivElement>(null);
   const dragStart = useRef({ x: 0, y: 0 });
   const positionStart = useRef({ x: 0, y: 0 });
 
@@ -161,6 +162,42 @@ const ImageZoomViewer = ({ images, currentIndex, onIndexChange, alt }: ImageZoom
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isFullscreen, nextImage, prevImage]);
+
+  // Fullscreen: Wheel/trackpad pan when zoomed.
+  // We attach a native listener with { passive: false } to ensure preventDefault works consistently.
+  useEffect(() => {
+    const el = fullscreenPanRef.current;
+    if (!el) return;
+
+    const onWheel = (e: WheelEvent) => {
+      if (!isFullscreen || zoomLevel <= 1) return;
+
+      // Prevent the page/dialog from scrolling while panning a zoomed image.
+      e.preventDefault();
+
+      const PAN_SPEED = 1;
+      const dx = (e.deltaX || 0) * PAN_SPEED;
+      const dy = (e.deltaY || 0) * PAN_SPEED;
+
+      setPosition((prev) => {
+        // Trackpads often provide deltaX + deltaY.
+        // For mouse wheels, Shift+wheel is commonly used to scroll horizontally.
+        if (e.shiftKey && dx === 0) {
+          return { ...prev, x: prev.x - dy };
+        }
+
+        return {
+          x: prev.x - dx,
+          y: prev.y - dy,
+        };
+      });
+    };
+
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', onWheel as EventListener);
+    };
+  }, [isFullscreen, zoomLevel]);
 
   const ImageContent = ({ fullscreen = false }: { fullscreen?: boolean }) => (
     <div
@@ -324,14 +361,14 @@ const ImageZoomViewer = ({ images, currentIndex, onIndexChange, alt }: ImageZoom
             </div>
 
             {/* Image Container */}
-            <div className="w-full h-full max-w-5xl max-h-[80vh] mx-auto p-4 flex items-center justify-center">
+             <div className="w-full h-full max-w-5xl max-h-[80vh] mx-auto p-4 flex items-center justify-center">
               <div
+                 ref={fullscreenPanRef}
                 className="relative w-full h-full overflow-hidden rounded-xl"
                 onMouseMove={handleMouseMove}
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
-                onWheel={handleWheel}
                 onDoubleClick={handleDoubleClick}
                 style={{ cursor: zoomLevel > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in' }}
                 {...swipeHandlers}
