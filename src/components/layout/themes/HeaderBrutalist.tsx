@@ -16,8 +16,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import SearchModal from '@/components/search/SearchModal';
 import WishlistSidebar from '@/components/wishlist/WishlistSidebar';
-import MegaMenu from '@/components/layout/MegaMenu';
-import MobileMenu from '@/components/layout/MobileMenu';
+import ThemedMegaMenu from '@/components/layout/ThemedMegaMenu';
+import ThemedMobileMenu from '@/components/layout/ThemedMobileMenu';
 import { toast } from 'sonner';
 
 const HeaderBrutalist = () => {
@@ -77,7 +77,7 @@ const HeaderBrutalist = () => {
             </div>
 
             <div className="hidden lg:block flex-1 flex justify-center">
-              <MegaMenu isScrolled={true} currentPath={location.pathname} />
+              <ThemedMegaMenu isScrolled={true} currentPath={location.pathname} />
             </div>
 
             <div className="flex items-center gap-1">
@@ -153,7 +153,7 @@ const HeaderBrutalist = () => {
         </div>
       </motion.header>
 
-      <MobileMenu
+      <ThemedMobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         user={user}

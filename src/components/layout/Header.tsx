@@ -16,8 +16,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import SearchModal from '@/components/search/SearchModal';
 import WishlistSidebar from '@/components/wishlist/WishlistSidebar';
-import MegaMenu from './MegaMenu';
-import MobileMenu from './MobileMenu';
+import ThemedMegaMenu from '@/components/layout/ThemedMegaMenu';
+import ThemedMobileMenu from '@/components/layout/ThemedMobileMenu';
 import { toast } from 'sonner';
 
 const Header = () => {
@@ -118,7 +118,7 @@ const Header = () => {
 
             {/* Desktop Navigation with Mega Menu */}
             <div className="hidden lg:block flex-1 flex justify-center">
-              <MegaMenu isScrolled={isScrolled} currentPath={location.pathname} />
+              <ThemedMegaMenu isScrolled={isScrolled} currentPath={location.pathname} />
             </div>
 
             {/* Actions */}
@@ -244,7 +244,7 @@ const Header = () => {
       </motion.header>
 
       {/* Mobile Menu with Accordion */}
-      <MobileMenu
+       <ThemedMobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         user={user}

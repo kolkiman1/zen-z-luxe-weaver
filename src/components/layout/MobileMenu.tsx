@@ -2,60 +2,21 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Home, User, LogOut, Settings, ShoppingBag, Package } from 'lucide-react';
+import { navCategories } from '@/lib/navigationData';
 
-interface SubCategory {
+type MobileCategoryItem = {
   name: string;
   href: string;
-}
+  subcategories?: Array<{ name: string; href: string }>;
+};
 
-interface CategoryItem {
-  name: string;
-  href: string;
-  subcategories?: SubCategory[];
-}
-
-const mobileCategories: CategoryItem[] = [
+const mobileCategories: MobileCategoryItem[] = [
   { name: 'Home', href: '/' },
-  {
-    name: 'Men',
-    href: '/category/men',
-    subcategories: [
-      { name: 'Traditional Wear', href: '/category/men?sub=traditional' },
-      { name: 'Casual Wear', href: '/category/men?sub=casual' },
-      { name: 'Formal Wear', href: '/category/men?sub=formal' },
-      { name: 'Festive Collection', href: '/category/men?sub=festive' },
-    ],
-  },
-  {
-    name: 'Women',
-    href: '/category/women',
-    subcategories: [
-      { name: 'Sarees', href: '/category/women?sub=sarees' },
-      { name: 'Lehengas', href: '/category/women?sub=lehengas' },
-      { name: 'Kurta Sets', href: '/category/women?sub=kurta-sets' },
-      { name: 'Gowns & Dresses', href: '/category/women?sub=gowns' },
-    ],
-  },
-  {
-    name: 'Jewelry',
-    href: '/category/jewelry',
-    subcategories: [
-      { name: 'Necklaces', href: '/category/jewelry?sub=necklaces' },
-      { name: 'Earrings', href: '/category/jewelry?sub=earrings' },
-      { name: 'Bracelets', href: '/category/jewelry?sub=bracelets' },
-      { name: 'Complete Sets', href: '/category/jewelry?sub=sets' },
-    ],
-  },
-  {
-    name: 'Accessories',
-    href: '/category/accessories',
-    subcategories: [
-      { name: 'Bags & Backpacks', href: '/category/accessories?sub=bags' },
-      { name: 'Caps & Hats', href: '/category/accessories?sub=caps' },
-      { name: 'Belts', href: '/category/accessories?sub=belts' },
-      { name: 'Watches', href: '/category/accessories?sub=watches' },
-    ],
-  },
+  ...navCategories.map((c) => ({
+    name: c.name,
+    href: c.href,
+    subcategories: c.subcategories,
+  })),
 ];
 
 interface MobileMenuProps {

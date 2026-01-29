@@ -16,8 +16,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import SearchModal from '@/components/search/SearchModal';
 import WishlistSidebar from '@/components/wishlist/WishlistSidebar';
-import MegaMenu from '@/components/layout/MegaMenu';
-import MobileMenu from '@/components/layout/MobileMenu';
+import ThemedMegaMenu from '@/components/layout/ThemedMegaMenu';
+import ThemedMobileMenu from '@/components/layout/ThemedMobileMenu';
 import { toast } from 'sonner';
 
 const HeaderEditorial = () => {
@@ -73,7 +73,7 @@ const HeaderEditorial = () => {
               </motion.button>
 
               <div className="hidden lg:block">
-                <MegaMenu isScrolled={isScrolled} currentPath={location.pathname} />
+                <ThemedMegaMenu isScrolled={isScrolled} currentPath={location.pathname} />
               </div>
             </div>
 
@@ -180,7 +180,7 @@ const HeaderEditorial = () => {
         </div>
       </motion.header>
 
-      <MobileMenu
+      <ThemedMobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         user={user}
