@@ -22,6 +22,8 @@ const HeroArtisan = () => {
         />
       </div>
 
+      <div className="hero-overlay-artisan" />
+
       {/* soft texture */}
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.08]"
