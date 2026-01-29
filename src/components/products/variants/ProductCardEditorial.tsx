@@ -59,26 +59,26 @@ const ProductCardEditorial = ({ product, index = 0 }: ProductCardProps) => {
         />
 
           <div
-            className={`absolute inset-x-3 bottom-3 flex items-center gap-2 transition-all duration-200
+            className={`absolute inset-x-3 bottom-3 grid grid-cols-4 items-center gap-2 sm:flex sm:items-center transition-all duration-200
               opacity-100 translate-y-0 sm:opacity-0 sm:translate-y-2
               ${isHovered ? 'sm:opacity-100 sm:translate-y-0' : ''}`}
           >
           <Button
             onClick={handleAddToCart}
-              className="flex-1 btn-primary h-10 rounded-full text-xs tracking-wide"
+              className="col-span-2 w-full btn-primary h-10 rounded-full text-xs tracking-wide sm:flex-1"
           >
             <ShoppingBag className="w-4 h-4" />
             <span className="ml-2">Add</span>
           </Button>
           <CompareToggleButton
             product={product}
-            className="h-10 w-10 rounded-full"
+             className="h-10 w-full sm:w-10 rounded-full"
           />
           <Button
             size="icon"
             variant="outline"
             onClick={handleToggleWishlist}
-              className={`h-10 w-10 rounded-full ${inWishlist ? 'bg-primary text-primary-foreground border-primary' : ''}`}
+              className={`h-10 w-full sm:w-10 rounded-full ${inWishlist ? 'bg-primary text-primary-foreground border-primary' : ''}`}
           >
             <Heart className="w-4 h-4" fill={inWishlist ? 'currentColor' : 'none'} />
           </Button>
@@ -86,7 +86,7 @@ const ProductCardEditorial = ({ product, index = 0 }: ProductCardProps) => {
             size="icon"
             variant="outline"
             onClick={handleQuickView}
-              className="h-10 w-10 rounded-full"
+              className="h-10 w-full sm:w-10 rounded-full"
           >
             <Eye className="w-4 h-4" />
           </Button>

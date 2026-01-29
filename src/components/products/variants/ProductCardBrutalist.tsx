@@ -95,7 +95,7 @@ const ProductCardBrutalist = ({ product, index = 0 }: ProductCardProps) => {
         >
           <Button onClick={handleAddToCart} className="btn-primary rounded-none h-10 text-xs font-bold uppercase tracking-widest">
             <ShoppingBag className="w-4 h-4" />
-            <span className="ml-2">Cart</span>
+            <span className="ml-2 hidden sm:inline">Cart</span>
           </Button>
           <Button
             variant="outline"
@@ -103,7 +103,7 @@ const ProductCardBrutalist = ({ product, index = 0 }: ProductCardProps) => {
             className="rounded-none h-10 border-2 text-xs font-bold uppercase tracking-widest"
           >
             <Eye className="w-4 h-4" />
-            <span className="ml-2">View</span>
+            <span className="ml-2 hidden sm:inline">View</span>
           </Button>
         </div>
       </div>
