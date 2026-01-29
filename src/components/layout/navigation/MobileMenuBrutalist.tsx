@@ -31,7 +31,7 @@ const MobileMenuBrutalist = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.12 }}
-          className="fixed inset-0 z-40 lg:hidden bg-background"
+          className="fixed inset-0 z-40 lg:hidden bg-background overflow-y-auto overscroll-contain"
         >
           <div className="h-16 px-4 flex items-center justify-between border-b-2 border-border">
             <p className="text-sm font-black uppercase tracking-tight">
@@ -40,14 +40,14 @@ const MobileMenuBrutalist = ({ isOpen, onClose, user, isAdmin, onSignOut }: Prop
             <button
               type="button"
               onClick={onClose}
-              className="h-10 w-10 grid place-items-center border-2 border-border"
+              className="h-11 w-11 grid place-items-center border-2 border-border"
               aria-label="Close menu"
             >
               <X size={18} />
             </button>
           </div>
 
-          <div className="p-4 grid gap-4">
+          <div className="p-4 [padding-bottom:calc(1rem+env(safe-area-inset-bottom))] grid gap-4">
             <div className="grid grid-cols-2 gap-2">
               <Link
                 to="/"
